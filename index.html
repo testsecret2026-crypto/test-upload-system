@@ -1,794 +1,304 @@
 <!DOCTYPE html>
-<html lang="en" id="main-html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Content Security Policy for enhanced security -->
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; 
-                   script-src 'self' https://cdn.jsdelivr.net; 
-                   style-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;
-                   img-src 'self' https://cdn-icons-png.flaticon.com data:;
-                   connect-src 'self';
-                   font-src 'self' https://cdn.jsdelivr.net;
-                   frame-src https://docs.google.com;">
-    
-    <title>Old Paper Upload System</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-    
-    <!-- Bootstrap with SRI (Subresource Integrity) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" 
-          crossorigin="anonymous">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" 
-          rel="stylesheet"
-          integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" 
-          crossorigin="anonymous">
-    
+    <title>ExamSafe Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            background: #f8f6e4;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
-        }
-        .navbar {
-            background: #e9dcc1;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .hero {
-            background: #fffcf2;
-            border-radius: 1rem;
-            padding: 2.5rem;
-            margin-bottom: 3rem;
-            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.1);
-            text-align: center;
-            border: 1px solid #e5d9b6;
-        }
-        .section-header {
-            color: #76520e;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(118, 82, 14, 0.2);
-        }
-        .card {
-            background: #fffbe6;
-            border: 1px solid #e5d9b6;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        .footer {
-            background: #e9dcc1;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-            border-top: 1px solid #d5c9a7;
-            color: #76520e;
-            font-weight: 500;
-        }
-        .lang-switcher {
-            text-align: right;
-            margin-bottom: 15px;
-            margin-top: 5px;
-        }
-        .lang-btn {
-            margin-left: 8px;
-            border: 1px solid #76520e;
-            color: #76520e;
-            background: transparent;
-            transition: all 0.2s;
-        }
-        .lang-btn:hover, .lang-btn.active {
-            background: #76520e;
-            color: white;
-            border-color: #76520e;
-        }
-        .form-select {
-            min-width: 180px;
-            border: 1px solid #d5c9a7;
-            border-radius: 0.5rem;
-            padding: 0.625rem 1rem;
-            background-color: #fff;
-            cursor: pointer;
-        }
-        .form-select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        .form-select:focus {
-            box-shadow: 0 0 0 0.25rem rgba(118, 82, 14, 0.25);
-            border-color: #76520e;
-        }
-        .form-label {
-            font-weight: 600;
-            color: #76520e;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-        .btn-outline-secondary {
-            border-color: #76520e;
-            color: #76520e;
-        }
-        .btn-outline-secondary:hover {
-            background: #76520e;
-            color: white;
-            border-color: #76520e;
-        }
-        .btn-success {
-            background: #28a745;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-1px);
-        }
-        .paper-list-view {
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .upload-section {
-            margin-top: 3rem;
-            padding-top: 2rem;
-            border-top: 2px solid rgba(118, 82, 14, 0.1);
-        }
-        .no-papers {
-            padding: 3rem 1rem;
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-        .paper-item {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            transition: background 0.2s;
-        }
-        .paper-item:hover {
-            background: rgba(118, 82, 14, 0.05);
-        }
-        .paper-item:last-child {
-            border-bottom: none;
-        }
-        .paper-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .paper-title {
-            font-weight: 500;
-            color: #333;
-        }
-        .paper-meta {
-            color: #666;
-            font-size: 0.9rem;
-        }
-        .back-btn {
-            color: #76520e;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border: 1px solid transparent;
-            background: transparent;
-            transition: all 0.2s;
-        }
-        .back-btn:hover {
-            background: rgba(118, 82, 14, 0.1);
-            border-radius: 0.5rem;
-            border-color: rgba(118, 82, 14, 0.2);
-        }
-        .selection-flow {
-            position: relative;
-            margin-bottom: 2rem;
-        }
-        .selection-flow::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(118, 82, 14, 0.1);
-            z-index: -1;
-        }
-        .step-indicator {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
-            text-align: center;
-            border-radius: 50%;
-            background: #e9dcc1;
-            color: #76520e;
-            font-weight: bold;
-            margin-right: 10px;
-        }
-        .step-complete {
-            background: #76520e;
-            color: white;
-        }
-        .privacy-notice {
-            background: rgba(118, 82, 14, 0.05);
-            border-left: 4px solid #76520e;
-            padding: 1rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 0.5rem 0.5rem 0;
-        }
-        .privacy-icon {
-            color: #76520e;
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .logo-icon {
-            background: #76520e;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-        .upload-features {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 0.75rem;
-            border: 1px solid rgba(118, 82, 14, 0.1);
-        }
-        .feature-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-        }
-        .feature-item:last-child {
-            margin-bottom: 0;
-        }
-        .feature-icon {
-            color: #28a745;
-            margin-right: 15px;
-            font-size: 1.3rem;
-            min-width: 30px;
-        }
-        @media (max-width: 768px) {
-            .hero {
-                padding: 1.5rem;
-            }
-            .paper-info {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-            .selection-flow {
-                display: none;
-            }
-            .privacy-notice {
-                padding: 1rem;
-            }
-        }
+      /* CSS for login form page */
+      body {
+          margin: 0;
+          font-family: 'Segoe UI', Arial, sans-serif;
+          min-height: 100vh;
+          background: linear-gradient(120deg, #deeefb 0%, #f0c9d7 100%);
+      }
+      
+      /* Logo styling */
+      .logo-container {
+          position: absolute;
+          top: 20px;
+          left: 20px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          z-index: 10;
+      }
+      
+      .logo-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #8874f3 0%, #4a71e6 100%);
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: bold;
+          font-size: 20px;
+          box-shadow: 0 4px 12px rgba(136, 116, 243, 0.3);
+      }
+      
+      .logo-text {
+          font-size: 22px;
+          font-weight: 700;
+          color: #355073;
+          letter-spacing: -0.5px;
+      }
+      
+      .logo-text span {
+          color: #ef7fad;
+      }
+      
+      .container {
+          max-width: 400px;
+          margin: 100px auto;
+          background: #fff;
+          border-radius: 16px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+          padding: 2.5em 2em 1.5em 2em;
+          position: relative;
+      }
+      
+      .container h2 {
+          text-align: center;
+          color: #355073;
+          margin-bottom: 1.5em;
+          font-size: 2em;
+          letter-spacing: 1px;
+      }
+      
+      label {
+          display: block;
+          margin-bottom: 0.35em;
+          font-size: 1.06em;
+          color: #555b6e;
+          font-weight: 600;
+      }
+      
+      input[type="text"], input[type="password"] {
+          width: 100%;
+          padding: 0.65em 1em;
+          margin-bottom: 1.2em;
+          border: 1px solid #bcd0f7;
+          border-radius: 8px;
+          font-size: 1em;
+          transition: border-color 0.2s;
+          background: #f5f8fd;
+          box-sizing: border-box;
+      }
+      
+      input[type="text"]:focus, input[type="password"]:focus {
+          border-color: #8874f3;
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(136, 116, 243, 0.1);
+      }
+      
+      .btn-main {
+          background: linear-gradient(120deg,#8874f3 60%, #ef7fad 100%);
+          color: #fff;
+          border: none;
+          padding: 0.9em 0;
+          width: 100%;
+          border-radius: 10px;
+          font-size: 1.1em;
+          font-weight: 600;
+          cursor: pointer;
+          margin-top: 0.5em;
+          margin-bottom: 1em;
+          letter-spacing: 0.5px;
+          box-shadow: 0 4px 16px rgba(136, 116, 243, 0.2);
+          transition: all 0.2s ease;
+      }
+      
+      .btn-main:hover {
+          box-shadow: 0 6px 20px rgba(136, 116, 243, 0.3);
+          transform: translateY(-1px);
+      }
+      
+      .btn-main:active {
+          transform: translateY(0);
+      }
+      
+      .small {
+          font-size: 0.96em;
+          color: #a2a3b7;
+          display: block;
+          margin-top: 1.2em;
+          text-align: center;
+      }
+      
+      .small span {
+          color:#4a71e6;
+          text-decoration: none;
+          cursor:pointer;
+          font-weight: 600;
+          transition: color 0.2s;
+      }
+      
+      .small span:hover {
+          color: #ef7fad;
+          text-decoration: underline;
+      }
+      
+      .login-msg {
+          margin: 0.6em 0 0.6em 0;
+          min-height: 1.6em;
+          color: #d82c48;
+          text-align: center;
+          font-weight: 500;
+      }
+      
+      .success {
+          color: #24a35d;
+      }
+      
+      /* Privacy notice styling */
+      .privacy-notice {
+          background: linear-gradient(120deg, #f0f7ff 0%, #fff5f9 100%);
+          border-radius: 12px;
+          padding: 1.2em 1.5em;
+          margin: 1.5em 0;
+          border-left: 4px solid #8874f3;
+      }
+      
+      .privacy-notice h3 {
+          color: #355073;
+          margin-top: 0;
+          margin-bottom: 0.5em;
+          font-size: 1.1em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+      }
+      
+      .privacy-notice h3:before {
+          content: "🔒";
+          font-size: 1.2em;
+      }
+      
+      .privacy-notice p {
+          color: #666;
+          margin: 0.3em 0;
+          font-size: 0.92em;
+          line-height: 1.5;
+      }
+      
+      .privacy-features {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-top: 0.8em;
+      }
+      
+      .privacy-badge {
+          background: rgba(136, 116, 243, 0.1);
+          color: #5a4fcf;
+          padding: 4px 10px;
+          border-radius: 20px;
+          font-size: 0.85em;
+          font-weight: 600;
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 480px) {
+          .container {
+              margin: 80px 15px;
+              padding: 2em 1.5em;
+          }
+          
+          .logo-container {
+              top: 15px;
+              left: 15px;
+          }
+          
+          .logo-text {
+              font-size: 18px;
+          }
+          
+          .logo-icon {
+              width: 36px;
+              height: 36px;
+              font-size: 18px;
+          }
+      }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="font-weight:bold;color:#76520e">
-                <div class="logo-container">
-                    <div class="logo-icon">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
-                    <span class="lang-text" data-en="Old Paper Upload System" data-zh="舊試卷上傳系統">Old Paper Upload System</span>
-                </div>
-            </a>
-            <div class="lang-switcher d-lg-none ms-auto">
-                <button class="btn btn-sm lang-btn active" onclick="changeLang('en')" id="lang-btn-en">English</button>
-                <button class="btn btn-sm lang-btn" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
-            </div>
-        </div>
-    </nav>
+    <!-- Logo Section -->
+    <div class="logo-container">
+        <div class="logo-icon">ES</div>
+        <div class="logo-text">Exam<span>Safe</span></div>
+    </div>
     
     <div class="container">
-        <!-- Language Switcher (Desktop) -->
-        <div class="lang-switcher d-none d-lg-block">
-            <button class="btn btn-sm lang-btn active" onclick="changeLang('en')" id="lang-btn-en-lg">English</button>
-            <button class="btn btn-sm lang-btn" onclick="changeLang('zh')" id="lang-btn-zh-lg">繁體中文</button>
-        </div>
-        
-        <!-- Hero Section -->
-        <div class="hero">
-            <h1 class="lang-text" data-en="Welcome to the Old Paper Upload System" data-zh="歡迎來到舊試卷上傳系統">
-                Welcome to the Old Paper Upload System
-            </h1>
-            <p class="lead lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
-                Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology.
-            </p>
-            <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
-                Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed).
-            </p>
-            <a href="#upload" class="btn btn-outline-secondary btn-lg mt-3 lang-text" data-en="Upload Your Paper" data-zh="上傳您的試卷">
-                Upload Your Paper
-            </a>
-        </div>
-
-        <!-- Selection Flow Indicator (Desktop only) -->
-        <div class="selection-flow d-none d-lg-block">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-center">
-                    <div class="step-indicator" id="step-grade">1</div>
-                    <div class="lang-text" data-en="Select Grade" data-zh="選擇年級">Select Grade</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-subject">2</div>
-                    <div class="lang-text" data-en="Select Subject" data-zh="選擇科目">Select Subject</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-term">3</div>
-                    <div class="lang-text" data-en="Select Term" data-zh="選擇學期">Select Term</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-year">4</div>
-                    <div class="lang-text" data-en="Select Year" data-zh="選擇年份">Select Year</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Browse Old Papers Section -->
-        <h2 class="section-header lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">Browse Old Papers</h2>
-        
-        <!-- Selection Dropdowns -->
-        <div class="row mb-4 g-3 align-items-end">
-            <!-- Grade Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Grade" data-zh="年級">Grade</label>
-                <select class="form-select" id="gradeDropdown" onchange="selectGrade(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Grade" data-zh="請選擇年級">Select Grade</option>
-                    <option value="jh1" class="lang-text" data-en="First Year Junior High" data-zh="初中一年級">First Year Junior High</option>
-                    <option value="jh2" class="lang-text" data-en="Second Year Junior High" data-zh="初中二年級">Second Year Junior High</option>
-                    <option value="jh3" class="lang-text" data-en="Third Year Junior High" data-zh="初中三年級">Third Year Junior High</option>
-                    <option value="sh1" class="lang-text" data-en="First Year Senior High" data-zh="高中一年級">First Year Senior High</option>
-                    <option value="sh2" class="lang-text" data-en="Second Year Senior High" data-zh="高中二年級">Second Year Senior High</option>
-                    <option value="sh3" class="lang-text" data-en="Third Year Senior High" data-zh="高中三年級">Third Year Senior High</option>
-                    <option value="other" class="lang-text" data-en="Other/Advanced" data-zh="其他/進階學段">Other/Advanced</option>
-                </select>
-            </div>
-
-            <!-- Subject Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Subject" data-zh="科目">Subject</label>
-                <select class="form-select" id="subjectDropdown" disabled onchange="selectSubject(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Subject" data-zh="請選擇科目">Select Subject</option>
-                    <option value="chi" class="lang-text" data-en="Chinese" data-zh="中文">Chinese</option>
-                    <option value="eng" class="lang-text" data-en="English" data-zh="英文">English</option>
-                    <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">Mathematics</option>
-                    <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">Physics</option>
-                    <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">Chemistry</option>
-                    <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">Biology</option>
-                </select>
-            </div>
-
-            <!-- Term Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Term" data-zh="學期">Term</label>
-                <select class="form-select" id="termDropdown" disabled onchange="selectTerm(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Term" data-zh="請選擇學期">Select Term</option>
-                    <option value="t1" class="lang-text" data-en="First Term" data-zh="第一學期">First Term</option>
-                    <option value="t2" class="lang-text" data-en="Second Term" data-zh="第二學期">Second Term</option>
-                    <option value="t3" class="lang-text" data-en="Third Term" data-zh="第三學期">Third Term</option>
-                </select>
-            </div>
-
-            <!-- Year Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Year" data-zh="年份">Year</label>
-                <select class="form-select" id="yearDropdown" disabled onchange="selectYear(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Year" data-zh="請選擇年份">Select Year</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Paper List (Initially Hidden) -->
-        <div id="paper-list" class="paper-list-view" style="display: none;">
-            <div class="card mt-4">
-                <div class="card-header bg-light">
-                    <h5 class="mb-0" id="paper-list-header"></h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="paper-list-body">
-                        <!-- Papers will be dynamically loaded here -->
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mt-4">
-                <button class="btn back-btn" onclick="resetBrowser()">
-                    <i class="bi bi-arrow-left me-1"></i>
-                    <span class="lang-text" data-en="Back to Selection" data-zh="返回選擇">Back to Selection</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- Upload Section -->
-        <section class="upload-section" id="upload">
-            <h2 class="section-header lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">Upload Your Old Paper</h2>
+        <form id="login-form" autocomplete="off">
+            <h2>Login</h2>
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" name="username" placeholder="Enter username" required>
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" placeholder="Enter password" required>
             
-            <!-- Privacy Notice -->
+            <!-- Privacy Notice Section -->
             <div class="privacy-notice">
-                <div class="d-flex align-items-start">
-                    <i class="bi bi-shield-check privacy-icon"></i>
-                    <div>
-                        <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">Privacy Protection Guarantee</h5>
-                        <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
-                            All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies.
-                        </p>
-                    </div>
+                <h3>Your Privacy Matters</h3>
+                <p><strong>All uploaded exam papers are strictly confidential:</strong></p>
+                <p>• Personal information is automatically redacted</p>
+                <p>• Papers undergo automated anonymization</p>
+                <p>• Only authorized staff can access original files</p>
+                <p>• Files are encrypted and securely stored</p>
+                
+                <div class="privacy-features">
+                    <div class="privacy-badge">Auto-Redaction</div>
+                    <div class="privacy-badge">Secure Encryption</div>
+                    <div class="privacy-badge">Anonymized Processing</div>
+                    <div class="privacy-badge">Confidential Storage</div>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-body">
-                    <p class="lang-text" data-en="Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system." data-zh="任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。">
-                        Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system.
-                    </p>
-                    
-                    <!-- Upload Features -->
-                    <div class="upload-features">
-                        <div class="feature-item">
-                            <i class="bi bi-shield-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">Confidential Processing</strong>
-                                <p class="mb-0 small lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
-                                    All personal information will be redacted to protect your privacy.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <i class="bi bi-eye-slash feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Anonymous Upload" data-zh="匿名上傳">Anonymous Upload</strong>
-                                <p class="mb-0 small lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
-                                    Uploader information is not displayed publicly. Only administrators can see uploader details.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <i class="bi bi-clipboard-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Administrator Review" data-zh="管理員審核">Administrator Review</strong>
-                                <p class="mb-0 small lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
-                                    All papers are reviewed to ensure quality and privacy compliance before publishing.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-success mt-3">
-                        <i class="bi bi-cloud-upload me-2"></i>
-                        <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">Upload via Google Form</span>
-                    </a>
-                </div>
-            </div>
-        </section>
+            <div class="login-msg" id="login-msg"></div>
+            <button class="btn-main" type="submit">Login</button>
+            <div class="small">Don't have an account? <span>Register</span></div>
+        </form>
     </div>
-
-    <!-- Footer -->
-    <div class="footer">
-        <span class="lang-text" data-en="Old Paper Upload System" data-zh="舊試卷上傳系統">
-            Old Paper Upload System
-        </span>
-    </div>
-
-    <!-- Bootstrap JS with SRI -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
-            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" 
-            crossorigin="anonymous"></script>
     
     <script>
-        // Current selection state
-        let currentGrade = null, currentSubject = null, currentTerm = null, currentYear = null;
-        let currentLang = 'en';
+    // Demo: Hardcoded username/password for illustration. 
+    // NOTE: In production, this should be server-side validation only!
+    const DEMO_USER = {
+        username: "user123",
+        password: "password"
+    };
 
-        // Security: HTML escaping function
-        function escapeHtml(text) {
-            if (typeof text !== 'string') return '';
-            return text
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+    document.getElementById("login-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+        const user = document.getElementById("login-username").value.trim();
+        const pw = document.getElementById("login-password").value;
+
+        const msgDiv = document.getElementById("login-msg");
+        msgDiv.classList.remove("success");
+        
+        if (!user || !pw) {
+            msgDiv.textContent = "Please enter username and password.";
+            return;
         }
 
-        // Security: Validate input against allowed values
-        function validateInput(value, allowedValues) {
-            return allowedValues.includes(value);
+        if (user === DEMO_USER.username && pw === DEMO_USER.password) {
+            msgDiv.textContent = "✓ Login successful! Redirecting...";
+            msgDiv.classList.add("success");
+            // In production, redirect to dashboard
+            // setTimeout(() => { window.location.href = "/dashboard"; }, 1000);
+        } else {
+            msgDiv.textContent = "Invalid credentials. Please try again.";
         }
-
-        // Language switching function
-        function changeLang(lang) {
-            currentLang = lang;
-            
-            // Update html lang attribute
-            document.getElementById('main-html').setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
-            
-            // Security: Update all elements with lang-text class safely
-            document.querySelectorAll('.lang-text').forEach(element => {
-                const text = element.getAttribute(`data-${lang}`);
-                if (text) {
-                    element.textContent = text;
-                }
-            });
-            
-            // Update active language buttons
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelectorAll(`#lang-btn-${lang}, #lang-btn-${lang}-lg`).forEach(btn => {
-                if (btn) btn.classList.add('active');
-            });
-            
-            // Update paper list header if showing
-            if (currentGrade && currentSubject && currentTerm && currentYear) {
-                updatePaperListHeader();
-            }
-        }
-
-        // Update step indicators
-        function updateStepIndicators() {
-            const steps = ['grade', 'subject', 'term', 'year'];
-            steps.forEach((step) => {
-                const indicator = document.getElementById(`step-${step}`);
-                if (!indicator) return;
-                
-                // Reset all indicators
-                indicator.classList.remove('step-complete');
-                
-                // Mark completed steps
-                if (step === 'grade' && currentGrade) {
-                    indicator.classList.add('step-complete');
-                }
-                if (step === 'subject' && currentSubject) {
-                    indicator.classList.add('step-complete');
-                }
-                if (step === 'term' && currentTerm) {
-                    indicator.classList.add('step-complete');
-                }
-                if (step === 'year' && currentYear) {
-                    indicator.classList.add('step-complete');
-                }
-            });
-        }
-
-        // Grade selection with validation
-        function selectGrade(val) {
-            const allowedGrades = ['jh1', 'jh2', 'jh3', 'sh1', 'sh2', 'sh3', 'other'];
-            if (!validateInput(val, allowedGrades)) {
-                console.error('Invalid grade selected');
-                return;
-            }
-            
-            currentGrade = val;
-            // Enable subject dropdown
-            document.getElementById('subjectDropdown').disabled = false;
-            // Reset later selections
-            document.getElementById('subjectDropdown').selectedIndex = 0;
-            document.getElementById('termDropdown').selectedIndex = 0;
-            document.getElementById('termDropdown').disabled = true;
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').disabled = true;
-            
-            // Hide paper list if showing
-            document.getElementById('paper-list').style.display = 'none';
-            
-            // Update steps
-            updateStepIndicators();
-        }
-
-        // Subject selection with validation
-        function selectSubject(val) {
-            const allowedSubjects = ['chi', 'eng', 'math', 'phy', 'chem', 'bio'];
-            if (!validateInput(val, allowedSubjects)) {
-                console.error('Invalid subject selected');
-                return;
-            }
-            
-            currentSubject = val;
-            // Enable term dropdown
-            document.getElementById('termDropdown').disabled = false;
-            // Reset later selections
-            document.getElementById('termDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').disabled = true;
-            
-            // Hide paper list if showing
-            document.getElementById('paper-list').style.display = 'none';
-            
-            // Update steps
-            updateStepIndicators();
-        }
-
-        // Term selection with validation
-        function selectTerm(val) {
-            const allowedTerms = ['t1', 't2', 't3'];
-            if (!validateInput(val, allowedTerms)) {
-                console.error('Invalid term selected');
-                return;
-            }
-            
-            currentTerm = val;
-            // Enable year dropdown
-            document.getElementById('yearDropdown').disabled = false;
-            // Reset year selection
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            
-            // Hide paper list if showing
-            document.getElementById('paper-list').style.display = 'none';
-            
-            // Update steps
-            updateStepIndicators();
-        }
-
-        // Year selection with validation
-        function selectYear(val) {
-            const allowedYears = ['2020', '2021', '2022', '2023', '2024', '2025', '2026'];
-            if (!validateInput(val, allowedYears)) {
-                console.error('Invalid year selected');
-                return;
-            }
-            
-            currentYear = val;
-            showPaperList();
-            updateStepIndicators();
-        }
-
-        // Show paper list with selected criteria
-        function showPaperList() {
-            updatePaperListHeader();
-            loadPapers();
-            document.getElementById('paper-list').style.display = 'block';
-            
-            // Scroll to paper list
-            document.getElementById('paper-list').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-
-        // Update paper list header (safe version)
-        function updatePaperListHeader() {
-            const gradeNames = {
-                jh1: { en: "First Year Junior High", zh: "初中一年級" },
-                jh2: { en: "Second Year Junior High", zh: "初中二年級" },
-                jh3: { en: "Third Year Junior High", zh: "初中三年級" },
-                sh1: { en: "First Year Senior High", zh: "高中一年級" },
-                sh2: { en: "Second Year Senior High", zh: "高中二年級" },
-                sh3: { en: "Third Year Senior High", zh: "高中三年級" },
-                other: { en: "Other/Advanced", zh: "其他/進階學段" }
-            };
-            
-            const subjectNames = {
-                chi: { en: "Chinese", zh: "中文" },
-                eng: { en: "English", zh: "英文" },
-                math: { en: "Mathematics", zh: "數學" },
-                phy: { en: "Physics", zh: "物理" },
-                chem: { en: "Chemistry", zh: "化學" },
-                bio: { en: "Biology", zh: "生物" }
-            };
-            
-            const termNames = {
-                t1: { en: "First Term", zh: "第一學期" },
-                t2: { en: "Second Term", zh: "第二學期" },
-                t3: { en: "Third Term", zh: "第三學期" }
-            };
-            
-            // Security: Escape all user-facing text
-            const gradeText = escapeHtml(gradeNames[currentGrade][currentLang]);
-            const subjectText = escapeHtml(subjectNames[currentSubject][currentLang]);
-            const termText = escapeHtml(termNames[currentTerm][currentLang]);
-            const yearText = escapeHtml(currentYear);
-            
-            // Security: Use textContent instead of innerHTML
-            document.getElementById('paper-list-header').textContent = 
-                `${gradeText} / ${subjectText} / ${termText} / ${yearText}`;
-        }
-
-        // Load papers (safe version)
-        function loadPapers() {
-            const paperListBody = document.getElementById('paper-list-body');
-            
-            // Security: Use DOM methods instead of innerHTML
-            paperListBody.textContent = '';
-            
-            const noPapersDiv = document.createElement('div');
-            noPapersDiv.className = 'no-papers';
-            
-            const icon = document.createElement('i');
-            icon.className = 'bi bi-file-earmark-text';
-            icon.style.cssText = 'font-size: 3rem; color: #ccc; margin-bottom: 1rem;';
-            
-            const message = document.createElement('p');
-            const messageText = currentLang === 'zh' ? 
-                '暫無符合條件的試卷。成為第一個上傳者吧！' : 
-                'No papers found for these criteria. Be the first to upload!';
-            message.textContent = messageText;
-            
-            noPapersDiv.appendChild(icon);
-            noPapersDiv.appendChild(message);
-            paperListBody.appendChild(noPapersDiv);
-        }
-
-        // Reset all selections
-        function resetBrowser() {
-            currentGrade = currentSubject = currentTerm = currentYear = null;
-            
-            // Reset dropdowns
-            document.getElementById('gradeDropdown').selectedIndex = 0;
-            document.getElementById('subjectDropdown').selectedIndex = 0;
-            document.getElementById('subjectDropdown').disabled = true;
-            document.getElementById('termDropdown').selectedIndex = 0;
-            document.getElementById('termDropdown').disabled = true;
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').disabled = true;
-            
-            // Hide paper list
-            document.getElementById('paper-list').style.display = 'none';
-            
-            // Update steps
-            updateStepIndicators();
-        }
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set initial language
-            changeLang('en');
-            
-            // Initialize step indicators
-            updateStepIndicators();
-            
-            // Add smooth scrolling for anchor links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    if (targetId === '#') return;
-                    
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
-            
-            // Security: Log security initialization
-            console.log('Security features initialized: XSS protection, input validation, CSP enabled');
-        });
+    });
+    
+    // Add registration link functionality
+    document.querySelector('.small span').addEventListener('click', function() {
+        const msgDiv = document.getElementById("login-msg");
+        msgDiv.textContent = "Registration is currently by invitation only.";
+        msgDiv.style.color = "#4a71e6";
+        msgDiv.classList.remove("success");
+    });
     </script>
 </body>
 </html>
