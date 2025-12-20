@@ -1,791 +1,203 @@
-<!DOCTYPE html>
-<html lang="en" id="main-html">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Old Paper Upload System</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <style>
-        /* 复古纸张主题样式 */
-        body {
-            background: #f5f0e1 url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23f5f0e1"/><path d="M0,50 L100,50 M50,0 L50,100" stroke="%23e0d6c2" stroke-width="0.5" opacity="0.3"/></svg>');
-            font-family: 'Georgia', 'Times New Roman', serif;
-            color: #3a2c1c;
-            min-height: 100vh;
-        }
-        
-        /* 纸张纹理效果 */
-        .paper-texture {
-            background: 
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(210,180,140,0.1) 1px, transparent 1px),
-                linear-gradient(rgba(210,180,140,0.1) 1px, transparent 1px);
-            background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
-            background-color: #fffaf0;
-        }
-        
-        .navbar {
-            background: #bfb18e !important;
-            border-bottom: 3px solid #6b5b43;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        
-        .navbar-brand {
-            color: #fff5e1 !important;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo-icon {
-            background: #fff5e1;
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #8b7355;
-            font-size: 1.6rem;
-            border: 2px solid #d4b483;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .lang-btn {
-            background: #fff5e1 !important;
-            border: 2px solid #d4b483 !important;
-            color: #8b7355 !important;
-            font-weight: 500;
-        }
-        
-        .lang-btn:hover, .lang-btn.active {
-            background: #d4b483 !important;
-            border-color: #8b7355 !important;
-            color: #fff5e1 !important;
-        }
-        
-        .hero {
-            background: linear-gradient(135deg, #fffaf0 0%, #f8f4e9 100%);
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            margin-bottom: 3rem;
-            border: 1px solid #e0d6c2;
-            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-        
-        .hero h1 {
-            color: #6b5b43;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .section-header {
-            color: #8b7355;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 3px solid #d4b483;
-            position: relative;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-        
-        .section-header::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 100px;
-            height: 3px;
-            background: #6b5b43;
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: #6b5b43;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
-        }
-        
-        .form-select {
-            background: #fffaf0 !important;
-            border: 2px solid #d4b483 !important;
-            border-radius: 8px !important;
-            color: #3a2c1c !important;
-            font-weight: 500;
-            padding: 0.75rem 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .form-select:focus {
-            border-color: #8b7355 !important;
-            box-shadow: 0 0 0 0.25rem rgba(139, 115, 85, 0.25) !important;
-            outline: none;
-        }
-        
-        .form-select:disabled {
-            background: #f5f0e1 !important;
-            border-color: #e0d6c2 !important;
-            color: #a09080 !important;
-            cursor: not-allowed;
-        }
-        
-        .card {
-            background: #fffaf0;
-            border: 2px solid #d4b483;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(139, 115, 85, 0.25);
-        }
-        
-        .card-header {
-            background: linear-gradient(to right, #d4b483, #c4a473) !important;
-            color: #3a2c1c !important;
-            font-weight: 600;
-            border-bottom: 2px solid #b49463 !important;
-        }
-        
-        .btn-outline-secondary {
-            background: transparent;
-            border: 2px solid #8b7355;
-            color: #8b7355;
-            font-weight: 500;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline-secondary:hover {
-            background: #8b7355;
-            color: #fffaf0;
-            border-color: #6b5b43;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3);
-        }
-        
-        .btn-success {
-            background: linear-gradient(to right, #28a745, #218838);
-            border: none;
-            padding: 0.875rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
-        }
-        
-        .btn-success:hover {
-            background: linear-gradient(to right, #218838, #1e7e34);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
-        }
-        
-        .footer {
-            background: #8b7355;
-            color: #fff5e1;
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: 4rem;
-            border-top: 3px solid #6b5b43;
-            font-weight: 500;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-        }
-        
-        .privacy-notice {
-            background: linear-gradient(135deg, #fff5e1 0%, #f5edd9 100%);
-            border-left: 5px solid #8b7355;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 0 3px 10px rgba(139, 115, 85, 0.15);
-        }
-        
-        .upload-features {
-            background: rgba(255, 250, 240, 0.8);
-            border: 2px dashed #d4b483;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .feature-icon {
-            color: #8b7355;
-            font-size: 1.5rem;
-            margin-right: 15px;
-            min-width: 30px;
-        }
-        
-        .no-papers {
-            padding: 4rem 2rem;
-            text-align: center;
-            color: #a09080;
-            font-style: italic;
-            font-size: 1.1rem;
-        }
-        
-        .back-btn {
-            background: #d4b483;
-            color: #3a2c1c;
-            border: 2px solid #b49463;
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .back-btn:hover {
-            background: #b49463;
-            border-color: #8b7355;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(139, 115, 85, 0.3);
-        }
-        
-        .selection-flow {
-            background: #fffaf0;
-            border: 2px solid #d4b483;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 3px 10px rgba(139, 115, 85, 0.15);
-        }
-        
-        .step-indicator {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            line-height: 35px;
-            text-align: center;
-            border-radius: 50%;
-            background: #e0d6c2;
-            color: #6b5b43;
-            font-weight: bold;
-            margin-right: 12px;
-            border: 2px solid #d4b483;
-        }
-        
-        .step-complete {
-            background: #8b7355;
-            color: #fff5e1;
-            border-color: #6b5b43;
-        }
-        
-        .selection-row {
-            background: linear-gradient(135deg, #fffaf0 0%, #f8f4e9 100%);
-            border: 2px solid #d4b483;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.2);
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .hero {
-                padding: 2rem 1rem;
-            }
-            
-            .selection-row {
-                padding: 1.5rem;
-            }
-            
-            .section-header {
-                font-size: 1.5rem;
-            }
-        }
-    </style>
-</head>
-<body class="paper-texture">
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <div class="logo-container">
-                    <div class="logo-icon">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
-                    <span class="lang-text" data-en="Welcome to the Old Exam Paper Upload System" data-zh="歡迎來到舊試卷上傳系統">Old Paper Archive</span>
-                </div>
-            </a>
-            <div class="d-flex">
-                <button class="btn lang-btn me-2 active" onclick="changeLang('en')" id="lang-btn-en">English</button>
-                <button class="btn lang-btn" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
-            </div>
-        </div>
-    </nav>
-    
-    <div class="container">
-        <!-- 英雄区域 -->
-        <div class="hero">
-            <h1 class="lang-text" data-en=" Paper Repository" data-zh="試卷題庫">Vintage Paper Repository</h1>
-            <p class="lead lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
-                Explore a curated collection of historical examination papers spanning junior to senior high school levels across six core subjects.
-            </p>
-            <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
-                Navigate through academic archives by educational stage, discipline, semester, and year. Contribute to our growing repository via secure submission.
-            </p>
-            <a href="#upload" class="btn btn-outline-secondary btn-lg mt-3 lang-text" data-en="Contribute Papers" data-zh="上傳試卷">
-                Contribute Papers
-            </a>
-        </div>
-        
-        <!-- 選擇流程指示器 -->
-        <div class="selection-flow">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-center">
-                    <div class="step-indicator" id="step-grade">1</div>
-                    <div class="lang-text" data-en="Grade Level" data-zh="教育階段">Grade Level</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-subject">2</div>
-                    <div class="lang-text" data-en="Academic Discipline" data-zh="學術學科">Academic Discipline</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-term">3</div>
-                    <div class="lang-text" data-en="Semester" data-zh="學期">Semester</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-year">4</div>
-                    <div class="lang-text" data-en="Academic Year" data-zh="學年">Academic Year</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 主要瀏覽區 -->
-        <h2 class="section-header lang-text" data-en="Browse Academic Archives" data-zh="瀏覽學術檔案">Browse Academic Archives</h2>
-        
-        <!-- 修正的下拉選單區 - 現在可以全部選擇！ -->
-        <div class="selection-row">
-            <div class="row g-4">
-                <!-- 年級選擇 -->
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Grade Level" data-zh="教育階段">Grade Level</label>
-                    <select class="form-select" id="gradeDropdown" onchange="handleGradeSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Grade" data-zh="選擇教育階段">Select Grade</option>
-                        <option value="jh1" class="lang-text" data-en="Junior High 1" data-zh="初中一年級">Junior High 1</option>
-                        <option value="jh2" class="lang-text" data-en="Junior High 2" data-zh="初中二年級">Junior High 2</option>
-                        <option value="jh3" class="lang-text" data-en="Junior High 3" data-zh="初中三年級">Junior High 3</option>
-                        <option value="sh1" class="lang-text" data-en="Senior High 1" data-zh="高中一年級">Senior High 1</option>
-                        <option value="sh2" class="lang-text" data-en="Senior High 2" data-zh="高中二年級">Senior High 2</option>
-                        <option value="sh3" class="lang-text" data-en="Senior High 3" data-zh="高中三年級">Senior High 3</option>
-                        <option value="other" class="lang-text" data-en="Advanced Level" data-zh="進階學段">Advanced Level</option>
-                    </select>
-                </div>
-                
-                <!-- 科目選擇 - 修復了！ -->
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Academic Discipline" data-zh="學術學科">Academic Discipline</label>
-                    <select class="form-select" id="subjectDropdown" onchange="handleSubjectSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Subject" data-zh="選擇學科">Select Subject</option>
-                        <option value="chi" class="lang-text" data-en="Chinese Literature" data-zh="中文文學">Chinese Literature</option>
-                        <option value="eng" class="lang-text" data-en="English Language" data-zh="英語語言">English Language</option>
-                        <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">Mathematics</option>
-                        <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">Physics</option>
-                        <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">Chemistry</option>
-                        <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">Biology</option>
-                    </select>
-                </div>
-                
-                <!-- 學期選擇 - 修復了！ -->
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Semester" data-zh="學期">Semester</label>
-                    <select class="form-select" id="termDropdown" onchange="handleTermSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Term" data-zh="選擇學期">Select Term</option>
-                        <option value="t1" class="lang-text" data-en="First Semester" data-zh="第一學期">First Semester</option>
-                        <option value="t2" class="lang-text" data-en="Second Semester" data-zh="第二學期">Second Semester</option>
-                        <option value="t3" class="lang-text" data-en="Third Semester" data-zh="第三學期">Third Semester</option>
-                    </select>
-                </div>
-                
-                <!-- 年份選擇 - 修復了！ -->
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Academic Year" data-zh="學年">Academic Year</label>
-                    <select class="form-select" id="yearDropdown" onchange="handleYearSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Year" data-zh="選擇年份">Select Year</option>
-                        <option value="2020">2020</option>
-                        <option value="2021">2021</option>
-                        <option value="2022">2022</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
-                        <option value="2026">2026</option>
-                    </select>
-                </div>
-            </div>
-            
-            <!-- 搜尋按鈕 -->
-            <div class="text-center mt-4">
-                <button class="btn btn-success btn-lg" onclick="searchPapers()">
-                    <i class="bi bi-search me-2"></i>
-                    <span class="lang-text" data-en="Browse Archives" data-zh="瀏覽檔案">Browse Archives</span>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 論文列表區域 -->
-        <div id="paper-list" class="paper-list-view" style="display: none;">
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0" id="paper-list-header">Search Results</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="paper-list-body">
-                        <!-- 論文將動態加載在這裡 -->
-                    </div>
-                </div>
-            </div>
-            <div class="text-center mt-4">
-                <button class="btn back-btn" onclick="resetBrowser()">
-                    <i class="bi bi-arrow-left me-2"></i>
-                    <span class="lang-text" data-en="New Search" data-zh="新搜尋">New Search</span>
-                </button>
-            </div>
-        </div>
-        
-        <!-- 上傳區域 -->
-        <section class="upload-section mt-5" id="upload">
-            <h2 class="section-header lang-text" data-en="Archive Contribution" data-zh="檔案貢獻">Archive Contribution</h2>
-            
-            <!-- 隱私聲明 -->
-            <div class="privacy-notice">
-                <div class="d-flex align-items-start">
-                    <i class="bi bi-shield-check feature-icon"></i>
-                    <div>
-                        <h5 class="lang-text" data-en="Privacy Assurance Protocol" data-zh="隱私保障協議">Privacy Assurance Protocol</h5>
-                        <p class="lang-text" data-en="All archival submissions undergo rigorous confidentiality protocols. Personal identifiers are systematically redacted using advanced obfuscation algorithms. Each document receives multi-tier administrative review before archival inclusion." data-zh="所有檔案提交都經過嚴格的保密協議處理。個人識別信息使用先進的模糊化算法進行系統性遮蓋。每份文件在納入檔案庫前都會接受多層管理審核。">
-                            All archival submissions undergo rigorous confidentiality protocols. Personal identifiers are systematically redacted using advanced obfuscation algorithms. Each document receives multi-tier administrative review before archival inclusion.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <div class="card-body">
-                    <p class="lang-text" data-en="The scholarly community is invited to enrich our repository through the submission portal. Each contribution undergoes verification and anonymization prior to publication within our academic archives." data-zh="誠邀學術界透過提交門戶豐富我們的資料庫。每份貢獻在發布到學術檔案庫之前都會經過驗證和匿名化處理。">
-                        The scholarly community is invited to enrich our repository through the submission portal. Each contribution undergoes verification and anonymization prior to publication within our academic archives.
-                    </p>
-                    
-                    <!-- 上傳特色 -->
-                    <div class="upload-features">
-                        <div class="feature-item">
-                            <i class="bi bi-shield-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">Confidential Processing</strong>
-                                <p class="mb-0 small lang-text" data-en="Advanced redaction protocols ensure complete privacy protection." data-zh="先進的遮蓋協議確保完整的隱私保護。">
-                                    Advanced redaction protocols ensure complete privacy protection.
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <i class="bi bi-eye-slash feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en=" Submission" data-zh="提交"> Submission</strong>
-                                <p class="mb-0 small lang-text" data-en="Contributor anonymity is maintained throughout the archival process." data-zh="貢獻者匿名性在整個檔案處理過程中得到維護。">
-                                    Contributor anonymity is maintained throughout the archival process.
-                                </p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <i class="bi bi-clipboard-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Archival Review" data-zh="檔案審核">Archival Review</strong>
-                                <p class="mb-0 small lang-text" data-en="Multi-phase review ensures academic integrity and privacy compliance." data-zh="多階段審核確保學術完整性和隱私合規性。">
-                                    Multi-phase review ensures academic integrity and privacy compliance.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mt-4">
-                        <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg">
-                            <i class="bi bi-archive me-2"></i>
-                            <span class="lang-text" data-en="Access Submission Portal" data-zh="進入提交門戶">Access Submission Portal</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    
-    <!-- 頁腳 -->
-    <div class="footer">
-        <span class="lang-text" data-en="Academic Archives Repository" data-zh="學術檔案資料庫">
-            Academic Archives Repository
-        </span>
-    </div>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // 當前選擇狀態
-        let currentGrade = null;
-        let currentSubject = null;
-        let currentTerm = null;
-        let currentYear = null;
-        let currentLang = 'en';
-        
-        // 初始化 - 現在所有下拉選單都可以選擇！
-        document.addEventListener('DOMContentLoaded', function() {
-            // 初始化語言
-            changeLang('en');
-            
-            // 啟用所有下拉選單
-            document.getElementById('subjectDropdown').disabled = false;
-            document.getElementById('termDropdown').disabled = false;
-            document.getElementById('yearDropdown').disabled = false;
-            
-            // 更新步驟指示器
-            updateStepIndicators();
-            
-            console.log('所有下拉選單已啟用！');
-        });
-        
-        // 處理年級選擇
-        function handleGradeSelect(value) {
-            currentGrade = value;
-            console.log('年級選擇:', value);
-            updateStepIndicators();
-        }
-        
-        // 處理科目選擇
-        function handleSubjectSelect(value) {
-            currentSubject = value;
-            console.log('科目選擇:', value);
-            updateStepIndicators();
-        }
-        
-        // 處理學期選擇
-        function handleTermSelect(value) {
-            currentTerm = value;
-            console.log('學期選擇:', value);
-            updateStepIndicators();
-        }
-        
-        // 處理年份選擇
-        function handleYearSelect(value) {
-            currentYear = value;
-            console.log('年份選擇:', value);
-            updateStepIndicators();
-        }
-        
-        // 更新步驟指示器
-        function updateStepIndicators() {
-            const steps = ['grade', 'subject', 'term', 'year'];
-            
-            steps.forEach(step => {
-                const indicator = document.getElementById(`step-${step}`);
-                if (indicator) {
-                    indicator.classList.remove('step-complete');
-                    
-                    if (step === 'grade' && currentGrade) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'subject' && currentSubject) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'term' && currentTerm) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'year' && currentYear) {
-                        indicator.classList.add('step-complete');
-                    }
-                }
-            });
-        }
-        
-        // 搜尋論文
-        function searchPapers() {
-            // 檢查是否所有欄位都已填寫
-            if (!currentGrade || !currentSubject || !currentTerm || !currentYear) {
-                alert('請填寫所有搜尋條件！');
-                return;
-            }
-            
-            // 顯示論文列表
-            showPaperList();
-        }
-        
-        // 顯示論文列表
-        function showPaperList() {
-            // 更新標題
-            updatePaperListHeader();
-            
-            // 加載論文
-            loadPapers();
-            
-            // 顯示論文列表
-            document.getElementById('paper-list').style.display = 'block';
-            
-            // 滾動到論文列表
-            document.getElementById('paper-list').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-        
-        // 更新論文列表標題
-        function updatePaperListHeader() {
-            const gradeNames = {
-                jh1: { en: "Junior High 1", zh: "初中一年級" },
-                jh2: { en: "Junior High 2", zh: "初中二年級" },
-                jh3: { en: "Junior High 3", zh: "初中三年級" },
-                sh1: { en: "Senior High 1", zh: "高中一年級" },
-                sh2: { en: "Senior High 2", zh: "高中二年級" },
-                sh3: { en: "Senior High 3", zh: "高中三年級" },
-                other: { en: "Advanced Level", zh: "進階學段" }
-            };
-            
-            const subjectNames = {
-                chi: { en: "Chinese Literature", zh: "中文文學" },
-                eng: { en: "English Language", zh: "英語語言" },
-                math: { en: "Mathematics", zh: "數學" },
-                phy: { en: "Physics", zh: "物理" },
-                chem: { en: "Chemistry", zh: "化學" },
-                bio: { en: "Biology", zh: "生物" }
-            };
-            
-            const termNames = {
-                t1: { en: "First Semester", zh: "第一學期" },
-                t2: { en: "Second Semester", zh: "第二學期" },
-                t3: { en: "Third Semester", zh: "第三學期" }
-            };
-            
-            const gradeText = gradeNames[currentGrade][currentLang];
-            const subjectText = subjectNames[currentSubject][currentLang];
-            const termText = termNames[currentTerm][currentLang];
-            
-            document.getElementById('paper-list-header').textContent = 
-                `${gradeText} / ${subjectText} / ${termText} / ${currentYear}`;
-        }
-        
-        // 加載論文
-        function loadPapers() {
-            const paperListBody = document.getElementById('paper-list-body');
-            
-            // 清空現有內容
-            paperListBody.innerHTML = '';
-            
-            // 創建無論文訊息
-            const noPapersDiv = document.createElement('div');
-            noPapersDiv.className = 'no-papers';
-            
-            const icon = document.createElement('i');
-            icon.className = 'bi bi-file-earmark-text';
-            
-            const message = document.createElement('p');
-            const messageText = currentLang === 'zh' ? 
-                '暫無符合條件的試卷檔案。成為首個貢獻者！' : 
-                'No matching archival documents found. Be the inaugural contributor!';
-            message.textContent = messageText;
-            
-            noPapersDiv.appendChild(icon);
-            noPapersDiv.appendChild(message);
-            paperListBody.appendChild(noPapersDiv);
-        }
-        
-        // 重置瀏覽器
-        function resetBrowser() {
-            // 重置選擇
-            currentGrade = null;
-            currentSubject = null;
-            currentTerm = null;
-            currentYear = null;
-            
-            // 重置下拉選單
-            document.getElementById('gradeDropdown').selectedIndex = 0;
-            document.getElementById('subjectDropdown').selectedIndex = 0;
-            document.getElementById('termDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            
-            // 隱藏論文列表
-            document.getElementById('paper-list').style.display = 'none';
-            
-            // 更新步驟指示器
-            updateStepIndicators();
-            
-            // 滾動回頂部
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        // 語言切換
-        function changeLang(lang) {
-            currentLang = lang;
-            
-            // 更新html lang屬性
-            document.getElementById('main-html').setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
-            
-            // 更新所有語言文字
-            document.querySelectorAll('.lang-text').forEach(element => {
-                const text = element.getAttribute(`data-${lang}`);
-                if (text) {
-                    element.textContent = text;
-                }
-            });
-            
-            // 更新語言按鈕狀態
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.querySelectorAll(`#lang-btn-${lang}`).forEach(btn => {
-                btn.classList.add('active');
-            });
-            
-            // 如果有顯示論文列表，更新標題
-            if (currentGrade && currentSubject && currentTerm && currentYear) {
-                updatePaperListHeader();
-            }
-        }
-        
-        // 滾動平滑處理
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-    </script>
-</body>
-</html>
 
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1,user-scalable=yes">
+<link id="page_favicon" href="/images/favicon.ico" rel="icon" type="image/x-icon" />
+<title>eClass IP</title>
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+<script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+<script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+<link href="/templates/2020a/css/login.css?301" rel="stylesheet" type="text/css">
+<script language=JavaScript src=/lang/script.b5.js></script>
+<script language=JavaScript1.2 src=/templates/script.js></script>
+<script language="javascript">
+var check_otp = false;
+var sending_data = false;
+function signInWithADFS(){
+	location.href = "./login.adfssso.php";
+}
+function signInWithGoogle(){
+		location.href = "./login.googlesso.php";
+	}
+
+function checkLoginForm(){
+    if(sending_data) {
+        return;
+    }
+
+    var login_btn = document.getElementById('login_btn');
+
+    if(check_otp) {
+        if(!check_text(document.getElementById('OTPPassword'), "Please enter the OTP.")) {
+            return false;
+        }
+
+        sending_data = true;
+        login_btn.disabled = true;
+        $("#loading").show();
+        $.post(
+            '../login.php',
+            $('#form1').serialize(),
+            function(data){
+                var data_array = data.split(',');
+                if(data_array[0] == 'otp_login') {
+                    $("#loading").hide();
+                    $("input[name=securetoken]").val(data_array[1]);
+                    login_btn.disabled = false;
+                    alert('無效的 OTP (一次性密碼)，請重新嘗試');
+                } else {
+                    window.location = data_array[1];
+                }
+                sending_data = false;
+            }
+        );
+
+        return false;
+    }
+
+	login_btn.disabled = true;
+	var obj = document.form1;
+	var pass=1;
+
+	if(!check_text(document.getElementById('UserLogin'), "Please enter the user login."))
+		pass  = 0;
+	else if(!check_text(document.getElementById('UserPassword'), "Please enter the password."))
+		pass = 0;
+
+	if(pass)
+	{
+		document.getElementById('loading').style.display = '';
+
+		        return true;
+        	}
+	login_btn.disabled = false;
+	return false;
+}
+
+function OPTPasswordReSend() {
+    if(sending_data) {
+        return;
+    }
+
+    $("#loading").show();
+    $("#check_flag").val('3');
+    sending_data = true;
+    $.post(
+        '../login.php',
+        $('#form1').serialize(),
+        function(data){
+            $("#loading").hide();
+            var status = data.substr(0,1);
+            $("input[name=securetoken]").val(data.substr(2));
+            if(status == '1') {
+                alert('OTP (一次性密碼) 重發成功。');
+            } else {
+                alert('請於2分鐘後嘗試重新發送 OTP (一次性密碼)。');
+            }
+            sending_data = false;
+        }
+    );
+    $("#check_flag").val('2');
+}
+
+function checkForgetForm(){
+     var obj = document.form2;
+     tmp = prompt(ForgotPasswordMsg, "");
+     if(tmp!=null && Trim(tmp)!=""){
+          obj.UserLogin.value = tmp;
+          obj.submit();
+     }
+}
+</script>
+</head>
+
+<body><!-- .role-admin / .role-learner / .role-trainer -->
+<form id="form1" name="form1" action="../login.php" method="post" onSubmit="return checkLoginForm();">
+    
+<div id="ploginWrapper">
+    <div id="blkPhoto" ></div>
+
+    <div id="blkLogin">
+
+        <div id="blkFormWrapper">
+
+            <div id="blkForm">
+
+                <div id="login_title" class="title_b5">
+                    						<span class="title_logo">
+            	<img src="/file/PCMS_CMYK.png?1766210199" border="0" >
+					  </span>
+                                        <span class="title_text">澳門培正中學</span>
+                </div>
+                    <div class="login_form">
+                        <span class="text_login"></span>
+                        <span class="text_password"></span>
+
+
+                        <input class="user_loginname" type="text" name="UserLogin" id="UserLogin" placeholder="登入編號">
+                        <input class="user_password" type="password" name="UserPassword" id="UserPassword" placeholder="密碼">
+
+                        <div id="otp_div" style="display: none;">
+                            <div class="done_msg done_msg_1" style="width: auto;">已透過推播訊息將 OTP (一次性密碼) 傳送給您，請檢查你的 Teacher App。</div>
+                            <div class="done_msg done_msg_2" style="width: auto;">已透過推播訊息將 OTP (一次性密碼) 傳送給您，請檢查你的 Student App。</div>
+                            <div class="done_msg done_msg_3" style="width: auto;">已透過推播訊息將 OTP (一次性密碼) 傳送給您，請檢查你的 Parent App。</div>
+                            <input class="user_password" type="password" name="OTPPassword" id="OTPPassword" placeholder="一次性密碼">
+                        </div>
+
+                        <div id="loading" style="display:none"><img src="/images/2020a/indicator.gif"></div>
+                        <input name="submit" type="submit" class="login_btn" id="login_btn" value="登入" />
+
+                                                    <a href="javascript:checkForgetForm();" id="forgot_password" class="forgot_password">重置登入密碼</a>
+                        
+                        <a href="javascript:OPTPasswordReSend();" id="otp_password_resend" class="forgot_password" style="display: none;">重新發送 OTP</a>
+
+                        <!--20200520-->
+                                                                                                                        						
+                                            	                                            </div>
+            </div>
+            <div id="footer">
+                <span> <a href="http://www.eclass.com.hk/" target="_blank"><img src="/images/logo_eclass_footer.png" width="59" height="21" border="0" align="absmiddle"></a></span>
+            </div>
+
+                                </div>
+    </div>
+</div>
+<input type="hidden" name="home_page" value="1" />
+<input type="hidden" name="url" value="/templates/index.php?err=1&DirectLink=">
+<input type="hidden" name="AccessLoginPage" value="">
+<input type="hidden" name="DirectLink" value="">
+<input type="hidden" name="securetoken" value="75ac90285097d5d2372ffe5bcda7c9f0"/><input type="hidden" name="is_opac" value="">
+</form>
+
+<form name=form2 action=../forget.php method=post>
+    <input type=hidden name=UserLogin>
+    <input type=hidden name=url_success value="/templates/index.php?msg=1">
+    <input type=hidden name=url_fail value="/templates/index.php?err=2">
+    <input type="hidden" name="securetoken" value="4ef3e41390d00a2dad14bae4a9349ec2"/></form>
+
+
+
+</body>
+
+<SCRIPT language=javascript>
+function openForgetWin () {
+win_size = "resizable,scrollbars,status,top=40,left=40,width=650,height=600";
+url = null;
+if (url != null && url != "")
+{
+    var forgetWin = window.open (url, 'forget_password', win_size);
+    if (navigator.appName=="Netscape" && navigator.appVersion >= "3") forgetWin.focus();
+}
+}
+
+document.getElementById('UserLogin').focus();
+
+if (top != self){
+	top.location = self.location;
+}
+</script>
+
+</html>
