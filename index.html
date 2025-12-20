@@ -218,19 +218,42 @@
             box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3);
         }
         
-        .btn-success {
-            background: linear-gradient(to right, #28a745, #218838);
-            border: none;
-            padding: 0.875rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(40, 167, 69, 0.3);
+        /* 修改瀏覽檔案按鈕樣式 */
+        .browse-archive-btn {
+            background: transparent !important;
+            border: 2px solid #8b7355 !important;
+            color: #8b7355 !important;
+            font-weight: 500 !important;
+            padding: 0.875rem 2rem !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 4px rgba(107, 91, 67, 0.2) !important;
         }
         
-        .btn-success:hover {
-            background: linear-gradient(to right, #218838, #1e7e34);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(40, 167, 69, 0.4);
+        .browse-archive-btn:hover {
+            background: #8b7355 !important;
+            color: #fffaf0 !important;
+            border-color: #6b5b43 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3) !important;
+        }
+        
+        /* 修改提交入口按鈕樣式 */
+        .submit-portal-btn {
+            background: transparent !important;
+            border: 2px solid #8b7355 !important;
+            color: #8b7355 !important;
+            font-weight: 500 !important;
+            padding: 0.875rem 2rem !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 2px 4px rgba(107, 91, 67, 0.2) !important;
+        }
+        
+        .submit-portal-btn:hover {
+            background: #8b7355 !important;
+            color: #fffaf0 !important;
+            border-color: #6b5b43 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3) !important;
         }
         
         .footer {
@@ -472,7 +495,7 @@
             
             <!-- 搜尋按鈕 -->
             <div class="text-center mt-4">
-                <button class="btn btn-success btn-lg" onclick="searchPapers()">
+                <button class="btn browse-archive-btn btn-lg" onclick="searchPapers()">
                     <i class="bi bi-search me-2"></i>
                     <span class="lang-text" data-en="Browse Old Papers" data-zh="瀏覽檔案">Browse Archives</span>
                 </button>
@@ -557,7 +580,7 @@
                     </div>
                     
                     <div class="text-center mt-4">
-                        <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-success btn-lg">
+                        <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn submit-portal-btn btn-lg">
                             <i class="bi bi-archive me-2"></i>
                             <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">Access Submission Portal</span>
                         </a>
