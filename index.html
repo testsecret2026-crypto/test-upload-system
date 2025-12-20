@@ -29,268 +29,546 @@
           crossorigin="anonymous">
     
     <style>
+        :root {
+            --primary-color: #76520e;
+            --primary-light: #e9dcc1;
+            --secondary-color: #f8f6e4;
+            --card-bg: #fffcf2;
+            --text-dark: #333;
+            --text-light: #666;
+            --shadow-light: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-medium: 0 6px 20px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
         body {
-            background: #f8f6e4;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
+            background: linear-gradient(135deg, #f8f6e4 0%, #f0ecda 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            min-height: 100vh;
         }
+        
         .navbar {
-            background: #e9dcc1;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: var(--primary-light);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 1rem 0;
         }
+        
         .hero {
-            background: #fffcf2;
+            background: var(--card-bg);
             border-radius: 1rem;
-            padding: 2.5rem;
-            margin-bottom: 3rem;
-            box-shadow: 0 4px 20px 0 rgba(0,0,0,0.1);
-            text-align: center;
-            border: 1px solid #e5d9b6;
+            padding: 3rem 2rem;
+            margin: 2rem 0 3rem;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(118, 82, 14, 0.1);
+            position: relative;
+            overflow: hidden;
         }
-        .section-header {
-            color: #76520e;
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(45deg, transparent 50%, rgba(118, 82, 14, 0.05) 50%);
+            border-radius: 0 1rem 0 0;
+        }
+        
+        .hero h1 {
+            color: var(--primary-color);
             font-weight: 700;
             margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(118, 82, 14, 0.2);
+            font-size: 2.5rem;
         }
+        
+        .hero p.lead {
+            color: var(--text-light);
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .section-header {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 3px solid rgba(118, 82, 14, 0.2);
+            position: relative;
+        }
+        
+        .section-header::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--primary-color);
+        }
+        
         .card {
-            background: #fffbe6;
-            border: 1px solid #e5d9b6;
-            border-radius: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: white;
+            border: none;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-light);
+            transition: var(--transition);
+            overflow: hidden;
         }
+        
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
         }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-light) 0%, #e5d9b6 100%);
+            border-bottom: 2px solid rgba(118, 82, 14, 0.1);
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
         .footer {
-            background: #e9dcc1;
+            background: var(--primary-light);
             text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-            border-top: 1px solid #d5c9a7;
-            color: #76520e;
+            padding: 2rem 0;
+            margin-top: 4rem;
+            border-top: 2px solid rgba(118, 82, 14, 0.1);
+            color: var(--primary-color);
             font-weight: 500;
         }
+        
         .lang-switcher {
             text-align: right;
-            margin-bottom: 15px;
-            margin-top: 5px;
+            margin-bottom: 20px;
         }
+        
         .lang-btn {
-            margin-left: 8px;
-            border: 1px solid #76520e;
-            color: #76520e;
-            background: transparent;
-            transition: all 0.2s;
+            margin-left: 5px;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            background: white;
+            padding: 0.375rem 1rem;
+            font-weight: 500;
+            border-radius: 50px;
+            transition: var(--transition);
         }
+        
         .lang-btn:hover, .lang-btn.active {
-            background: #76520e;
+            background: var(--primary-color);
             color: white;
-            border-color: #76520e;
+            transform: translateY(-2px);
         }
+        
         .form-select {
-            min-width: 180px;
-            border: 1px solid #d5c9a7;
-            border-radius: 0.5rem;
-            padding: 0.625rem 1rem;
-            background-color: #fff;
-            cursor: pointer;
+            border: 2px solid #ddd;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            background-color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+            height: 52px;
         }
-        .form-select:disabled {
-            background-color: #f5f5f5;
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
+        
         .form-select:focus {
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 0.25rem rgba(118, 82, 14, 0.25);
-            border-color: #76520e;
         }
+        
+        .form-select:not(:disabled) {
+            cursor: pointer;
+            background: white url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2376520e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") no-repeat right 0.75rem center/16px 12px;
+        }
+        
+        .form-select:disabled {
+            background-color: #f9f9f9;
+            border-color: #eee;
+            color: #999;
+            opacity: 0.7;
+        }
+        
         .form-label {
             font-weight: 600;
-            color: #76520e;
-            margin-bottom: 0.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
             font-size: 0.95rem;
+            display: block;
         }
+        
         .btn-outline-secondary {
-            border-color: #76520e;
-            color: #76520e;
-        }
-        .btn-outline-secondary:hover {
-            background: #76520e;
-            color: white;
-            border-color: #76520e;
-        }
-        .btn-success {
-            background: #28a745;
-            border: none;
-            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.75rem 2rem;
             font-weight: 500;
-            transition: all 0.2s;
+            border-radius: 50px;
+            transition: var(--transition);
         }
+        
+        .btn-outline-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            border: none;
+            padding: 0.875rem 2rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
         .btn-success:hover {
-            background: #218838;
-            transform: translateY(-1px);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
         }
+        
         .paper-list-view {
             animation: fadeIn 0.5s ease;
         }
+        
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
         .upload-section {
-            margin-top: 3rem;
-            padding-top: 2rem;
+            margin-top: 4rem;
+            padding-top: 3rem;
             border-top: 2px solid rgba(118, 82, 14, 0.1);
         }
+        
         .no-papers {
-            padding: 3rem 1rem;
+            padding: 4rem 1rem;
             text-align: center;
-            color: #666;
-            font-style: italic;
+            color: #888;
+            background: #fafafa;
+            border-radius: 0 0 1rem 1rem;
         }
+        
+        .no-papers i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
         .paper-item {
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
             transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
+        
         .paper-item:hover {
-            background: rgba(118, 82, 14, 0.05);
+            background: rgba(118, 82, 14, 0.03);
         }
+        
         .paper-item:last-child {
             border-bottom: none;
         }
-        .paper-info {
+        
+        .paper-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(118, 82, 14, 0.1);
+            border-radius: 12px;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            flex-shrink: 0;
         }
+        
+        .paper-info {
+            flex: 1;
+        }
+        
         .paper-title {
-            font-weight: 500;
-            color: #333;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
         }
+        
         .paper-meta {
-            color: #666;
+            color: var(--text-light);
             font-size: 0.9rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
+        
+        .paper-meta span {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
         .back-btn {
-            color: #76520e;
-            font-weight: 500;
-            padding: 0.5rem 1rem;
-            border: 1px solid transparent;
+            color: var(--primary-color);
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--primary-color);
             background: transparent;
-            transition: all 0.2s;
+            border-radius: 50px;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+        
         .back-btn:hover {
-            background: rgba(118, 82, 14, 0.1);
-            border-radius: 0.5rem;
-            border-color: rgba(118, 82, 14, 0.2);
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
         }
+        
         .selection-flow {
-            position: relative;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-light);
         }
-        .selection-flow::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: rgba(118, 82, 14, 0.1);
-            z-index: -1;
-        }
-        .step-indicator {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
+        
+        .step {
             text-align: center;
-            border-radius: 50%;
-            background: #e9dcc1;
-            color: #76520e;
-            font-weight: bold;
-            margin-right: 10px;
+            position: relative;
+            flex: 1;
         }
-        .step-complete {
-            background: #76520e;
+        
+        .step-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            color: #999;
+            font-weight: bold;
+            margin-bottom: 0.75rem;
+            position: relative;
+            z-index: 2;
+            transition: var(--transition);
+        }
+        
+        .step.active .step-indicator {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 0 0 5px rgba(118, 82, 14, 0.1);
+        }
+        
+        .step.completed .step-indicator {
+            background: var(--primary-color);
             color: white;
         }
-        .privacy-notice {
-            background: rgba(118, 82, 14, 0.05);
-            border-left: 4px solid #76520e;
-            padding: 1rem 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0 0.5rem 0.5rem 0;
-        }
-        .privacy-icon {
-            color: #76520e;
-            margin-right: 10px;
+        
+        .step.completed .step-indicator::after {
+            content: '✓';
             font-size: 1.2rem;
         }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .step.active .step-label {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .privacy-notice {
+            background: linear-gradient(135deg, rgba(118, 82, 14, 0.05) 0%, rgba(118, 82, 14, 0.02) 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 0.75rem 0.75rem 0;
+        }
+        
+        .privacy-icon {
+            color: var(--primary-color);
+            margin-right: 15px;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+        
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
+        
         .logo-icon {
-            background: #76520e;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
+            background: var(--primary-color);
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-size: 1.5rem;
+            box-shadow: 0 4px 10px rgba(118, 82, 14, 0.2);
         }
+        
         .upload-features {
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 0.75rem;
-            border: 1px solid rgba(118, 82, 14, 0.1);
+            margin: 2rem 0;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            border: 2px dashed rgba(118, 82, 14, 0.2);
         }
+        
         .feature-item {
             display: flex;
-            align-items: center;
-            margin-bottom: 1rem;
-            padding: 0.5rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(118, 82, 14, 0.03);
+            border-radius: 0.75rem;
+            transition: var(--transition);
         }
+        
+        .feature-item:hover {
+            background: rgba(118, 82, 14, 0.05);
+            transform: translateX(5px);
+        }
+        
         .feature-item:last-child {
             margin-bottom: 0;
         }
+        
         .feature-icon {
-            color: #28a745;
+            color: var(--primary-color);
             margin-right: 15px;
-            font-size: 1.3rem;
+            font-size: 1.5rem;
             min-width: 30px;
+            margin-top: 0.25rem;
         }
+        
+        .feature-content h6 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-content p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 0;
+            line-height: 1.5;
+        }
+        
         @media (max-width: 768px) {
             .hero {
-                padding: 1.5rem;
+                padding: 2rem 1rem;
+                margin: 1rem 0 2rem;
             }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p.lead {
+                font-size: 1.1rem;
+            }
+            
             .paper-info {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 0.5rem;
             }
+            
+            .paper-meta {
+                flex-direction: column;
+                gap: 0.25rem;
+            }
+            
             .selection-flow {
                 display: none;
             }
+            
             .privacy-notice {
-                padding: 1rem;
+                padding: 1.25rem;
             }
+            
+            .upload-features {
+                padding: 1.5rem;
+            }
+            
+            .form-select {
+                height: 48px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(118, 82, 14, 0.3);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(118, 82, 14, 0.5);
+        }
+        
+        /* Selection dropdowns container */
+        .dropdowns-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 2rem;
+        }
+        
+        /* Loading animation */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(118, 82, 14, 0.1);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg mb-4">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
             <a class="navbar-brand" href="#" style="font-weight:bold;color:#76520e">
                 <div class="logo-container">
                     <div class="logo-icon">
@@ -300,8 +578,8 @@
                 </div>
             </a>
             <div class="lang-switcher d-lg-none ms-auto">
-                <button class="btn btn-sm lang-btn active" onclick="changeLang('en')" id="lang-btn-en">English</button>
-                <button class="btn btn-sm lang-btn" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                <button class="btn btn-sm lang-btn active" onclick="changeLang('en')" id="lang-btn-en">EN</button>
+                <button class="btn btn-sm lang-btn" onclick="changeLang('zh')" id="lang-btn-zh">繁中</button>
             </div>
         </div>
     </nav>
@@ -331,22 +609,30 @@
 
         <!-- Selection Flow Indicator (Desktop only) -->
         <div class="selection-flow d-none d-lg-block">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-center">
-                    <div class="step-indicator" id="step-grade">1</div>
-                    <div class="lang-text" data-en="Select Grade" data-zh="選擇年級">Select Grade</div>
+            <div class="row">
+                <div class="col-3">
+                    <div class="step active" id="step-grade-indicator">
+                        <div class="step-indicator">1</div>
+                        <div class="step-label lang-text" data-en="Select Grade" data-zh="選擇年級">Select Grade</div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-subject">2</div>
-                    <div class="lang-text" data-en="Select Subject" data-zh="選擇科目">Select Subject</div>
+                <div class="col-3">
+                    <div class="step" id="step-subject-indicator">
+                        <div class="step-indicator">2</div>
+                        <div class="step-label lang-text" data-en="Select Subject" data-zh="選擇科目">Select Subject</div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-term">3</div>
-                    <div class="lang-text" data-en="Select Term" data-zh="選擇學期">Select Term</div>
+                <div class="col-3">
+                    <div class="step" id="step-term-indicator">
+                        <div class="step-indicator">3</div>
+                        <div class="step-label lang-text" data-en="Select Term" data-zh="選擇學期">Select Term</div>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-year">4</div>
-                    <div class="lang-text" data-en="Select Year" data-zh="選擇年份">Select Year</div>
+                <div class="col-3">
+                    <div class="step" id="step-year-indicator">
+                        <div class="step-indicator">4</div>
+                        <div class="step-label lang-text" data-en="Select Year" data-zh="選擇年份">Select Year</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -354,68 +640,76 @@
         <!-- Browse Old Papers Section -->
         <h2 class="section-header lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">Browse Old Papers</h2>
         
-        <!-- Selection Dropdowns -->
-        <div class="row mb-4 g-3 align-items-end">
-            <!-- Grade Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Grade" data-zh="年級">Grade</label>
-                <select class="form-select" id="gradeDropdown" onchange="selectGrade(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Grade" data-zh="請選擇年級">Select Grade</option>
-                    <option value="jh1" class="lang-text" data-en="First Year Junior High" data-zh="初中一年級">First Year Junior High</option>
-                    <option value="jh2" class="lang-text" data-en="Second Year Junior High" data-zh="初中二年級">Second Year Junior High</option>
-                    <option value="jh3" class="lang-text" data-en="Third Year Junior High" data-zh="初中三年級">Third Year Junior High</option>
-                    <option value="sh1" class="lang-text" data-en="First Year Senior High" data-zh="高中一年級">First Year Senior High</option>
-                    <option value="sh2" class="lang-text" data-en="Second Year Senior High" data-zh="高中二年級">Second Year Senior High</option>
-                    <option value="sh3" class="lang-text" data-en="Third Year Senior High" data-zh="高中三年級">Third Year Senior High</option>
-                    <option value="other" class="lang-text" data-en="Other/Advanced" data-zh="其他/進階學段">Other/Advanced</option>
-                </select>
-            </div>
+        <!-- Selection Dropdowns Container -->
+        <div class="dropdowns-container">
+            <div class="row g-4">
+                <!-- Grade Dropdown -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Grade" data-zh="年級">Grade</label>
+                    <select class="form-select" id="gradeDropdown" onchange="selectGrade(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Grade" data-zh="請選擇年級">Select Grade</option>
+                        <option value="jh1" class="lang-text" data-en="First Year Junior High" data-zh="初中一年級">First Year Junior High</option>
+                        <option value="jh2" class="lang-text" data-en="Second Year Junior High" data-zh="初中二年級">Second Year Junior High</option>
+                        <option value="jh3" class="lang-text" data-en="Third Year Junior High" data-zh="初中三年級">Third Year Junior High</option>
+                        <option value="sh1" class="lang-text" data-en="First Year Senior High" data-zh="高中一年級">First Year Senior High</option>
+                        <option value="sh2" class="lang-text" data-en="Second Year Senior High" data-zh="高中二年級">Second Year Senior High</option>
+                        <option value="sh3" class="lang-text" data-en="Third Year Senior High" data-zh="高中三年級">Third Year Senior High</option>
+                        <option value="other" class="lang-text" data-en="Other/Advanced" data-zh="其他/進階學段">Other/Advanced</option>
+                    </select>
+                </div>
 
-            <!-- Subject Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Subject" data-zh="科目">Subject</label>
-                <select class="form-select" id="subjectDropdown" disabled onchange="selectSubject(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Subject" data-zh="請選擇科目">Select Subject</option>
-                    <option value="chi" class="lang-text" data-en="Chinese" data-zh="中文">Chinese</option>
-                    <option value="eng" class="lang-text" data-en="English" data-zh="英文">English</option>
-                    <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">Mathematics</option>
-                    <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">Physics</option>
-                    <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">Chemistry</option>
-                    <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">Biology</option>
-                </select>
-            </div>
+                <!-- Subject Dropdown -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Subject" data-zh="科目">Subject</label>
+                    <select class="form-select" id="subjectDropdown" disabled onchange="selectSubject(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Subject" data-zh="請選擇科目">Select Subject</option>
+                        <option value="chi" class="lang-text" data-en="Chinese" data-zh="中文">Chinese</option>
+                        <option value="eng" class="lang-text" data-en="English" data-zh="英文">English</option>
+                        <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">Mathematics</option>
+                        <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">Physics</option>
+                        <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">Chemistry</option>
+                        <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">Biology</option>
+                    </select>
+                </div>
 
-            <!-- Term Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Term" data-zh="學期">Term</label>
-                <select class="form-select" id="termDropdown" disabled onchange="selectTerm(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Term" data-zh="請選擇學期">Select Term</option>
-                    <option value="t1" class="lang-text" data-en="First Term" data-zh="第一學期">First Term</option>
-                    <option value="t2" class="lang-text" data-en="Second Term" data-zh="第二學期">Second Term</option>
-                    <option value="t3" class="lang-text" data-en="Third Term" data-zh="第三學期">Third Term</option>
-                </select>
-            </div>
+                <!-- Term Dropdown -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Term" data-zh="學期">Term</label>
+                    <select class="form-select" id="termDropdown" disabled onchange="selectTerm(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Term" data-zh="請選擇學期">Select Term</option>
+                        <option value="t1" class="lang-text" data-en="First Term" data-zh="第一學期">First Term</option>
+                        <option value="t2" class="lang-text" data-en="Second Term" data-zh="第二學期">Second Term</option>
+                        <option value="t3" class="lang-text" data-en="Third Term" data-zh="第三學期">Third Term</option>
+                    </select>
+                </div>
 
-            <!-- Year Dropdown -->
-            <div class="col-lg-3 col-md-6">
-                <label class="form-label lang-text" data-en="Year" data-zh="年份">Year</label>
-                <select class="form-select" id="yearDropdown" disabled onchange="selectYear(this.value)">
-                    <option value="" disabled selected class="lang-text" data-en="Select Year" data-zh="請選擇年份">Select Year</option>
-                    <option value="2020">2020</option>
-                    <option value="2021">2021</option>
-                    <option value="2022">2022</option>
-                    <option value="2023">2023</option>
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026">2026</option>
-                </select>
+                <!-- Year Dropdown -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Year" data-zh="年份">Year</label>
+                    <select class="form-select" id="yearDropdown" disabled onchange="selectYear(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Year" data-zh="請選擇年份">Select Year</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
             </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner">
+            <div class="spinner"></div>
+            <p class="lang-text" data-en="Loading papers..." data-zh="正在加載試卷...">Loading papers...</p>
         </div>
 
         <!-- Paper List (Initially Hidden) -->
         <div id="paper-list" class="paper-list-view" style="display: none;">
-            <div class="card mt-4">
-                <div class="card-header bg-light">
+            <div class="card">
+                <div class="card-header">
                     <h5 class="mb-0" id="paper-list-header"></h5>
                 </div>
                 <div class="card-body p-0">
@@ -438,11 +732,11 @@
             
             <!-- Privacy Notice -->
             <div class="privacy-notice">
-                <div class="d-flex align-items-start">
+                <div class="d-flex">
                     <i class="bi bi-shield-check privacy-icon"></i>
                     <div>
                         <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">Privacy Protection Guarantee</h5>
-                        <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
+                        <p class="mb-0 lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
                             All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies.
                         </p>
                     </div>
@@ -459,37 +753,39 @@
                     <div class="upload-features">
                         <div class="feature-item">
                             <i class="bi bi-shield-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">Confidential Processing</strong>
-                                <p class="mb-0 small lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
+                            <div class="feature-content">
+                                <h6 class="lang-text" data-en="Confidential Processing" data-zh="保密處理">Confidential Processing</h6>
+                                <p class="lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
                                     All personal information will be redacted to protect your privacy.
                                 </p>
                             </div>
                         </div>
                         <div class="feature-item">
-                            <i class="bi bi-eye-slash feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Anonymous Upload" data-zh="匿名上傳">Anonymous Upload</strong>
-                                <p class="mb-0 small lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
+                            <i class="bi bi-cloud-upload feature-icon"></i>
+                            <div class="feature-content">
+                                <h6 class="lang-text" data-en="Upload" data-zh="上傳">Upload</h6>
+                                <p class="lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
                                     Uploader information is not displayed publicly. Only administrators can see uploader details.
                                 </p>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-clipboard-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Administrator Review" data-zh="管理員審核">Administrator Review</strong>
-                                <p class="mb-0 small lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
+                            <div class="feature-content">
+                                <h6 class="lang-text" data-en="Administrator Review" data-zh="管理員審核">Administrator Review</h6>
+                                <p class="lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
                                     All papers are reviewed to ensure quality and privacy compliance before publishing.
                                 </p>
                             </div>
                         </div>
                     </div>
                     
-                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-success mt-3">
-                        <i class="bi bi-cloud-upload me-2"></i>
-                        <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">Upload via Google Form</span>
-                    </a>
+                    <div class="text-center">
+                        <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-success">
+                            <i class="bi bi-cloud-upload me-2"></i>
+                            <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">Upload via Google Form</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -497,9 +793,11 @@
 
     <!-- Footer -->
     <div class="footer">
-        <span class="lang-text" data-en="Old Paper Upload System" data-zh="舊試卷上傳系統">
-            Old Paper Upload System
-        </span>
+        <div class="container">
+            <span class="lang-text" data-en="Old Paper Upload System" data-zh="舊試卷上傳系統">
+                Old Paper Upload System
+            </span>
+        </div>
     </div>
 
     <!-- Bootstrap JS with SRI -->
@@ -535,7 +833,7 @@
             // Update html lang attribute
             document.getElementById('main-html').setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
             
-            // Security: Update all elements with lang-text class safely
+            // Update all elements with lang-text class safely
             document.querySelectorAll('.lang-text').forEach(element => {
                 const text = element.getAttribute(`data-${lang}`);
                 if (text) {
@@ -559,28 +857,45 @@
 
         // Update step indicators
         function updateStepIndicators() {
-            const steps = ['grade', 'subject', 'term', 'year'];
-            steps.forEach((step) => {
-                const indicator = document.getElementById(`step-${step}`);
-                if (!indicator) return;
+            const steps = [
+                { id: 'grade-indicator', condition: currentGrade },
+                { id: 'subject-indicator', condition: currentSubject },
+                { id: 'term-indicator', condition: currentTerm },
+                { id: 'year-indicator', condition: currentYear }
+            ];
+            
+            steps.forEach((step, index) => {
+                const stepElement = document.getElementById(`step-${step.id}`);
+                if (!stepElement) return;
                 
-                // Reset all indicators
-                indicator.classList.remove('step-complete');
+                // Reset all steps
+                stepElement.classList.remove('active', 'completed');
                 
                 // Mark completed steps
-                if (step === 'grade' && currentGrade) {
-                    indicator.classList.add('step-complete');
+                if (step.condition) {
+                    stepElement.classList.add('completed');
                 }
-                if (step === 'subject' && currentSubject) {
-                    indicator.classList.add('step-complete');
-                }
-                if (step === 'term' && currentTerm) {
-                    indicator.classList.add('step-complete');
-                }
-                if (step === 'year' && currentYear) {
-                    indicator.classList.add('step-complete');
+                
+                // Mark active step (first non-completed step)
+                if (!step.condition && steps.slice(0, index).every(s => s.condition)) {
+                    stepElement.classList.add('active');
                 }
             });
+            
+            // If all steps are completed, mark year as active
+            if (currentGrade && currentSubject && currentTerm && currentYear) {
+                document.getElementById('step-year-indicator').classList.add('active');
+            }
+        }
+
+        // Show loading spinner
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            document.getElementById('loadingSpinner').style.display = 'none';
         }
 
         // Grade selection with validation
@@ -594,8 +909,12 @@
             currentGrade = val;
             // Enable subject dropdown
             document.getElementById('subjectDropdown').disabled = false;
-            // Reset later selections
             document.getElementById('subjectDropdown').selectedIndex = 0;
+            
+            // Reset later selections
+            currentSubject = null;
+            currentTerm = null;
+            currentYear = null;
             document.getElementById('termDropdown').selectedIndex = 0;
             document.getElementById('termDropdown').disabled = true;
             document.getElementById('yearDropdown').selectedIndex = 0;
@@ -619,8 +938,11 @@
             currentSubject = val;
             // Enable term dropdown
             document.getElementById('termDropdown').disabled = false;
-            // Reset later selections
             document.getElementById('termDropdown').selectedIndex = 0;
+            
+            // Reset later selections
+            currentTerm = null;
+            currentYear = null;
             document.getElementById('yearDropdown').selectedIndex = 0;
             document.getElementById('yearDropdown').disabled = true;
             
@@ -642,8 +964,10 @@
             currentTerm = val;
             // Enable year dropdown
             document.getElementById('yearDropdown').disabled = false;
-            // Reset year selection
             document.getElementById('yearDropdown').selectedIndex = 0;
+            
+            // Reset year selection
+            currentYear = null;
             
             // Hide paper list if showing
             document.getElementById('paper-list').style.display = 'none';
@@ -666,10 +990,16 @@
         }
 
         // Show paper list with selected criteria
-        function showPaperList() {
+        async function showPaperList() {
+            showLoading();
             updatePaperListHeader();
+            
+            // Simulate loading delay
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
             loadPapers();
             document.getElementById('paper-list').style.display = 'block';
+            hideLoading();
             
             // Scroll to paper list
             document.getElementById('paper-list').scrollIntoView({ 
@@ -728,7 +1058,6 @@
             
             const icon = document.createElement('i');
             icon.className = 'bi bi-file-earmark-text';
-            icon.style.cssText = 'font-size: 3rem; color: #ccc; margin-bottom: 1rem;';
             
             const message = document.createElement('p');
             const messageText = currentLang === 'zh' ? 
@@ -759,6 +1088,12 @@
             
             // Update steps
             updateStepIndicators();
+            
+            // Scroll to top of section
+            document.querySelector('.dropdowns-container').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
 
         // Initialize
