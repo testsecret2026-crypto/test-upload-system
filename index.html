@@ -226,6 +226,56 @@
             padding: 2rem 1rem;
         }
         
+        /* 結果項目 */
+        .result-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .result-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        .result-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .result-link:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .result-link .bi {
+            font-size: 1.2rem;
+        }
+        
         /* 上傳區域 */
         .upload-section {
             background-color: white;
@@ -339,6 +389,10 @@
             
             .features-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .result-item {
+                padding: 1.2rem;
             }
         }
     </style>
@@ -506,7 +560,7 @@
                 
                 <div class="feature-item">
                     <i class="bi bi-eye-slash feature-icon"></i>
-                    <div class="feature-title lang-text" data-en="Upload" data-zh="上傳">匿名上傳</div>
+                    <div class="feature-title lang-text" data-en="Anonymous Upload" data-zh="匿名上傳">匿名上傳</div>
                     <div class="feature-desc lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
                         上傳者信息不會公開顯示，僅管理員可見。
                     </div>
@@ -549,6 +603,94 @@
         let currentTerm = null;
         let currentYear = null;
         let currentLang = 'zh'; // 預設為繁體中文
+        
+        // 試卷資料庫 (對應 Google Drive 連結) - 已修正：初中四年級改為高中一年級
+        const paperDatabase = {
+            // 初中一年級 (jh1) 數學試卷
+            'jh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
+                title_zh: '初中一年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics First Semester 2024 Papers'
+            },
+            'jh1_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1eQDuvqVBzPZJzW3tF8iEMOLDEwNNebE_?usp=sharing',
+                title_zh: '初中一年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics Second Semester 2024 Papers'
+            },
+            'jh1_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1X-I3xVTGpEMA6iMND7OnXEfm2yeYlzP2?usp=sharing',
+                title_zh: '初中一年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 初中二年級 (jh2) 數學試卷
+            'jh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
+                title_zh: '初中二年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics First Semester 2024 Papers'
+            },
+            'jh2_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1rt961rIXMdb6AxiEqsJ4RLWeZ7bPNBha?usp=sharing',
+                title_zh: '初中二年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics Second Semester 2024 Papers'
+            },
+            'jh2_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1j2rMv-wBEvKSGxt7huuFOow6sERq-sJk?usp=sharing',
+                title_zh: '初中二年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 初中三年級 (jh3) 數學試卷
+            'jh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
+                title_zh: '初中三年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics First Semester 2024 Papers'
+            },
+            'jh3_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1qEPzSCWV2Vq4iRwvWAFGpBTBt_pt_FS3?usp=sharing',
+                title_zh: '初中三年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics Second Semester 2024 Papers'
+            },
+            'jh3_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1I7FG1XL05WUXzaTZWtG-IUHuAk46Zk3d?usp=sharing',
+                title_zh: '初中三年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 高中一年級 (sh1) 數學試卷 - 原初中四年級改為高中一年級
+            'sh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1afHqd0lR_rAPP97cba9RzHYceAgHTMWD?usp=sharing',
+                title_zh: '高中一年級數學第一學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics First Semester 2024 Papers'
+            },
+            'sh1_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1AhVY9_-nKXjhVwj23c03gl3QjaPsute8?usp=sharing',
+                title_zh: '高中一年級數學第二學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics Second Semester 2024 Papers'
+            },
+            'sh1_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1I7FG1XL05WUXzaTZWtG-IUHuAk46Zk3d?usp=sharing',
+                title_zh: '高中一年級數學第三學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 其他科目範例資料
+            'jh1_chi_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/sample_chi_folder?usp=sharing',
+                title_zh: '初中一年級中文第一學期 2024 年試卷',
+                title_en: 'Junior High 1 Chinese First Semester 2024 Papers'
+            },
+            'jh1_eng_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/sample_eng_folder?usp=sharing',
+                title_zh: '初中一年級英文第一學期 2024 年試卷',
+                title_en: 'Junior High 1 English First Semester 2024 Papers'
+            },
+            'sh1_chi_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/sample_sh1_chi_folder?usp=sharing',
+                title_zh: '高中一年級中文第一學期 2024 年試卷',
+                title_en: 'Senior High 1 Chinese First Semester 2024 Papers'
+            }
+        };
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -669,9 +811,9 @@
                 t3: { en: "Third Semester", zh: "第三學期" }
             };
             
-            const gradeText = gradeNames[currentGrade][currentLang];
-            const subjectText = subjectNames[currentSubject][currentLang];
-            const termText = termNames[currentTerm][currentLang];
+            const gradeText = gradeNames[currentGrade] ? gradeNames[currentGrade][currentLang] : currentGrade;
+            const subjectText = subjectNames[currentSubject] ? subjectNames[currentSubject][currentLang] : currentSubject;
+            const termText = termNames[currentTerm] ? termNames[currentTerm][currentLang] : currentTerm;
             
             const title = currentLang === 'zh' ? 
                 `搜尋結果：${gradeText} / ${subjectText} / ${termText} / ${currentYear}` :
@@ -687,24 +829,108 @@
             // 清空現有內容
             resultsBody.innerHTML = '';
             
+            // 創建資料庫索引鍵
+            const dbKey = `${currentGrade}_${currentSubject}_${currentTerm}_${currentYear}`;
+            
+            // 檢查資料庫中是否有對應的資料
+            if (paperDatabase[dbKey]) {
+                // 有資料，顯示結果
+                displayPaperResult(paperDatabase[dbKey]);
+            } else {
+                // 無資料，顯示提示訊息
+                displayNoResults(dbKey);
+            }
+        }
+        
+        // 顯示試卷結果
+        function displayPaperResult(paperData) {
+            const resultsBody = document.getElementById('results-body');
+            
+            // 創建結果項目容器
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+            
+            // 創建標題
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'result-title';
+            titleDiv.textContent = currentLang === 'zh' ? 
+                paperData.title_zh : paperData.title_en;
+            
+            // 創建元數據
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'result-meta';
+            const metaText = currentLang === 'zh' ? 
+                '已找到對應的試卷檔案，點擊下方連結查看：' : 
+                'Matching paper found. Click the link below to view:';
+            metaDiv.textContent = metaText;
+            
+            // 創建連結
+            const linkDiv = document.createElement('div');
+            const linkElement = document.createElement('a');
+            linkElement.href = paperData.url;
+            linkElement.target = '_blank';
+            linkElement.rel = 'noopener noreferrer';
+            linkElement.className = 'result-link';
+            
+            // 創建連結圖標
+            const linkIcon = document.createElement('i');
+            linkIcon.className = 'bi bi-google-drive';
+            
+            // 創建連結文字
+            const linkText = document.createElement('span');
+            linkText.textContent = currentLang === 'zh' ? 
+                '前往 Google Drive 查看試卷' : 
+                'View Papers on Google Drive';
+            
+            // 組合連結
+            linkElement.appendChild(linkIcon);
+            linkElement.appendChild(linkText);
+            linkDiv.appendChild(linkElement);
+            
+            // 組合所有元素
+            resultItem.appendChild(titleDiv);
+            resultItem.appendChild(metaDiv);
+            resultItem.appendChild(linkDiv);
+            
+            // 添加到結果區域
+            resultsBody.appendChild(resultItem);
+        }
+        
+        // 顯示無結果訊息
+        function displayNoResults(dbKey) {
+            const resultsBody = document.getElementById('results-body');
+            
             // 創建無結果訊息
             const noResultsDiv = document.createElement('div');
             noResultsDiv.className = 'no-results';
             
+            // 圖標
             const icon = document.createElement('i');
             icon.className = 'bi bi-file-earmark-text';
             icon.style.fontSize = '3rem';
             icon.style.color = '#dee2e6';
             icon.style.marginBottom = '1rem';
             
+            // 主訊息
             const message = document.createElement('p');
             const messageText = currentLang === 'zh' ? 
                 '暫無符合條件的試卷檔案。成為首個貢獻者！' : 
                 'No matching archival documents found. Be the inaugural contributor!';
             message.textContent = messageText;
+            message.style.marginBottom = '1rem';
+            
+            // 提示訊息
+            const hintMessage = document.createElement('p');
+            hintMessage.style.fontSize = '0.9rem';
+            hintMessage.style.color = '#6c757d';
+            const hintText = currentLang === 'zh' ? 
+                '如果您有此試卷，歡迎透過下方上傳功能分享給大家！' : 
+                'If you have this paper, please share it through the upload section below!';
+            hintMessage.textContent = hintText;
             
             noResultsDiv.appendChild(icon);
             noResultsDiv.appendChild(message);
+            noResultsDiv.appendChild(hintMessage);
             resultsBody.appendChild(noResultsDiv);
         }
         
@@ -755,9 +981,10 @@
                 btn.classList.add('active');
             });
             
-            // 如果有顯示結果，更新標題
+            // 如果有顯示結果，重新載入結果
             if (currentGrade && currentSubject && currentTerm && currentYear) {
                 updateResultsTitle();
+                loadResults();
             }
         }
         
