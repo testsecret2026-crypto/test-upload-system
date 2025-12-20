@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試卷題庫系統 | Old Paper Repository</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     
     <!-- Bootstrap CSS -->
@@ -12,459 +13,395 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
-        /* 复古纸张主题样式 */
+        /* 簡潔實用的樣式 */
         body {
-            background: #f5f0e1 url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23f5f0e1"/><path d="M0,50 L100,50 M50,0 L50,100" stroke="%23e0d6c2" stroke-width="0.5" opacity="0.3"/></svg>');
-            font-family: 'Georgia', 'Times New Roman', 'Microsoft JhengHei', serif;
-            color: #3a2c1c;
+            background-color: #f8f9fa;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
             min-height: 100vh;
         }
         
-        /* 纸张纹理效果 */
-        .paper-texture {
-            background: 
-                linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(210,180,140,0.1) 1px, transparent 1px),
-                linear-gradient(rgba(210,180,140,0.1) 1px, transparent 1px);
-            background-size: 20px 20px, 20px 20px, 100px 100px, 100px 100px;
-            background-color: #fffaf0;
-        }
-        
         .navbar {
-            background: #bfb18e !important;
-            border-bottom: 3px solid #6b5b43;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 0;
         }
         
         .navbar-brand {
-            color: #fff5e1 !important;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.3rem;
         }
         
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .logo-icon {
-            background: #fff5e1;
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #8b7355;
-            font-size: 1.6rem;
-            border: 2px solid #d4b483;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        /* 語言切換按鈕樣式 - 在右上角 */
+        /* 語言切換按鈕 */
         .lang-switcher {
-            position: absolute;
-            right: 20px;
-            top: 15px;
-            z-index: 1000;
+            display: flex;
+            gap: 0.5rem;
         }
         
         .lang-btn {
-            background: #fff5e1 !important;
-            border: 2px solid #d4b483 !important;
-            color: #8b7355 !important;
-            font-weight: 500;
-            font-size: 0.9rem;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-size: 0.85rem;
             padding: 0.4rem 0.8rem;
-            margin-left: 5px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
         }
         
         .lang-btn:hover, .lang-btn.active {
-            background: #d4b483 !important;
-            border-color: #8b7355 !important;
-            color: #fff5e1 !important;
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
         }
         
-        .hero {
-            background: linear-gradient(135deg, #fffaf0 0%, #f8f4e9 100%);
-            border-radius: 12px;
-            padding: 3rem 2rem;
-            margin-bottom: 3rem;
-            border: 1px solid #e0d6c2;
-            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
-            position: relative;
-            overflow: hidden;
-            text-align: center; /* 讓整個hero區塊內容置中 */
+        /* 主要內容區域 */
+        .container {
+            max-width: 1200px;
+            padding: 0 1rem;
         }
         
-        /* 專門用於置中文字內容的類別 */
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
+        /* 歡迎區域 */
+        .welcome-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
         }
         
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-        
-        .hero h1 {
-            color: #6b5b43;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-            font-size: 2.2rem;
-        }
-        
-        .hero p {
-            text-align: center; /* 確保段落文字也置中 */
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 900px; /* 限制最大寬度，避免太長的行 */
-            line-height: 1.7;
-        }
-        
-        .hero .lead {
-            font-size: 1.25rem;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        
-        .section-header {
-            color: #8b7355;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 3px solid #d4b483;
-            position: relative;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        .welcome-section h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1rem;
             font-size: 1.8rem;
         }
         
-        .section-header::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0;
-            width: 100px;
-            height: 3px;
-            background: #6b5b43;
+        .welcome-section p {
+            color: #555;
+            margin-bottom: 1rem;
         }
         
-        .form-label {
+        /* 按鈕樣式 */
+        .main-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .main-btn:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background-color: white;
+            border: 1px solid #007bff;
+            color: #007bff;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #f8f9fa;
+            color: #0056b3;
+        }
+        
+        /* 搜尋區域 */
+        .search-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .section-title {
+            color: #2c3e50;
             font-weight: 600;
-            color: #6b5b43;
-            margin-bottom: 0.75rem;
-            font-size: 1rem;
-            text-shadow: 1px 1px 1px rgba(255,255,255,0.8);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        /* 表單元素 */
+        .form-label {
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
         }
         
         .form-select {
-            background: #fffaf0 !important;
-            border: 2px solid #d4b483 !important;
-            border-radius: 8px !important;
-            color: #3a2c1c !important;
-            font-weight: 500;
-            padding: 0.75rem 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            cursor: pointer;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 0.6rem;
+            color: #495057;
+            font-size: 0.95rem;
         }
         
         .form-select:focus {
-            border-color: #8b7355 !important;
-            box-shadow: 0 0 0 0.25rem rgba(139, 115, 85, 0.25) !important;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
             outline: none;
         }
         
-        .form-select:disabled {
-            background: #f5f0e1 !important;
-            border-color: #e0d6c2 !important;
-            color: #a09080 !important;
-            cursor: not-allowed;
+        /* 步驟指示器 - 簡化版 */
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
         }
         
-        .card {
-            background: #fffaf0;
-            border: 2px solid #d4b483;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(139, 115, 85, 0.15);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(139, 115, 85, 0.25);
-        }
-        
-        .card-header {
-            background: linear-gradient(to right, #d4b483, #c4a473) !important;
-            color: #3a2c1c !important;
-            font-weight: 600;
-            border-bottom: 2px solid #b49463 !important;
-        }
-        
-        .btn-outline-secondary {
-            background: transparent;
-            border: 2px solid #8b7355;
-            color: #8b7355;
-            font-weight: 500;
-            padding: 0.75rem 1.5rem;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-outline-secondary:hover {
-            background: #8b7355;
-            color: #fffaf0;
-            border-color: #6b5b43;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3);
-        }
-        
-        /* 瀏覽檔案按鈕樣式 */
-        .browse-archive-btn {
-            background: transparent !important;
-            border: 2px solid #8b7355 !important;
-            color: #8b7355 !important;
-            font-weight: 500 !important;
-            padding: 0.875rem 2rem !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 2px 4px rgba(107, 91, 67, 0.2) !important;
-        }
-        
-        .browse-archive-btn:hover {
-            background: #8b7355 !important;
-            color: #fffaf0 !important;
-            border-color: #6b5b43 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3) !important;
-        }
-        
-        /* 提交入口按鈕樣式 */
-        .submit-portal-btn {
-            background: transparent !important;
-            border: 2px solid #8b7355 !important;
-            color: #8b7355 !important;
-            font-weight: 500 !important;
-            padding: 0.875rem 2rem !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 2px 4px rgba(107, 91, 67, 0.2) !important;
-        }
-        
-        .submit-portal-btn:hover {
-            background: #8b7355 !important;
-            color: #fffaf0 !important;
-            border-color: #6b5b43 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3) !important;
-        }
-        
-        .footer {
-            background: #bfb18e;
-            color: #fff5e1;
+        .step {
             text-align: center;
-            padding: 2rem 0;
-            margin-top: 4rem;
-            border-top: 3px solid #6b5b43;
+            position: relative;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+            border: 2px solid #dee2e6;
+        }
+        
+        .step.active .step-number {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .step-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .step.active .step-label {
+            color: #2c3e50;
             font-weight: 500;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
         
-        .privacy-notice {
-            background: linear-gradient(135deg, #fff5e1 0%, #f5edd9 100%);
-            border-left: 5px solid #8b7355;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 0 3px 10px rgba(139, 115, 85, 0.15);
-        }
-        
-        .upload-features {
-            background: rgba(255, 250, 240, 0.8);
-            border: 2px dashed #d4b483;
-            border-radius: 10px;
-            padding: 1.5rem;
+        /* 結果區域 */
+        .results-section {
+            background-color: white;
+            border-radius: 8px;
             margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .results-body {
+            padding: 2rem;
+            min-height: 200px;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem 1rem;
+        }
+        
+        /* 上傳區域 */
+        .upload-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        /* 隱私提示 */
+        .privacy-tip {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .privacy-tip h5 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .privacy-tip p {
+            color: #495057;
+            margin-bottom: 0;
+        }
+        
+        /* 功能特色 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.2rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
         }
         
         .feature-icon {
-            color: #8b7355;
-            font-size: 1.5rem;
-            margin-right: 15px;
-            min-width: 30px;
+            color: #007bff;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
         }
         
-        .no-papers {
-            padding: 4rem 2rem;
-            text-align: center;
-            color: #a09080;
-            font-style: italic;
-            font-size: 1.1rem;
-        }
-        
-        .back-btn {
-            background: #d4b483;
-            color: #3a2c1c;
-            border: 2px solid #b49463;
-            padding: 0.75rem 1.5rem;
+        .feature-title {
+            color: #2c3e50;
             font-weight: 600;
-            transition: all 0.3s ease;
+            margin-bottom: 0.3rem;
         }
         
-        .back-btn:hover {
-            background: #b49463;
-            border-color: #8b7355;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(139, 115, 85, 0.3);
+        .feature-desc {
+            color: #6c757d;
+            font-size: 0.9rem;
         }
         
-        .selection-flow {
-            background: #fffaf0;
-            border: 2px solid #d4b483;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 3px 10px rgba(139, 115, 85, 0.15);
-        }
-        
-        .step-indicator {
-            display: inline-block;
-            width: 35px;
-            height: 35px;
-            line-height: 35px;
+        /* 頁腳 */
+        .footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
             text-align: center;
-            border-radius: 50%;
-            background: #e0d6c2;
-            color: #6b5b43;
-            font-weight: bold;
-            margin-right: 12px;
-            border: 2px solid #d4b483;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
         }
         
-        .step-complete {
-            background: #8b7355;
-            color: #fff5e1;
-            border-color: #6b5b43;
-        }
-        
-        .selection-row {
-            background: linear-gradient(135deg, #fffaf0 0%, #f8f4e9 100%);
-            border: 2px solid #d4b483;
-            border-radius: 12px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.2);
-        }
-        
-        /* 响应式设计 */
+        /* 響應式設計 */
         @media (max-width: 768px) {
-            .hero {
-                padding: 2rem 1rem;
+            .container {
+                padding: 0 0.75rem;
             }
             
-            .hero h1 {
-                font-size: 1.8rem;
-            }
-            
-            .selection-row {
+            .welcome-section {
                 padding: 1.5rem;
             }
             
-            .section-header {
+            .welcome-section h1 {
                 font-size: 1.5rem;
             }
             
-            .hero p {
-                text-align: center;
-                padding: 0 1rem;
+            .search-section {
+                padding: 1.2rem;
             }
             
-            .lang-switcher {
-                position: relative;
-                right: auto;
-                top: auto;
-                text-align: right;
-                margin-top: 10px;
-                margin-right: 15px;
+            .steps-indicator {
+                flex-direction: column;
+                gap: 1.2rem;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                text-align: left;
+            }
+            
+            .step-number {
+                margin: 0;
+                flex-shrink: 0;
+            }
+            
+            .upload-section {
+                padding: 1.5rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
-<body class="paper-texture">
-    <!-- 导航栏 -->
-    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <div class="logo-container">
-                        <i class="bi bi-file-earmark-text"></i>
-                    </div>
+<body>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand" href="#">
+                    <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">試卷題庫系統</span>
+                </a>
+                <div class="lang-switcher">
+                    <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                    <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
                 </div>
-            </a>
-            <!-- 語言切換按鈕 - 移到右上角 -->
-            <div class="lang-switcher">
-                <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
-                <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
             </div>
         </div>
     </nav>
     
     <div class="container">
-        <!-- 英雄区域 -->
-        <div class="hero">
-            <div class="hero-content">
-                <h1 class="lang-text" data-en="Welcome to the Paper Repository System" data-zh="歡迎來到試卷題庫系統">
-                    歡迎來到試卷題庫系統
-                </h1>
-                <p class="lead lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
-                    查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。
-                </p>
-                <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
-                    可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。
-                </p>
-                <a href="#upload" class="btn btn-outline-secondary btn-lg mt-3 lang-text" data-en="Upload Your Paper" data-zh="上傳試卷">
-                    上傳試卷
-                </a>
+        <!-- 歡迎區域 -->
+        <div class="welcome-section">
+            <h1 class="lang-text" data-en="Welcome to the Paper Repository System" data-zh="歡迎來到試卷題庫系統">
+                歡迎來到試卷題庫系統
+            </h1>
+            <p class="lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
+                查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。
+            </p>
+            <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
+                可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。
+            </p>
+            <a href="#upload" class="btn secondary-btn mt-2 lang-text" data-en="Upload Your Paper" data-zh="上傳試卷">
+                上傳試卷
+            </a>
+        </div>
+        
+        <!-- 步驟指示器 -->
+        <div class="steps-indicator">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-label lang-text" data-en="Grade" data-zh="年級">年級</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-label lang-text" data-en="Subject" data-zh="科目">科目</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-label lang-text" data-en="Term" data-zh="學期">學期</div>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-label lang-text" data-en="Year" data-zh="年份">年份</div>
             </div>
         </div>
         
-        <!-- 選擇流程指示器 -->
-        <div class="selection-flow">
-            <div class="d-flex justify-content-between align-items-center">
-                <div class="text-center">
-                    <div class="step-indicator" id="step-grade">1</div>
-                    <div class="lang-text" data-en="Grade Level" data-zh="年級">年級</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-subject">2</div>
-                    <div class="lang-text" data-en="Subject" data-zh="學科">學科</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-term">3</div>
-                    <div class="lang-text" data-en="Semester" data-zh="學期">學期</div>
-                </div>
-                <div class="text-center">
-                    <div class="step-indicator" id="step-year">4</div>
-                    <div class="lang-text" data-en="Academic Year" data-zh="學年">學年</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 主要瀏覽區 -->
-        <h2 class="section-header lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">瀏覽舊試卷</h2>
-        
-        <!-- 修正的下拉選單區 - 現在可以全部選擇！ -->
-        <div class="selection-row">
-            <div class="row g-4">
+        <!-- 搜尋區域 -->
+        <div class="search-section">
+            <h2 class="section-title lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">瀏覽舊試卷</h2>
+            
+            <div class="row g-3">
                 <!-- 年級選擇 -->
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label lang-text" data-en="Grade Level" data-zh="年級">年級</label>
@@ -521,29 +458,24 @@
                 </div>
             </div>
             
-            <!-- 搜尋按鈕 -->
             <div class="text-center mt-4">
-                <button class="btn browse-archive-btn btn-lg" onclick="searchPapers()">
+                <button class="btn main-btn" onclick="searchPapers()">
                     <i class="bi bi-search me-2"></i>
                     <span class="lang-text" data-en="Browse Old Papers" data-zh="瀏覽檔案">瀏覽檔案</span>
                 </button>
             </div>
         </div>
         
-        <!-- 論文列表區域 -->
-        <div id="paper-list" class="paper-list-view" style="display: none;">
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h5 class="mb-0" id="paper-list-header">搜尋結果</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div id="paper-list-body">
-                        <!-- 論文將動態加載在這裡 -->
-                    </div>
-                </div>
+        <!-- 結果區域 -->
+        <div id="results-section" class="results-section" style="display: none;">
+            <div class="results-header">
+                <span id="results-title">搜尋結果</span>
             </div>
-            <div class="text-center mt-4">
-                <button class="btn back-btn" onclick="resetBrowser()">
+            <div class="results-body" id="results-body">
+                <!-- 結果將動態顯示在這裡 -->
+            </div>
+            <div class="text-center p-3 border-top">
+                <button class="btn secondary-btn" onclick="resetSearch()">
                     <i class="bi bi-arrow-left me-2"></i>
                     <span class="lang-text" data-en="New Search" data-zh="新搜尋">新搜尋</span>
                 </button>
@@ -551,75 +483,62 @@
         </div>
         
         <!-- 上傳區域 -->
-        <section class="upload-section mt-5" id="upload">
-            <h2 class="section-header lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">上傳您的舊試卷</h2>
+        <div class="upload-section" id="upload">
+            <h2 class="section-title lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">上傳您的舊試卷</h2>
             
-            <!-- 隱私聲明 -->
-            <div class="privacy-notice">
-                <div class="d-flex align-items-start">
+            <div class="privacy-tip">
+                <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">隱私保護承諾</h5>
+                <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
+                    所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。
+                </p>
+            </div>
+            
+            <p class="lang-text" data-en="Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system." data-zh="任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。">
+                任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-item">
                     <i class="bi bi-shield-check feature-icon"></i>
-                    <div>
-                        <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">隱私保護承諾</h5>
-                        <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
-                            所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。
-                        </p>
+                    <div class="feature-title lang-text" data-en="Confidential Processing" data-zh="保密處理">保密處理</div>
+                    <div class="feature-desc lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
+                        所有個人信息將被遮蓋，保護您的隱私。
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="bi bi-eye-slash feature-icon"></i>
+                    <div class="feature-title lang-text" data-en="Upload" data-zh="上傳">匿名上傳</div>
+                    <div class="feature-desc lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
+                        上傳者信息不會公開顯示，僅管理員可見。
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="bi bi-clipboard-check feature-icon"></i>
+                    <div class="feature-title lang-text" data-en="Administrator Review" data-zh="管理員審核">管理員審核</div>
+                    <div class="feature-desc lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
+                        所有試卷都會經過審核，確保質量和隱私合規後才會發布。
                     </div>
                 </div>
             </div>
             
-            <div class="card">
-                <div class="card-body">
-                    <p class="lang-text" data-en="Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system." data-zh="任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。">
-                        任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。
-                    </p>
-                    
-                    <!-- 上傳特色 -->
-                    <div class="upload-features">
-                        <div class="feature-item">
-                            <i class="bi bi-shield-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">保密處理</strong>
-                                <p class="mb-0 small lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
-                                    所有個人信息將被遮蓋，保護您的隱私。
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-item">
-                            <i class="bi bi-eye-slash feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Upload" data-zh="上傳">匿名上傳</strong>
-                                <p class="mb-0 small lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
-                                    上傳者信息不會公開顯示，僅管理員可見。
-                                </p>
-                            </div>
-                        </div>
-                        <div class="feature-item">
-                            <i class="bi bi-clipboard-check feature-icon"></i>
-                            <div>
-                                <strong class="lang-text" data-en="Administrator Review" data-zh="管理員審核">管理員審核</strong>
-                                <p class="mb-0 small lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
-                                    所有試卷都會經過審核，確保質量和隱私合規後才會發布。
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="text-center mt-4">
-                        <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn submit-portal-btn btn-lg">
-                            <i class="bi bi-archive me-2"></i>
-                            <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">透過 Google 表單上傳</span>
-                        </a>
-                    </div>
-                </div>
+            <div class="text-center mt-4">
+                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn main-btn">
+                    <i class="bi bi-google me-2"></i>
+                    <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">透過 Google 表單上傳</span>
+                </a>
             </div>
-        </section>
+        </div>
     </div>
     
     <!-- 頁腳 -->
     <div class="footer">
-
-        </span>
+        <div class="container">
+            <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">
+                試卷題庫系統
+            </span>
+        </div>
     </div>
     
     <!-- Bootstrap JS -->
@@ -633,7 +552,7 @@
         let currentYear = null;
         let currentLang = 'zh'; // 預設為繁體中文
         
-        // 初始化 - 現在所有下拉選單都可以選擇！
+        // 初始化
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化語言為繁體中文
             changeLang('zh');
@@ -643,67 +562,56 @@
             document.getElementById('termDropdown').disabled = false;
             document.getElementById('yearDropdown').disabled = false;
             
-            // 更新步驟指示器
-            updateStepIndicators();
-            
-            console.log('所有下拉選單已啟用！');
-            console.log('預設語言：繁體中文');
+            updateSteps();
         });
         
         // 處理年級選擇
         function handleGradeSelect(value) {
             currentGrade = value;
-            console.log('年級選擇:', value);
-            updateStepIndicators();
+            updateSteps();
         }
         
         // 處理科目選擇
         function handleSubjectSelect(value) {
             currentSubject = value;
-            console.log('科目選擇:', value);
-            updateStepIndicators();
+            updateSteps();
         }
         
         // 處理學期選擇
         function handleTermSelect(value) {
             currentTerm = value;
-            console.log('學期選擇:', value);
-            updateStepIndicators();
+            updateSteps();
         }
         
         // 處理年份選擇
         function handleYearSelect(value) {
             currentYear = value;
-            console.log('年份選擇:', value);
-            updateStepIndicators();
+            updateSteps();
         }
         
         // 更新步驟指示器
-        function updateStepIndicators() {
-            const steps = ['grade', 'subject', 'term', 'year'];
-            
-            steps.forEach(step => {
-                const indicator = document.getElementById(`step-${step}`);
-                if (indicator) {
-                    indicator.classList.remove('step-complete');
-                    
-                    if (step === 'grade' && currentGrade) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'subject' && currentSubject) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'term' && currentTerm) {
-                        indicator.classList.add('step-complete');
-                    }
-                    if (step === 'year' && currentYear) {
-                        indicator.classList.add('step-complete');
-                    }
-                }
+        function updateSteps() {
+            // 重置所有步驟
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
             });
+            
+            // 激活相應步驟
+            if (currentGrade) {
+                document.getElementById('step1').classList.add('active');
+            }
+            if (currentSubject) {
+                document.getElementById('step2').classList.add('active');
+            }
+            if (currentTerm) {
+                document.getElementById('step3').classList.add('active');
+            }
+            if (currentYear) {
+                document.getElementById('step4').classList.add('active');
+            }
         }
         
-        // 搜尋論文
+        // 搜尋試卷
         function searchPapers() {
             // 檢查是否所有欄位都已填寫
             if (!currentGrade || !currentSubject || !currentTerm || !currentYear) {
@@ -714,30 +622,30 @@
                 return;
             }
             
-            // 顯示論文列表
-            showPaperList();
+            // 顯示結果區域
+            showResults();
         }
         
-        // 顯示論文列表
-        function showPaperList() {
-            // 更新標題
-            updatePaperListHeader();
+        // 顯示結果
+        function showResults() {
+            // 更新結果標題
+            updateResultsTitle();
             
-            // 加載論文
-            loadPapers();
+            // 加載結果
+            loadResults();
             
-            // 顯示論文列表
-            document.getElementById('paper-list').style.display = 'block';
+            // 顯示結果區域
+            document.getElementById('results-section').style.display = 'block';
             
-            // 滾動到論文列表
-            document.getElementById('paper-list').scrollIntoView({ 
+            // 滾動到結果區域
+            document.getElementById('results-section').scrollIntoView({ 
                 behavior: 'smooth',
                 block: 'start'
             });
         }
         
-        // 更新論文列表標題
-        function updatePaperListHeader() {
+        // 更新結果標題
+        function updateResultsTitle() {
             const gradeNames = {
                 jh1: { en: "Junior High 1", zh: "初中一年級" },
                 jh2: { en: "Junior High 2", zh: "初中二年級" },
@@ -767,23 +675,29 @@
             const subjectText = subjectNames[currentSubject][currentLang];
             const termText = termNames[currentTerm][currentLang];
             
-            document.getElementById('paper-list-header').textContent = 
-                `${gradeText} / ${subjectText} / ${termText} / ${currentYear}`;
+            const title = currentLang === 'zh' ? 
+                `搜尋結果：${gradeText} / ${subjectText} / ${termText} / ${currentYear}` :
+                `Search Results: ${gradeText} / ${subjectText} / ${termText} / ${currentYear}`;
+            
+            document.getElementById('results-title').textContent = title;
         }
         
-        // 加載論文
-        function loadPapers() {
-            const paperListBody = document.getElementById('paper-list-body');
+        // 加載結果
+        function loadResults() {
+            const resultsBody = document.getElementById('results-body');
             
             // 清空現有內容
-            paperListBody.innerHTML = '';
+            resultsBody.innerHTML = '';
             
-            // 創建無論文訊息
-            const noPapersDiv = document.createElement('div');
-            noPapersDiv.className = 'no-papers';
+            // 創建無結果訊息
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-results';
             
             const icon = document.createElement('i');
             icon.className = 'bi bi-file-earmark-text';
+            icon.style.fontSize = '3rem';
+            icon.style.color = '#dee2e6';
+            icon.style.marginBottom = '1rem';
             
             const message = document.createElement('p');
             const messageText = currentLang === 'zh' ? 
@@ -791,13 +705,13 @@
                 'No matching archival documents found. Be the inaugural contributor!';
             message.textContent = messageText;
             
-            noPapersDiv.appendChild(icon);
-            noPapersDiv.appendChild(message);
-            paperListBody.appendChild(noPapersDiv);
+            noResultsDiv.appendChild(icon);
+            noResultsDiv.appendChild(message);
+            resultsBody.appendChild(noResultsDiv);
         }
         
-        // 重置瀏覽器
-        function resetBrowser() {
+        // 重置搜尋
+        function resetSearch() {
             // 重置選擇
             currentGrade = null;
             currentSubject = null;
@@ -810,11 +724,11 @@
             document.getElementById('termDropdown').selectedIndex = 0;
             document.getElementById('yearDropdown').selectedIndex = 0;
             
-            // 隱藏論文列表
-            document.getElementById('paper-list').style.display = 'none';
+            // 隱藏結果區域
+            document.getElementById('results-section').style.display = 'none';
             
-            // 更新步驟指示器
-            updateStepIndicators();
+            // 重置步驟
+            updateSteps();
             
             // 滾動回頂部
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -843,12 +757,10 @@
                 btn.classList.add('active');
             });
             
-            // 如果有顯示論文列表，更新標題
+            // 如果有顯示結果，更新標題
             if (currentGrade && currentSubject && currentTerm && currentYear) {
-                updatePaperListHeader();
+                updateResultsTitle();
             }
-            
-            console.log('語言切換為:', lang);
         }
         
         // 滾動平滑處理
