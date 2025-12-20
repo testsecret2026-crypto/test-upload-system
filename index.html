@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh" id="main-html">
+<html lang="zh-Hant" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Old Paper Upload System</title>
+    <title>試卷題庫系統 | Old Paper Repository</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     
     <!-- Bootstrap CSS -->
@@ -16,7 +16,7 @@
         /* 复古纸张主题样式 */
         body {
             background: #f5f0e1 url('data:image/svg+xml;utf8,<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23f5f0e1"/><path d="M0,50 L100,50 M50,0 L50,100" stroke="%23e0d6c2" stroke-width="0.5" opacity="0.3"/></svg>');
-            font-family: 'Georgia', 'Times New Roman', serif;
+            font-family: 'Georgia', 'Times New Roman', 'Microsoft JhengHei', serif;
             color: #3a2c1c;
             min-height: 100vh;
         }
@@ -64,11 +64,22 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         
+        /* 語言切換按鈕樣式 - 在右上角 */
+        .lang-switcher {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            z-index: 1000;
+        }
+        
         .lang-btn {
             background: #fff5e1 !important;
             border: 2px solid #d4b483 !important;
             color: #8b7355 !important;
             font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.4rem 0.8rem;
+            margin-left: 5px;
         }
         
         .lang-btn:hover, .lang-btn.active {
@@ -86,10 +97,10 @@
             box-shadow: 0 6px 20px rgba(139, 115, 85, 0.15);
             position: relative;
             overflow: hidden;
-            text-align: center; /* 新增：讓整個hero區塊內容置中 */
+            text-align: center; /* 讓整個hero區塊內容置中 */
         }
         
-        /* 新增：專門用於置中文字內容的類別 */
+        /* 專門用於置中文字內容的類別 */
         .hero-content {
             max-width: 800px;
             margin: 0 auto;
@@ -113,6 +124,7 @@
             font-weight: 700;
             margin-bottom: 1.5rem;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+            font-size: 2.2rem;
         }
         
         .hero p {
@@ -120,6 +132,7 @@
             margin-left: auto;
             margin-right: auto;
             max-width: 900px; /* 限制最大寬度，避免太長的行 */
+            line-height: 1.7;
         }
         
         .hero .lead {
@@ -136,6 +149,7 @@
             border-bottom: 3px solid #d4b483;
             position: relative;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            font-size: 1.8rem;
         }
         
         .section-header::after {
@@ -218,7 +232,7 @@
             box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3);
         }
         
-        /* 修改瀏覽檔案按鈕樣式 */
+        /* 瀏覽檔案按鈕樣式 */
         .browse-archive-btn {
             background: transparent !important;
             border: 2px solid #8b7355 !important;
@@ -237,7 +251,7 @@
             box-shadow: 0 4px 8px rgba(107, 91, 67, 0.3) !important;
         }
         
-        /* 修改提交入口按鈕樣式 */
+        /* 提交入口按鈕樣式 */
         .submit-portal-btn {
             background: transparent !important;
             border: 2px solid #8b7355 !important;
@@ -359,6 +373,10 @@
                 padding: 2rem 1rem;
             }
             
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+            
             .selection-row {
                 padding: 1.5rem;
             }
@@ -371,6 +389,15 @@
                 text-align: center;
                 padding: 0 1rem;
             }
+            
+            .lang-switcher {
+                position: relative;
+                right: auto;
+                top: auto;
+                text-align: right;
+                margin-top: 10px;
+                margin-right: 15px;
+            }
         }
     </style>
 </head>
@@ -380,12 +407,16 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
                 <div class="logo-container">
-
+                    <div class="logo-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">試卷題庫系統</span>
                 </div>
             </a>
-            <div class="d-flex">
-                <button class="btn lang-btn me-2 active" onclick="changeLang('en')" id="lang-btn-en">English</button>
-                <button class="btn lang-btn" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+            <!-- 語言切換按鈕 - 移到右上角 -->
+            <div class="lang-switcher">
+                <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
             </div>
         </div>
     </nav>
@@ -393,18 +424,18 @@
     <div class="container">
         <!-- 英雄区域 -->
         <div class="hero">
-            <div class="hero-content"> <!-- 新增容器來控制內容寬度和置中 -->
+            <div class="hero-content">
                 <h1 class="lang-text" data-en="Welcome to the Paper Repository System" data-zh="歡迎來到試卷題庫系統">
-                    Vintage Paper Repository
+                    歡迎來到試卷題庫系統
                 </h1>
                 <p class="lead lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
-                    Explore a curated collection of historical examination papers spanning junior to senior high school levels across six core subjects.
+                    查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。
                 </p>
                 <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
-                    Navigate through academic archives by educational stage, discipline, semester, and year. Contribute to our growing repository via secure submission.
+                    可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。
                 </p>
                 <a href="#upload" class="btn btn-outline-secondary btn-lg mt-3 lang-text" data-en="Upload Your Paper" data-zh="上傳試卷">
-                    Contribute Papers
+                    上傳試卷
                 </a>
             </div>
         </div>
@@ -414,74 +445,74 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-center">
                     <div class="step-indicator" id="step-grade">1</div>
-                    <div class="lang-text" data-en="Grade Level" data-zh="年級">Grade Level</div>
+                    <div class="lang-text" data-en="Grade Level" data-zh="年級">年級</div>
                 </div>
                 <div class="text-center">
                     <div class="step-indicator" id="step-subject">2</div>
-                    <div class="lang-text" data-en="Subject" data-zh="學科">Academic Discipline</div>
+                    <div class="lang-text" data-en="Subject" data-zh="學科">學科</div>
                 </div>
                 <div class="text-center">
                     <div class="step-indicator" id="step-term">3</div>
-                    <div class="lang-text" data-en="Semester" data-zh="學期">Semester</div>
+                    <div class="lang-text" data-en="Semester" data-zh="學期">學期</div>
                 </div>
                 <div class="text-center">
                     <div class="step-indicator" id="step-year">4</div>
-                    <div class="lang-text" data-en="Academic Year" data-zh="學年">Academic Year</div>
+                    <div class="lang-text" data-en="Academic Year" data-zh="學年">學年</div>
                 </div>
             </div>
         </div>
         
         <!-- 主要瀏覽區 -->
-        <h2 class="section-header lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">Browse Academic Archives</h2>
+        <h2 class="section-header lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">瀏覽舊試卷</h2>
         
         <!-- 修正的下拉選單區 - 現在可以全部選擇！ -->
         <div class="selection-row">
             <div class="row g-4">
                 <!-- 年級選擇 -->
                 <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Grade Level" data-zh="年級">Grade Level</label>
+                    <label class="form-label lang-text" data-en="Grade Level" data-zh="年級">年級</label>
                     <select class="form-select" id="gradeDropdown" onchange="handleGradeSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Grade" data-zh="選擇教育階段">Select Grade</option>
-                        <option value="jh1" class="lang-text" data-en="Junior High 1" data-zh="初中一年級">Junior High 1</option>
-                        <option value="jh2" class="lang-text" data-en="Junior High 2" data-zh="初中二年級">Junior High 2</option>
-                        <option value="jh3" class="lang-text" data-en="Junior High 3" data-zh="初中三年級">Junior High 3</option>
-                        <option value="sh1" class="lang-text" data-en="Senior High 1" data-zh="高中一年級">Senior High 1</option>
-                        <option value="sh2" class="lang-text" data-en="Senior High 2" data-zh="高中二年級">Senior High 2</option>
-                        <option value="sh3" class="lang-text" data-en="Senior High 3" data-zh="高中三年級">Senior High 3</option>
-                        <option value="other" class="lang-text" data-en="Advanced Level" data-zh="進階學段">Advanced Level</option>
+                        <option value="" selected class="lang-text" data-en="Select Grade" data-zh="選擇教育階段">選擇教育階段</option>
+                        <option value="jh1" class="lang-text" data-en="Junior High 1" data-zh="初中一年級">初中一年級</option>
+                        <option value="jh2" class="lang-text" data-en="Junior High 2" data-zh="初中二年級">初中二年級</option>
+                        <option value="jh3" class="lang-text" data-en="Junior High 3" data-zh="初中三年級">初中三年級</option>
+                        <option value="sh1" class="lang-text" data-en="Senior High 1" data-zh="高中一年級">高中一年級</option>
+                        <option value="sh2" class="lang-text" data-en="Senior High 2" data-zh="高中二年級">高中二年級</option>
+                        <option value="sh3" class="lang-text" data-en="Senior High 3" data-zh="高中三年級">高中三年級</option>
+                        <option value="other" class="lang-text" data-en="Advanced Level" data-zh="進階學段">進階學段</option>
                     </select>
                 </div>
                 
-                <!-- 科目選擇 - 修復了！ -->
+                <!-- 科目選擇 -->
                 <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Subject" data-zh="學科">Academic Discipline</label>
+                    <label class="form-label lang-text" data-en="Subject" data-zh="學科">學科</label>
                     <select class="form-select" id="subjectDropdown" onchange="handleSubjectSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Subject" data-zh="選擇學科">Select Subject</option>
-                        <option value="chi" class="lang-text" data-en="Chinese Literature" data-zh="中文文學">Chinese Literature</option>
-                        <option value="eng" class="lang-text" data-en="English Language" data-zh="英語語言">English Language</option>
-                        <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">Mathematics</option>
-                        <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">Physics</option>
-                        <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">Chemistry</option>
-                        <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">Biology</option>
+                        <option value="" selected class="lang-text" data-en="Select Subject" data-zh="選擇學科">選擇學科</option>
+                        <option value="chi" class="lang-text" data-en="Chinese Literature" data-zh="中文文學">中文文學</option>
+                        <option value="eng" class="lang-text" data-en="English Language" data-zh="英語語言">英語語言</option>
+                        <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">數學</option>
+                        <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">物理</option>
+                        <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">化學</option>
+                        <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">生物</option>
                     </select>
                 </div>
                 
-                <!-- 學期選擇 - 修復了！ -->
+                <!-- 學期選擇 -->
                 <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Semester" data-zh="學期">Semester</label>
+                    <label class="form-label lang-text" data-en="Semester" data-zh="學期">學期</label>
                     <select class="form-select" id="termDropdown" onchange="handleTermSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Term" data-zh="選擇學期">Select Term</option>
-                        <option value="t1" class="lang-text" data-en="First Semester" data-zh="第一學期">First Semester</option>
-                        <option value="t2" class="lang-text" data-en="Second Semester" data-zh="第二學期">Second Semester</option>
-                        <option value="t3" class="lang-text" data-en="Third Semester" data-zh="第三學期">Third Semester</option>
+                        <option value="" selected class="lang-text" data-en="Select Term" data-zh="選擇學期">選擇學期</option>
+                        <option value="t1" class="lang-text" data-en="First Semester" data-zh="第一學期">第一學期</option>
+                        <option value="t2" class="lang-text" data-en="Second Semester" data-zh="第二學期">第二學期</option>
+                        <option value="t3" class="lang-text" data-en="Third Semester" data-zh="第三學期">第三學期</option>
                     </select>
                 </div>
                 
-                <!-- 年份選擇 - 修復了！ -->
+                <!-- 年份選擇 -->
                 <div class="col-lg-3 col-md-6">
-                    <label class="form-label lang-text" data-en="Academic Year" data-zh="學年">Academic Year</label>
+                    <label class="form-label lang-text" data-en="Academic Year" data-zh="學年">學年</label>
                     <select class="form-select" id="yearDropdown" onchange="handleYearSelect(this.value)">
-                        <option value="" selected class="lang-text" data-en="Select Year" data-zh="選擇年份">Select Year</option>
+                        <option value="" selected class="lang-text" data-en="Select Year" data-zh="選擇年份">選擇年份</option>
                         <option value="2020">2020</option>
                         <option value="2021">2021</option>
                         <option value="2022">2022</option>
@@ -497,7 +528,7 @@
             <div class="text-center mt-4">
                 <button class="btn browse-archive-btn btn-lg" onclick="searchPapers()">
                     <i class="bi bi-search me-2"></i>
-                    <span class="lang-text" data-en="Browse Old Papers" data-zh="瀏覽檔案">Browse Archives</span>
+                    <span class="lang-text" data-en="Browse Old Papers" data-zh="瀏覽檔案">瀏覽檔案</span>
                 </button>
             </div>
         </div>
@@ -506,7 +537,7 @@
         <div id="paper-list" class="paper-list-view" style="display: none;">
             <div class="card mt-4">
                 <div class="card-header">
-                    <h5 class="mb-0" id="paper-list-header">Search Results</h5>
+                    <h5 class="mb-0" id="paper-list-header">搜尋結果</h5>
                 </div>
                 <div class="card-body p-0">
                     <div id="paper-list-body">
@@ -517,25 +548,23 @@
             <div class="text-center mt-4">
                 <button class="btn back-btn" onclick="resetBrowser()">
                     <i class="bi bi-arrow-left me-2"></i>
-                    <span class="lang-text" data-en="New Search" data-zh="新搜尋">New Search</span>
+                    <span class="lang-text" data-en="New Search" data-zh="新搜尋">新搜尋</span>
                 </button>
             </div>
         </div>
         
         <!-- 上傳區域 -->
         <section class="upload-section mt-5" id="upload">
-            <h2 class="section-header lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">Archive Contribution</h2>
+            <h2 class="section-header lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">上傳您的舊試卷</h2>
             
             <!-- 隱私聲明 -->
             <div class="privacy-notice">
                 <div class="d-flex align-items-start">
                     <i class="bi bi-shield-check feature-icon"></i>
                     <div>
-                        <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">Privacy Assurance Protocol</h5>
-                        <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies.
-
-" data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
-                            All archival submissions undergo rigorous confidentiality protocols. Personal identifiers are systematically redacted using advanced obfuscation algorithms. Each document receives multi-tier administrative review before archival inclusion.
+                        <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">隱私保護承諾</h5>
+                        <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
+                            所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。
                         </p>
                     </div>
                 </div>
@@ -544,7 +573,7 @@
             <div class="card">
                 <div class="card-body">
                     <p class="lang-text" data-en="Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system." data-zh="任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。">
-                        The scholarly community is invited to enrich our repository through the submission portal. Each contribution undergoes verification and anonymization prior to publication within our academic archives.
+                        任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。
                     </p>
                     
                     <!-- 上傳特色 -->
@@ -552,9 +581,9 @@
                         <div class="feature-item">
                             <i class="bi bi-shield-check feature-icon"></i>
                             <div>
-                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">Confidential Processing</strong>
+                                <strong class="lang-text" data-en="Confidential Processing" data-zh="保密處理">保密處理</strong>
                                 <p class="mb-0 small lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
-                                    Advanced redaction protocols ensure complete privacy protection.
+                                    所有個人信息將被遮蓋，保護您的隱私。
                                 </p>
                             </div>
                         </div>
@@ -562,18 +591,18 @@
                         <div class="feature-item">
                             <i class="bi bi-eye-slash feature-icon"></i>
                             <div>
-                                <strong class="lang-text" data-en="Upload" data-zh="上傳">Anonymous Submission</strong>
+                                <strong class="lang-text" data-en="Upload" data-zh="上傳">匿名上傳</strong>
                                 <p class="mb-0 small lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
-                                    Contributor anonymity is maintained throughout the archival process.
+                                    上傳者信息不會公開顯示，僅管理員可見。
                                 </p>
                             </div>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-clipboard-check feature-icon"></i>
                             <div>
-                                <strong class="lang-text" data-en="Administrator Review " data-zh="管理員審核">Archival Review</strong>
-                                <p class="mb-0 small lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing.." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
-                                    Multi-phase review ensures academic integrity and privacy compliance.
+                                <strong class="lang-text" data-en="Administrator Review" data-zh="管理員審核">管理員審核</strong>
+                                <p class="mb-0 small lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
+                                    所有試卷都會經過審核，確保質量和隱私合規後才會發布。
                                 </p>
                             </div>
                         </div>
@@ -582,7 +611,7 @@
                     <div class="text-center mt-4">
                         <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn submit-portal-btn btn-lg">
                             <i class="bi bi-archive me-2"></i>
-                            <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">Access Submission Portal</span>
+                            <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">透過 Google 表單上傳</span>
                         </a>
                     </div>
                 </div>
@@ -592,8 +621,8 @@
     
     <!-- 頁腳 -->
     <div class="footer">
-        <span class="lang-text">
-            <!-- 頁腳文字已被移除 -->
+        <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">
+            試卷題庫系統
         </span>
     </div>
     
@@ -606,12 +635,12 @@
         let currentSubject = null;
         let currentTerm = null;
         let currentYear = null;
-        let currentLang = 'en';
+        let currentLang = 'zh'; // 預設為繁體中文
         
         // 初始化 - 現在所有下拉選單都可以選擇！
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化語言
-            changeLang('en');
+            // 初始化語言為繁體中文
+            changeLang('zh');
             
             // 啟用所有下拉選單
             document.getElementById('subjectDropdown').disabled = false;
@@ -622,6 +651,7 @@
             updateStepIndicators();
             
             console.log('所有下拉選單已啟用！');
+            console.log('預設語言：繁體中文');
         });
         
         // 處理年級選擇
@@ -681,7 +711,10 @@
         function searchPapers() {
             // 檢查是否所有欄位都已填寫
             if (!currentGrade || !currentSubject || !currentTerm || !currentYear) {
-                alert('請填寫所有搜尋條件！');
+                const alertMsg = currentLang === 'zh' ? 
+                    '請填寫所有搜尋條件！' : 
+                    'Please fill in all search criteria!';
+                alert(alertMsg);
                 return;
             }
             
@@ -818,6 +851,8 @@
             if (currentGrade && currentSubject && currentTerm && currentYear) {
                 updatePaperListHeader();
             }
+            
+            console.log('語言切換為:', lang);
         }
         
         // 滾動平滑處理
