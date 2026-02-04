@@ -1,227 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" id="main-html">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <!-- 改用較舊但穩定的版本 -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
+    
     <style>
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-            color: #333;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-        
-        .navbar {
-            background-color: #ffffff;
-            border-bottom: 1px solid #dee2e6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            padding: 1rem 0;
-        }
-        
-        .navbar-brand {
-            color: #2c3e50;
-            font-weight: 600;
-            font-size: 1.3rem;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #dee2e6;
-        }
-        
-        .user-name {
-            color: #495057;
-            font-size: 0.9rem;
-        }
-        
-        .container {
-            max-width: 1200px;
-            padding: 0 1rem;
-        }
-        
-        .welcome-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            margin: 2rem 0;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-        }
-        
-        .welcome-section h1 {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 1.8rem;
-        }
-        
-        .search-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-        }
-        
-        .section-title {
-            color: #2c3e50;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
-        }
-        
-        .form-label {
-            color: #495057;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-        
-        .form-select {
-            border: 1px solid #ced4da;
-            border-radius: 5px;
-            padding: 0.6rem;
-            color: #495057;
-            font-size: 0.95rem;
-        }
-        
-        .results-section {
-            background-color: white;
-            border-radius: 8px;
-            margin-top: 2rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-            overflow: hidden;
-        }
-        
-        .results-header {
-            background-color: #f8f9fa;
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid #e9ecef;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .results-body {
-            padding: 2rem;
-            min-height: 200px;
-        }
-        
-        .upload-section {
-            background-color: white;
-            border-radius: 8px;
-            padding: 2rem;
-            margin-top: 3rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 1px solid #e9ecef;
-        }
-        
-        .footer {
-            background-color: #f8f9fa;
-            color: #6c757d;
-            text-align: center;
-            padding: 1.5rem 0;
-            margin-top: 3rem;
-            border-top: 1px solid #e9ecef;
-            font-size: 0.9rem;
-        }
-        
-        .google-login-btn {
-            background-color: white;
-            color: #5f6368;
-            border: 1px solid #dadce0;
-            border-radius: 4px;
-            padding: 10px 16px;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-        
-        .google-login-btn:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .google-icon {
-            width: 18px;
-            height: 18px;
-        }
-        
-        .modal-content {
-            border-radius: 8px;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 0.75rem;
-            }
-            
-            .welcome-section {
-                padding: 1.5rem;
-            }
-            
-            .welcome-section h1 {
-                font-size: 1.5rem;
-            }
-            
-            .search-section {
-                padding: 1.2rem;
-            }
-            
-            .upload-section {
-                padding: 1.5rem;
-            }
-            
-            .user-info {
-                font-size: 0.85rem;
-            }
-        }
+        body { background: #f8f9fa; font-family: 'Microsoft JhengHei'; }
+        .navbar { background: white; border-bottom: 1px solid #dee2e6; }
+        .container { max-width: 1200px; }
+        .welcome-section { background: white; padding: 2rem; border-radius: 8px; margin: 2rem 0; }
+        .google-btn { background: white; border: 1px solid #dadce0; padding: 10px; border-radius: 4px; width: 100%; }
     </style>
 </head>
 <body>
     <!-- 導航欄 -->
     <nav class="navbar">
         <div class="container">
-            <div class="d-flex justify-content-between align-items-center w-100">
-                <a class="navbar-brand" href="#">
-                    試卷題庫系統
-                </a>
-                
-                <div class="d-flex align-items-center gap-3">
+            <div class="d-flex justify-content-between w-100">
+                <a class="navbar-brand" href="#">試卷題庫系統</a>
+                <div>
                     <!-- 用戶資訊 -->
-                    <div id="userInfo" class="user-info d-none">
-                        <img src="" id="userAvatar" class="user-avatar">
-                        <span id="userName" class="user-name"></span>
-                        <button class="btn btn-outline-danger btn-sm" onclick="logout()">登出</button>
+                    <div id="userInfo" class="d-none d-inline-flex align-items-center">
+                        <img src="" id="userPhoto" width="30" height="30" class="rounded-circle me-2">
+                        <span id="userName" class="me-3"></span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="logout()">登出</button>
                     </div>
-                    
                     <!-- 登入按鈕 -->
-                    <button class="btn btn-outline-primary btn-sm" id="loginButton" onclick="showLoginModal()">
+                    <button class="btn btn-sm btn-outline-primary" id="loginBtn" onclick="showLogin()">
                         <i class="bi bi-google me-1"></i>登入
                     </button>
                 </div>
@@ -229,34 +44,19 @@
         </div>
     </nav>
     
-    <!-- Google 登入模態框 -->
-    <div class="modal fade" id="loginModal" tabindex="-1">
+    <!-- 登入彈窗 -->
+    <div class="modal fade" id="loginModal">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title">登入系統</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <i class="bi bi-google" style="font-size: 3rem; color: #DB4437; margin-bottom: 1rem;"></i>
-                    <h5 class="mb-3">使用 Google 帳號登入</h5>
-                    <p class="text-muted mb-4">安全快速，無需記住新密碼</p>
-                    
-                    <button class="google-login-btn mb-3" onclick="loginWithGoogle()">
-                        <svg class="google-icon" viewBox="0 0 24 24">
-                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                        </svg>
+                <div class="modal-body text-center p-5">
+                    <h5 class="mb-4">使用 Google 登入</h5>
+                    <button class="google-btn mb-3" onclick="googleLogin()">
+                        <img src="https://img.icons8.com/color/16/000000/google-logo.png" class="me-2">
                         使用 Google 繼續
                     </button>
-                    
-                    <div class="alert alert-danger d-none" id="loginError"></div>
-                    
-                    <div class="mt-4 text-muted small">
-                        <p>我們僅會取得您的電子郵件和姓名</p>
-                        <p>用於識別身份，不會存取其他資訊</p>
+                    <div class="text-danger small" id="loginError"></div>
+                    <div class="text-muted small mt-4">
+                        <p>我們只會取得您的電郵和姓名</p>
                     </div>
                 </div>
             </div>
@@ -264,326 +64,82 @@
     </div>
     
     <div class="container">
-        <!-- 歡迎區域 -->
+        <!-- 內容區域 -->
         <div class="welcome-section">
-            <h1>歡迎來到試卷題庫系統</h1>
-            <p>查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。</p>
-            <p>可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。</p>
-            <a href="#upload" class="btn btn-outline-primary mt-2">上傳試卷</a>
-        </div>
-        
-        <!-- 搜尋區域 -->
-        <div class="search-section">
-            <h2 class="section-title">瀏覽舊試卷</h2>
-            
-            <div class="row g-3">
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label">年級</label>
-                    <select class="form-select" id="gradeDropdown">
-                        <option value="" selected>選擇教育階段</option>
-                        <option value="jh1">初中一年級</option>
-                        <option value="jh2">初中二年級</option>
-                        <option value="jh3">初中三年級</option>
-                        <option value="sh1">高中一年級</option>
-                        <option value="sh2">高中二年級</option>
-                        <option value="sh3">高中三年級</option>
-                        <option value="other">進階學段</option>
-                    </select>
-                </div>
-                
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label">學科</label>
-                    <select class="form-select" id="subjectDropdown">
-                        <option value="" selected>選擇學科</option>
-                        <option value="chi">中文文學</option>
-                        <option value="eng">英語語言</option>
-                        <option value="math">數學</option>
-                        <option value="phy">物理</option>
-                        <option value="chem">化學</option>
-                        <option value="bio">生物</option>
-                    </select>
-                </div>
-                
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label">學期</label>
-                    <select class="form-select" id="termDropdown">
-                        <option value="" selected>選擇學期</option>
-                        <option value="t1">第一學期</option>
-                        <option value="t2">第二學期</option>
-                        <option value="t3">第三學期</option>
-                    </select>
-                </div>
-                
-                <div class="col-lg-3 col-md-6">
-                    <label class="form-label">學年</label>
-                    <select class="form-select" id="yearDropdown">
-                        <option value="" selected>選擇年份</option>
-                        <option value="2023">2023</option>
-                        <option value="2024">2024</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="text-center mt-4">
-                <button class="btn btn-primary" onclick="searchPapers()">
-                    <i class="bi bi-search me-2"></i>
-                    瀏覽檔案
-                </button>
-            </div>
-        </div>
-        
-        <!-- 結果區域 -->
-        <div id="results-section" class="results-section" style="display: none;">
-            <div class="results-header">
-                <span id="results-title">搜尋結果</span>
-            </div>
-            <div class="results-body" id="results-body">
-                <!-- 結果將顯示在這裡 -->
-            </div>
-        </div>
-        
-        <!-- 上傳區域 -->
-        <div class="upload-section" id="upload">
-            <h2 class="section-title">上傳您的舊試卷</h2>
-            
-            <!-- 登入提示 -->
-            <div id="uploadLoginRequired" class="alert alert-info">
-                <i class="bi bi-info-circle me-2"></i>
-                請先登入才能上傳試卷
-                <button class="btn btn-sm btn-primary ms-2" onclick="showLoginModal()">立即登入</button>
-            </div>
-            
-            <!-- 上傳表單 -->
-            <div id="uploadForm" class="d-none">
-                <div class="alert alert-success">
-                    <i class="bi bi-check-circle me-2"></i>
-                    您已登入，現在可以上傳試卷！
-                </div>
-                
-                <div class="privacy-tip" style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 5px 5px 0;">
-                    <h5>隱私保護承諾</h5>
-                    <p>所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。</p>
-                </div>
-                
-                <p>歡迎上傳您的舊試卷，幫助其他學生學習！</p>
-                
-                <div class="text-center mt-4">
-                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary btn-lg">
-                        <i class="bi bi-upload me-2"></i>
-                        前往 Google 表單上傳
-                    </a>
-                </div>
-            </div>
+            <h1>試卷題庫系統</h1>
+            <p>查找舊試卷，幫助學習！</p>
         </div>
     </div>
     
     <!-- 頁腳 -->
-    <div class="footer">
-        <div class="container">
-            <span>試卷題庫系統 &copy; 2024</span>
-        </div>
+    <div class="text-center text-muted mt-5 py-3">
+        試卷題庫系統 &copy; 2024
     </div>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 主程式碼 -->
     <script>
-        // ========== Firebase 登入功能 ==========
-        let currentUser = null;
-        
-        // 使用 Google 登入
-        async function loginWithGoogle() {
-            const errorElement = document.getElementById('loginError');
-            
+        // 簡單的登入功能
+        async function googleLogin() {
             try {
-                // 確保 Firebase 已初始化
-                if (typeof firebase === 'undefined') {
-                    throw new Error('Firebase 未加載，請刷新頁面');
+                // 初始化 Firebase
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
                 }
                 
-                // 建立 Google 登入提供者
+                // Google 登入
                 const provider = new firebase.auth.GoogleAuthProvider();
-                
-                // 設定權限範圍
-                provider.addScope('email');
-                provider.addScope('profile');
-                
-                // 顯示載入狀態
-                errorElement.classList.add('d-none');
-                
-                // 彈出登入視窗
                 const result = await firebase.auth().signInWithPopup(provider);
-                currentUser = result.user;
                 
-                // 關閉模態框
+                // 成功
+                alert('登入成功！');
+                updateUI(result.user);
+                
+                // 關閉彈窗
                 const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                if (modal) modal.hide();
-                
-                // 更新介面
-                updateUIForLoggedInUser(currentUser);
-                
-                console.log('登入成功:', currentUser.displayName);
+                modal.hide();
                 
             } catch (error) {
-                console.error('Google 登入錯誤:', error);
-                
-                let errorMessage = '登入失敗，請稍後再試';
-                
-                if (error.code === 'auth/popup-closed-by-user') {
-                    errorMessage = '您關閉了登入視窗';
-                } else if (error.code === 'auth/cancelled-popup-request') {
-                    errorMessage = '登入請求已取消';
-                } else if (error.code === 'auth/popup-blocked') {
-                    errorMessage = '彈出視窗被瀏覽器阻擋，請允許彈出視窗';
-                } else if (error.code === 'auth/unauthorized-domain') {
-                    errorMessage = '此網域未授權，請聯繫管理員';
-                }
-                
-                errorElement.textContent = errorMessage;
-                errorElement.classList.remove('d-none');
+                document.getElementById('loginError').textContent = '登入失敗：' + error.message;
+                console.log('錯誤：', error);
             }
         }
         
         // 登出
         async function logout() {
-            try {
-                await firebase.auth().signOut();
-                currentUser = null;
-                updateUIForLoggedOutUser();
-                alert('已成功登出');
-            } catch (error) {
-                console.error('登出錯誤:', error);
-                alert('登出失敗，請稍後再試');
-            }
+            await firebase.auth().signOut();
+            updateUI(null);
+            alert('已登出');
         }
         
-        // 更新介面 - 已登入
-        function updateUIForLoggedInUser(user) {
-            // 更新導航欄
-            document.getElementById('userName').textContent = user.displayName || user.email;
-            
-            if (user.photoURL) {
-                document.getElementById('userAvatar').src = user.photoURL;
+        // 更新介面
+        function updateUI(user) {
+            if (user) {
+                // 已登入
+                document.getElementById('userName').textContent = user.displayName;
+                document.getElementById('userPhoto').src = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                document.getElementById('userInfo').classList.remove('d-none');
+                document.getElementById('loginBtn').classList.add('d-none');
             } else {
-                document.getElementById('userAvatar').src = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
+                // 未登入
+                document.getElementById('userInfo').classList.add('d-none');
+                document.getElementById('loginBtn').classList.remove('d-none');
             }
-            
-            document.getElementById('userInfo').classList.remove('d-none');
-            document.getElementById('loginButton').classList.add('d-none');
-            
-            // 更新上傳區域
-            document.getElementById('uploadLoginRequired').classList.add('d-none');
-            document.getElementById('uploadForm').classList.remove('d-none');
         }
         
-        // 更新介面 - 未登入
-        function updateUIForLoggedOutUser() {
-            document.getElementById('userInfo').classList.add('d-none');
-            document.getElementById('loginButton').classList.remove('d-none');
-            
-            document.getElementById('uploadLoginRequired').classList.remove('d-none');
-            document.getElementById('uploadForm').classList.add('d-none');
+        // 顯示登入視窗
+        function showLogin() {
+            new bootstrap.Modal(document.getElementById('loginModal')).show();
         }
         
-        // 顯示登入模態框
-        function showLoginModal() {
-            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
-            modal.show();
-        }
-        
-        // ========== 試卷搜尋功能 ==========
-        const paperDatabase = {
-            'jh1_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
-                title: '初中一年級數學第一學期 2024 年試卷'
-            },
-            'jh2_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
-                title: '初中二年級數學第一學期 2024 年試卷'
-            },
-            'jh3_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
-                title: '初中三年級數學第一學期 2024 年試卷'
-            }
-        };
-        
-        function searchPapers() {
-            const grade = document.getElementById('gradeDropdown').value;
-            const subject = document.getElementById('subjectDropdown').value;
-            const term = document.getElementById('termDropdown').value;
-            const year = document.getElementById('yearDropdown').value;
-            
-            if (!grade || !subject || !term || !year) {
-                alert('請填寫所有搜尋條件！');
-                return;
-            }
-            
-            const dbKey = `${grade}_${subject}_${term}_${year}`;
-            const resultsBody = document.getElementById('results-body');
-            const resultsSection = document.getElementById('results-section');
-            
-            if (paperDatabase[dbKey]) {
-                const paper = paperDatabase[dbKey];
-                resultsBody.innerHTML = `
-                    <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
-                        <div style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
-                            ${paper.title}
-                        </div>
-                        <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1rem;">
-                            已找到對應的試卷檔案，點擊下方連結查看：
-                        </div>
-                        <div>
-                            <a href="${paper.url}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #007bff; color: white; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 5px; font-weight: 500;">
-                                <i class="bi bi-google-drive"></i>
-                                前往 Google Drive 查看試卷
-                            </a>
-                        </div>
-                    </div>
-                `;
-            } else {
-                resultsBody.innerHTML = `
-                    <div style="text-align: center; color: #6c757d; padding: 2rem 1rem;">
-                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dee2e6; margin-bottom: 1rem;"></i>
-                        <p>暫無符合條件的試卷檔案。成為首個貢獻者！</p>
-                        <p style="font-size: 0.9rem;">如果您有此試卷，歡迎透過下方上傳功能分享給大家！</p>
-                    </div>
-                `;
-            }
-            
-            document.getElementById('results-title').textContent = `搜尋結果：${grade} / ${subject} / ${term} / ${year}`;
-            resultsSection.style.display = 'block';
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        // ========== 頁面初始化 ==========
+        // 頁面載入
         document.addEventListener('DOMContentLoaded', function() {
-            // 監聽 Firebase 登入狀態
+            // 監聽登入狀態
             firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    currentUser = user;
-                    updateUIForLoggedInUser(user);
-                } else {
-                    currentUser = null;
-                    updateUIForLoggedOutUser();
-                }
+                updateUI(user);
             });
-            
-            // 啟用所有下拉選單
-            document.getElementById('subjectDropdown').disabled = false;
-            document.getElementById('termDropdown').disabled = false;
-            document.getElementById('yearDropdown').disabled = false;
-            
-            // 檢查 Firebase 狀態
-            setTimeout(() => {
-                if (typeof firebase !== 'undefined') {
-                    console.log('Firebase 已加載');
-                } else {
-                    console.error('Firebase 未加載');
-                }
-            }, 1000);
         });
     </script>
 </body>
 </html>
-
