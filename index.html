@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>試卷題庫系統</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
     
-    <!-- Bootstrap CSS -->
+    <!-- 先載入 Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+    
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
     <style>
+        /* 樣式保持不變 */
         body {
             background-color: #f8f9fa;
             font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
             min-height: 100vh;
         }
-        
-        /* 登入區塊 */
         .login-section {
             max-width: 500px;
             margin: 100px auto;
@@ -27,12 +29,6 @@
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             text-align: center;
         }
-        
-        .login-section h1 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        
         .google-login-btn {
             background: #4285F4;
             color: white;
@@ -48,101 +44,171 @@
             margin: 20px 0;
             transition: background 0.3s;
         }
-        
-        .google-login-btn:hover {
-            background: #3367D6;
-        }
-        
-        .google-icon {
-            width: 20px;
-            height: 20px;
-        }
-        
-        /* 主內容 */
-        .main-content {
-            display: none;
-        }
-        
-        .navbar {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 15px 0;
-        }
-        
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-        }
-        
-        .logout-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        
-        .welcome-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin: 30px 0;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .search-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .btn-primary {
-            background: #007bff;
-            border: none;
-            padding: 10px 25px;
-        }
-        
-        .results-section {
-            background: white;
-            border-radius: 10px;
-            margin-top: 30px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            display: none;
-        }
-        
-        .upload-section {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-top: 40px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-        }
-        
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-            margin-top: 50px;
-            border-top: 1px solid #eee;
-        }
+        .google-login-btn:hover { background: #3367D6; }
+        .google-icon { width: 20px; height: 20px; }
+        .main-content { display: none; }
+        .navbar { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px 0; }
+        .user-info { display: flex; align-items: center; gap: 10px; }
+        .user-avatar { width: 35px; height: 35px; border-radius: 50%; }
+        .logout-btn { background: #dc3545; color: white; border: none; padding: 5px 15px; border-radius: 4px; font-size: 14px; }
+        .welcome-section { background: white; padding: 30px; border-radius: 10px; margin: 30px 0; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .search-section { background: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .btn-primary { background: #007bff; border: none; padding: 10px 25px; }
+        .results-section { background: white; border-radius: 10px; margin-top: 30px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); display: none; }
+        .upload-section { background: white; padding: 30px; border-radius: 10px; margin-top: 40px; box-shadow: 0 3px 10px rgba(0,0,0,0.05); }
+        .footer { text-align: center; padding: 20px; color: #666; margin-top: 50px; border-top: 1px solid #eee; }
     </style>
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+    <script>
+        // 等待頁面完全載入
+        window.addEventListener('load', function() {
+            console.log('頁面已載入，檢查 Firebase...');
+            
+            // 檢查 Firebase 是否已載入
+            if (typeof firebase === 'undefined') {
+                console.error('Firebase 未載入！');
+                alert('Firebase 載入失敗，請刷新頁面重試');
+                return;
+            }
+            
+            console.log('Firebase 已載入，版本:', firebase.SDK_VERSION);
+            
+            // Firebase 配置
+            const firebaseConfig = {
+                apiKey: "AIzaSyCafcGCfQZRdpj5xqu-WTDRZFd75BfPtbQ",
+                authDomain: "test-ef369.firebaseapp.com",
+                projectId: "test-ef369",
+                storageBucket: "test-ef369.firebasestorage.app",
+                messagingSenderId: "633157258867",
+                appId: "1:633157258867:web:a844ad7bb6fd0caf74e406"
+            };
+
+            try {
+                // 初始化 Firebase
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+                
+                // 監聽登入狀態
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (user) {
+                        console.log('✅ 用戶已登入:', user.email);
+                        showMainContent(user);
+                    } else {
+                        console.log('❌ 用戶未登入');
+                        showLoginSection();
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Firebase 初始化失敗:', error);
+                alert('Firebase 初始化失敗: ' + error.message);
+            }
+        });
+
+        // Google 登入
+        async function loginWithGoogle() {
+            try {
+                const provider = new firebase.auth.GoogleAuthProvider();
+                const result = await firebase.auth().signInWithPopup(provider);
+                console.log('登入成功:', result.user.email);
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                alert('登入失敗: ' + error.message);
+            }
+        }
+
+        // 登出
+        function logout() {
+            firebase.auth().signOut();
+            alert('已登出');
+        }
+
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        function showMainContent(user) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('userName').textContent = user.displayName || user.email;
+            document.getElementById('userAvatar').src = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+            document.getElementById('userInfo').style.display = 'flex';
+        }
+
+        // 試卷系統功能
+        const paperDatabase = {
+            'jh1_math_t1_2024': { url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing', title: '初中一年級數學第一學期 2024' },
+            'jh1_math_t2_2024': { url: 'https://drive.google.com/drive/folders/1eQDuvqVBzPZJzW3tF8iEMOLDEwNNebE_?usp=sharing', title: '初中一年級數學第二學期 2024' },
+            'jh2_math_t1_2024': { url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing', title: '初中二年級數學第一學期 2024' },
+            'jh3_math_t1_2024': { url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing', title: '初中三年級數學第一學期 2024' },
+            'sh1_math_t1_2024': { url: 'https://drive.google.com/drive/folders/1afHqd0lR_rAPP97cba9RzHYceAgHTMWD?usp=sharing', title: '高中一年級數學第一學期 2024' },
+            'sh2_math_t1_2024': { url: 'https://drive.google.com/drive/folders/1Cym8AqCpdRMq3wWy3rRcrn22jFm5c0GR', title: '高中二年級數學第一學期 2024' },
+            'sh3_math_t1_2024': { url: 'https://drive.google.com/drive/folders/1-q5zZWH3PlomfUWCq1GYFI2QLAGvjYEa', title: '高中三年級數學第一學期 2024' }
+        };
+
+        function searchPapers() {
+            const grade = document.getElementById('gradeDropdown').value;
+            const subject = document.getElementById('subjectDropdown').value;
+            const term = document.getElementById('termDropdown').value;
+            const year = document.getElementById('yearDropdown').value;
+
+            if (!grade || !subject || !term || !year) {
+                alert('請填寫所有搜尋條件！');
+                return;
+            }
+
+            const key = `${grade}_${subject}_${term}_${year}`;
+            const resultsBody = document.getElementById('resultsBody');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsTitle = document.getElementById('resultsTitle');
+
+            resultsTitle.textContent = `搜尋結果: ${getGradeName(grade)} ${getSubjectName(subject)} ${getTermName(term)} ${year}`;
+            resultsBody.innerHTML = '';
+
+            if (paperDatabase[key]) {
+                const paper = paperDatabase[key];
+                resultsBody.innerHTML = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${paper.title}</h5>
+                            <a href="${paper.url}" target="_blank" class="btn btn-success">
+                                <i class="bi bi-google-drive me-2"></i>前往 Google Drive 查看
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultsBody.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #ccc;"></i>
+                        <h5 class="mt-3">暫無符合條件的試卷</h5>
+                    </div>
+                `;
+            }
+
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function getGradeName(grade) {
+            const grades = { jh1: '初中一年級', jh2: '初中二年級', jh3: '初中三年級', sh1: '高中一年級', sh2: '高中二年級', sh3: '高中三年級' };
+            return grades[grade] || grade;
+        }
+
+        function getSubjectName(subject) {
+            const subjects = { chi: '中文', eng: '英文', math: '數學', phy: '物理', chem: '化學', bio: '生物' };
+            return subjects[subject] || subject;
+        }
+
+        function getTermName(term) {
+            const terms = { t1: '第一學期', t2: '第二學期', t3: '第三學期' };
+            return terms[term] || term;
+        }
+    </script>
 </head>
 <body>
-    <!-- 導航欄 -->
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#">📚 試卷題庫系統</a>
@@ -154,7 +220,6 @@
         </div>
     </nav>
 
-    <!-- 登入區塊 -->
     <div class="login-section" id="loginSection">
         <h1>歡迎使用試卷題庫系統</h1>
         <p>請使用 Google 帳號登入，即可瀏覽和下載試卷</p>
@@ -167,16 +232,12 @@
         </p>
     </div>
 
-    <!-- 主內容區塊 -->
     <div class="container main-content" id="mainContent">
-        <!-- 歡迎區 -->
         <div class="welcome-section">
             <h1>📚 試卷題庫系統</h1>
             <p>查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。</p>
-            <p>可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷。</p>
         </div>
 
-        <!-- 搜尋區 -->
         <div class="search-section">
             <h2>瀏覽舊試卷</h2>
             <div class="row g-3 mt-3">
@@ -229,20 +290,15 @@
             </div>
         </div>
 
-        <!-- 結果區 -->
         <div class="results-section" id="resultsSection">
             <div class="results-header p-3 border-bottom">
                 <h5 class="mb-0" id="resultsTitle">搜尋結果</h5>
             </div>
-            <div class="results-body p-4" id="resultsBody">
-                <!-- 結果會顯示在這裡 -->
-            </div>
+            <div class="results-body p-4" id="resultsBody"></div>
         </div>
 
-        <!-- 上傳區 -->
         <div class="upload-section">
             <h2>上傳試卷</h2>
-            <p>歡迎上傳您的試卷！所有上傳的試卷會經過審核後顯示。</p>
             <div class="text-center mt-4">
                 <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary">
                     <i class="bi bi-upload me-2"></i>上傳試卷
@@ -251,190 +307,12 @@
         </div>
     </div>
 
-    <!-- 頁腳 -->
     <div class="footer">
         <div class="container">
             <p>試卷題庫系統 © 2024</p>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        // ==================== FIREBASE 配置 ====================
-        const firebaseConfig = {
-            apiKey: "AIzaSyCafcGCfQZRdpj5xqu-WTDRZFd75BfPtbQ",
-            authDomain: "test-ef369.firebaseapp.com",
-            projectId: "test-ef369",
-            storageBucket: "test-ef369.firebasestorage.app",
-            messagingSenderId: "633157258867",
-            appId: "1:633157258867:web:a844ad7bb6fd0caf74e406"
-        };
-
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-
-        // ==================== 登入系統 ====================
-        firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                // 用戶已登入
-                console.log('✅ 已登入:', user.email);
-                showMainContent(user);
-            } else {
-                // 用戶未登入
-                console.log('❌ 未登入');
-                showLoginSection();
-            }
-        });
-
-        async function loginWithGoogle() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const result = await firebase.auth().signInWithPopup(provider);
-                console.log('登入成功:', result.user.email);
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                alert('登入失敗: ' + error.message);
-            }
-        }
-
-        function logout() {
-            firebase.auth().signOut();
-            alert('已登出');
-        }
-
-        function showLoginSection() {
-            document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'none';
-        }
-
-        function showMainContent(user) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            
-            // 顯示用戶資訊
-            document.getElementById('userName').textContent = user.displayName || user.email;
-            document.getElementById('userAvatar').src = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
-            document.getElementById('userInfo').style.display = 'flex';
-        }
-
-        // ==================== 試卷系統 ====================
-        // 試卷資料庫
-        const paperDatabase = {
-            'jh1_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
-                title: '初中一年級數學第一學期 2024 年試卷'
-            },
-            'jh1_math_t2_2024': {
-                url: 'https://drive.google.com/drive/folders/1eQDuvqVBzPZJzW3tF8iEMOLDEwNNebE_?usp=sharing',
-                title: '初中一年級數學第二學期 2024 年試卷'
-            },
-            'jh2_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
-                title: '初中二年級數學第一學期 2024 年試卷'
-            },
-            'jh3_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
-                title: '初中三年級數學第一學期 2024 年試卷'
-            },
-            'sh1_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1afHqd0lR_rAPP97cba9RzHYceAgHTMWD?usp=sharing',
-                title: '高中一年級數學第一學期 2024 年試卷'
-            },
-            'sh2_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1Cym8AqCpdRMq3wWy3rRcrn22jFm5c0GR',
-                title: '高中二年級數學第一學期 2024 年試卷'
-            },
-            'sh3_math_t1_2024': {
-                url: 'https://drive.google.com/drive/folders/1-q5zZWH3PlomfUWCq1GYFI2QLAGvjYEa',
-                title: '高中三年級數學第一學期 2024 年試卷'
-            }
-        };
-
-        // 搜尋試卷
-        function searchPapers() {
-            const grade = document.getElementById('gradeDropdown').value;
-            const subject = document.getElementById('subjectDropdown').value;
-            const term = document.getElementById('termDropdown').value;
-            const year = document.getElementById('yearDropdown').value;
-
-            if (!grade || !subject || !term || !year) {
-                alert('請填寫所有搜尋條件！');
-                return;
-            }
-
-            const key = `${grade}_${subject}_${term}_${year}`;
-            const resultsBody = document.getElementById('resultsBody');
-            const resultsSection = document.getElementById('resultsSection');
-            const resultsTitle = document.getElementById('resultsTitle');
-
-            // 更新標題
-            resultsTitle.textContent = `搜尋結果: ${getGradeName(grade)} ${getSubjectName(subject)} ${getTermName(term)} ${year}`;
-
-            // 清空之前的結果
-            resultsBody.innerHTML = '';
-
-            if (paperDatabase[key]) {
-                // 有找到試卷
-                const paper = paperDatabase[key];
-                const resultHTML = `
-                    <div class="card mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">${paper.title}</h5>
-                            <p class="card-text">已找到對應的試卷檔案</p>
-                            <a href="${paper.url}" target="_blank" class="btn btn-success">
-                                <i class="bi bi-google-drive me-2"></i>前往 Google Drive 查看
-                            </a>
-                        </div>
-                    </div>
-                `;
-                resultsBody.innerHTML = resultHTML;
-            } else {
-                // 沒找到試卷
-                resultsBody.innerHTML = `
-                    <div class="text-center py-5">
-                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #ccc;"></i>
-                        <h5 class="mt-3">暫無符合條件的試卷</h5>
-                        <p class="text-muted">您可以透過上方連結上傳試卷</p>
-                    </div>
-                `;
-            }
-
-            // 顯示結果區
-            resultsSection.style.display = 'block';
-            resultsSection.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // 輔助函數
-        function getGradeName(grade) {
-            const grades = {
-                jh1: '初中一年級', jh2: '初中二年級', jh3: '初中三年級',
-                sh1: '高中一年級', sh2: '高中二年級', sh3: '高中三年級'
-            };
-            return grades[grade] || grade;
-        }
-
-        function getSubjectName(subject) {
-            const subjects = {
-                chi: '中文', eng: '英文', math: '數學',
-                phy: '物理', chem: '化學', bio: '生物'
-            };
-            return subjects[subject] || subject;
-        }
-
-        function getTermName(term) {
-            const terms = {
-                t1: '第一學期', t2: '第二學期', t3: '第三學期'
-            };
-            return terms[term] || term;
-        }
-
-        // 頁面載入時檢查登入狀態
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('頁面已載入，檢查登入狀態...');
-        });
-    </script>
 </body>
 </html>
