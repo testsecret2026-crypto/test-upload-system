@@ -1,46 +1,268 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant" id="main-html">
 <head>
-    <title>測驗系統登入</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試卷題庫系統</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
     <style>
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
+            background-color: #f8f9fa;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
         }
-        .login-btn {
+        
+        /* 登入區塊 */
+        .login-section {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .login-section h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .google-login-btn {
             background: #4285F4;
             color: white;
             border: none;
             padding: 15px 30px;
-            font-size: 18px;
             border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            margin: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            transition: background 0.3s;
         }
-        .login-btn:hover {
+        
+        .google-login-btn:hover {
             background: #3367D6;
         }
+        
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
+        /* 主內容 */
+        .main-content {
+            display: none;
+        }
+        
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .welcome-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .search-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            border: none;
+            padding: 10px 25px;
+        }
+        
+        .results-section {
+            background: white;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            display: none;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 40px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+        }
     </style>
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
 </head>
 <body>
-    <h1>測驗系統</h1>
-    <p>使用 Google 帳號登入</p>
-    
-    <button class="login-btn" onclick="loginWithGoogle()">
-        🔐 用 Google 登入
-    </button>
-    
-    <div id="userInfo" style="display:none; margin-top: 20px;">
-        <p>已登入為: <span id="userName"></span></p>
-        <button onclick="logout()">登出</button>
+    <!-- 導航欄 -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="#">📚 試卷題庫系統</a>
+            <div class="user-info" id="userInfo" style="display: none;">
+                <img id="userAvatar" class="user-avatar" src="" alt="">
+                <span id="userName"></span>
+                <button onclick="logout()" class="logout-btn">登出</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 登入區塊 -->
+    <div class="login-section" id="loginSection">
+        <h1>歡迎使用試卷題庫系統</h1>
+        <p>請使用 Google 帳號登入，即可瀏覽和下載試卷</p>
+        <button onclick="loginWithGoogle()" class="google-login-btn">
+            <img src="https://www.google.com/favicon.ico" class="google-icon">
+            使用 Google 登入
+        </button>
+        <p style="color: #666; font-size: 14px; margin-top: 20px;">
+            我們只會取得您的電子郵件和姓名，用於識別身份
+        </p>
     </div>
 
+    <!-- 主內容區塊 -->
+    <div class="container main-content" id="mainContent">
+        <!-- 歡迎區 -->
+        <div class="welcome-section">
+            <h1>📚 試卷題庫系統</h1>
+            <p>查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。</p>
+            <p>可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷。</p>
+        </div>
+
+        <!-- 搜尋區 -->
+        <div class="search-section">
+            <h2>瀏覽舊試卷</h2>
+            <div class="row g-3 mt-3">
+                <div class="col-md-3">
+                    <label class="form-label">年級</label>
+                    <select class="form-select" id="gradeDropdown">
+                        <option value="">選擇年級</option>
+                        <option value="jh1">初中一年級</option>
+                        <option value="jh2">初中二年級</option>
+                        <option value="jh3">初中三年級</option>
+                        <option value="sh1">高中一年級</option>
+                        <option value="sh2">高中二年級</option>
+                        <option value="sh3">高中三年級</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">科目</label>
+                    <select class="form-select" id="subjectDropdown">
+                        <option value="">選擇科目</option>
+                        <option value="chi">中文</option>
+                        <option value="eng">英文</option>
+                        <option value="math">數學</option>
+                        <option value="phy">物理</option>
+                        <option value="chem">化學</option>
+                        <option value="bio">生物</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">學期</label>
+                    <select class="form-select" id="termDropdown">
+                        <option value="">選擇學期</option>
+                        <option value="t1">第一學期</option>
+                        <option value="t2">第二學期</option>
+                        <option value="t3">第三學期</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">年份</label>
+                    <select class="form-select" id="yearDropdown">
+                        <option value="">選擇年份</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button class="btn btn-primary" onclick="searchPapers()">
+                    <i class="bi bi-search me-2"></i>搜尋試卷
+                </button>
+            </div>
+        </div>
+
+        <!-- 結果區 -->
+        <div class="results-section" id="resultsSection">
+            <div class="results-header p-3 border-bottom">
+                <h5 class="mb-0" id="resultsTitle">搜尋結果</h5>
+            </div>
+            <div class="results-body p-4" id="resultsBody">
+                <!-- 結果會顯示在這裡 -->
+            </div>
+        </div>
+
+        <!-- 上傳區 -->
+        <div class="upload-section">
+            <h2>上傳試卷</h2>
+            <p>歡迎上傳您的試卷！所有上傳的試卷會經過審核後顯示。</p>
+            <div class="text-center mt-4">
+                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary">
+                    <i class="bi bi-upload me-2"></i>上傳試卷
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 頁腳 -->
+    <div class="footer">
+        <div class="container">
+            <p>試卷題庫系統 © 2024</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        // 你的 Firebase 設定
+        // ==================== FIREBASE 配置 ====================
         const firebaseConfig = {
             apiKey: "AIzaSyCafcGCfQZRdpj5xqu-WTDRZFd75BfPtbQ",
             authDomain: "test-ef369.firebaseapp.com",
@@ -52,50 +274,167 @@
 
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
-        
-        // 監聽登入狀態
+
+        // ==================== 登入系統 ====================
         firebase.auth().onAuthStateChanged((user) => {
             if (user) {
                 // 用戶已登入
-                document.getElementById('userName').textContent = user.displayName || user.email;
-                document.getElementById('userInfo').style.display = 'block';
-                console.log('用戶已登入:', user.email);
+                console.log('✅ 已登入:', user.email);
+                showMainContent(user);
             } else {
                 // 用戶未登入
-                document.getElementById('userInfo').style.display = 'none';
-                console.log('用戶未登入');
+                console.log('❌ 未登入');
+                showLoginSection();
             }
         });
 
-        // Google 登入函數
         async function loginWithGoogle() {
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 const result = await firebase.auth().signInWithPopup(provider);
-                
-                const user = result.user;
-                console.log('登入成功:', user.email);
-                
-                // 儲存到 localStorage（可選）
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName);
-                
-                // 顯示成功訊息
-                alert('歡迎 ' + user.displayName + '!');
-                
+                console.log('登入成功:', result.user.email);
             } catch (error) {
                 console.error('登入錯誤:', error);
                 alert('登入失敗: ' + error.message);
             }
         }
 
-        // 登出函數
         function logout() {
             firebase.auth().signOut();
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('userName');
             alert('已登出');
         }
+
+        function showLoginSection() {
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+
+        function showMainContent(user) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            
+            // 顯示用戶資訊
+            document.getElementById('userName').textContent = user.displayName || user.email;
+            document.getElementById('userAvatar').src = user.photoURL || 'https://cdn-icons-png.flaticon.com/512/149/149071.png';
+            document.getElementById('userInfo').style.display = 'flex';
+        }
+
+        // ==================== 試卷系統 ====================
+        // 試卷資料庫
+        const paperDatabase = {
+            'jh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
+                title: '初中一年級數學第一學期 2024 年試卷'
+            },
+            'jh1_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1eQDuvqVBzPZJzW3tF8iEMOLDEwNNebE_?usp=sharing',
+                title: '初中一年級數學第二學期 2024 年試卷'
+            },
+            'jh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
+                title: '初中二年級數學第一學期 2024 年試卷'
+            },
+            'jh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
+                title: '初中三年級數學第一學期 2024 年試卷'
+            },
+            'sh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1afHqd0lR_rAPP97cba9RzHYceAgHTMWD?usp=sharing',
+                title: '高中一年級數學第一學期 2024 年試卷'
+            },
+            'sh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1Cym8AqCpdRMq3wWy3rRcrn22jFm5c0GR',
+                title: '高中二年級數學第一學期 2024 年試卷'
+            },
+            'sh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1-q5zZWH3PlomfUWCq1GYFI2QLAGvjYEa',
+                title: '高中三年級數學第一學期 2024 年試卷'
+            }
+        };
+
+        // 搜尋試卷
+        function searchPapers() {
+            const grade = document.getElementById('gradeDropdown').value;
+            const subject = document.getElementById('subjectDropdown').value;
+            const term = document.getElementById('termDropdown').value;
+            const year = document.getElementById('yearDropdown').value;
+
+            if (!grade || !subject || !term || !year) {
+                alert('請填寫所有搜尋條件！');
+                return;
+            }
+
+            const key = `${grade}_${subject}_${term}_${year}`;
+            const resultsBody = document.getElementById('resultsBody');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsTitle = document.getElementById('resultsTitle');
+
+            // 更新標題
+            resultsTitle.textContent = `搜尋結果: ${getGradeName(grade)} ${getSubjectName(subject)} ${getTermName(term)} ${year}`;
+
+            // 清空之前的結果
+            resultsBody.innerHTML = '';
+
+            if (paperDatabase[key]) {
+                // 有找到試卷
+                const paper = paperDatabase[key];
+                const resultHTML = `
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">${paper.title}</h5>
+                            <p class="card-text">已找到對應的試卷檔案</p>
+                            <a href="${paper.url}" target="_blank" class="btn btn-success">
+                                <i class="bi bi-google-drive me-2"></i>前往 Google Drive 查看
+                            </a>
+                        </div>
+                    </div>
+                `;
+                resultsBody.innerHTML = resultHTML;
+            } else {
+                // 沒找到試卷
+                resultsBody.innerHTML = `
+                    <div class="text-center py-5">
+                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #ccc;"></i>
+                        <h5 class="mt-3">暫無符合條件的試卷</h5>
+                        <p class="text-muted">您可以透過上方連結上傳試卷</p>
+                    </div>
+                `;
+            }
+
+            // 顯示結果區
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 輔助函數
+        function getGradeName(grade) {
+            const grades = {
+                jh1: '初中一年級', jh2: '初中二年級', jh3: '初中三年級',
+                sh1: '高中一年級', sh2: '高中二年級', sh3: '高中三年級'
+            };
+            return grades[grade] || grade;
+        }
+
+        function getSubjectName(subject) {
+            const subjects = {
+                chi: '中文', eng: '英文', math: '數學',
+                phy: '物理', chem: '化學', bio: '生物'
+            };
+            return subjects[subject] || subject;
+        }
+
+        function getTermName(term) {
+            const terms = {
+                t1: '第一學期', t2: '第二學期', t3: '第三學期'
+            };
+            return terms[term] || term;
+        }
+
+        // 頁面載入時檢查登入狀態
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('頁面已載入，檢查登入狀態...');
+        });
     </script>
 </body>
 </html>
