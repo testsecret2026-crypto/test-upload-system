@@ -25,28 +25,10 @@ function initializeFirebase() {
     }
 }
 
-// Google 登入函數
-async function signInWithGoogle() {
-    try {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        const result = await firebase.auth().signInWithPopup(provider);
-        const user = result.user;
-        
-        console.log('Google 登入成功:', user.displayName);
-        return user;
-    } catch (error) {
-        console.error('Google 登入錯誤:', error);
-        throw error;
-    }
-}
-
 // 暴露給全域
-window.firebaseAuth = {
-    initialize: initializeFirebase,
-    signInWithGoogle: signInWithGoogle
-};
+window.initializeFirebase = initializeFirebase;
 
 // 自動初始化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeFirebase();
+    setTimeout(initializeFirebase, 100);
 });
