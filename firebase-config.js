@@ -1,55 +1,57 @@
-// firebase-config.js - 修正版
+// firebase-config.js
 const firebaseConfig = {
-    apiKey: "AIzaSyA7F0JbTqI5THGUQnqp7_BSBALAQQeIAk",  // ← 正確的金鑰
+    apiKey: "AIzaSyA7F0JbTqI5THGUQnqp7_BSBALAQQeIAk",
     authDomain: "testsystem-2056d.firebaseapp.com",
     projectId: "testsystem-2056d",
     storageBucket: "testsystem-2056d.firebasestorage.app",
     messagingSenderId: "1085110426660",
-    appId: "1:1085110426660:web:48af6f7864bc567f536ccb1",  // ← 也修正了
+    appId: "1:1085110426660:web:48af6f7864bc567f536ccb1",
     measurementId: "G-T978JSMQZ3"
 };
 
-// 初始化函數
+// 初始化 Firebase
 function initFirebase() {
     try {
-        // 檢查 Firebase 是否已加載
         if (typeof firebase !== 'undefined') {
-            // 如果還沒初始化，進行初始化
             if (!firebase.apps.length) {
                 const app = firebase.initializeApp(firebaseConfig);
-                console.log('Firebase 初始化成功');
-                return app;
-            } else {
                 console.log('Firebase 已初始化');
-                return firebase.app();
+                return app;
             }
-        } else {
-            console.error('Firebase SDK 未加載');
-            return null;
+            return firebase.app();
         }
+        console.warn('Firebase SDK 未加載');
+        return null;
     } catch (error) {
-        console.error('Firebase 初始化錯誤:', error);
+        console.error('初始化錯誤:', error);
         return null;
     }
 }
 
-// 暴露給全域使用
-window.firebaseTools = {
+// Google 登入函數
+async function loginWithGoogle() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        return result.user;
+    } catch (error) {
+        console.error('登入錯誤:', error);
+        throw error;
+    }
+}
+
+// 暴露給全域
+window.firebaseApp = {
     config: firebaseConfig,
     init: initFirebase,
-    getAuth: function() {
-        return firebase?.auth();
-    },
-    getFirestore: function() {
-        return firebase?.firestore();
-    }
+    loginWithGoogle: loginWithGoogle,
+    getAuth: () => firebase?.auth(),
+    logout: () => firebase?.auth()?.signOut()
 };
 
 // 自動初始化
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (typeof firebase !== 'undefined') {
-            initFirebase();
-        }
-    }, 100);
+    if (typeof firebase !== 'undefined') {
+        initFirebase();
+    }
 });
