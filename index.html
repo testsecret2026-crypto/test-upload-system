@@ -414,7 +414,77 @@
             document.getElementById('loginModalTitle').textContent = '註冊新帳號';
             document.getElementById('registerError').classList.add('d-none');
         }
+
+
+// 修正的註冊函數
+async function register() {
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const confirmPassword = document.getElementById('registerConfirmPassword').value;
+    const errorElement = document.getElementById('registerError');
+    
+    if (!email || !password || !confirmPassword) {
+        errorElement.textContent = '請填寫所有欄位';
+        errorElement.classList.remove('d-none');
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        errorElement.textContent = '密碼不一致';
+        errorElement.classList.remove('d-none');
+        return;
+    }
+    
+    if (password.length < 6) {
+        errorElement.textContent = '密碼至少需要6個字符';
+        errorElement.classList.remove('d-none');
+        return;
+    }
+    
+    try {
+        // 確保 Firebase 已初始化
+        if (!window.firebaseApp || !window.firebaseApp.getAuth()) {
+            if (!window.firebaseApp.initialize()) {
+                throw new Error('Firebase 初始化失敗');
+            }
+        }
         
+        const auth = window.firebaseApp.getAuth();
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        currentUser = userCredential.user;
+        
+        // 關閉彈窗
+        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        if (modal) modal.hide();
+        
+        // 清空表單
+        document.getElementById('registerEmail').value = '';
+        document.getElementById('registerPassword').value = '';
+        document.getElementById('registerConfirmPassword').value = '';
+        
+        alert('註冊成功！歡迎使用試卷題庫系統');
+        console.log('註冊用戶:', currentUser.email);
+        
+    } catch (error) {
+        console.error('註冊錯誤詳細:', error);
+        let errorMessage = '註冊失敗';
+        
+        if (error.code === 'auth/email-already-in-use') {
+            errorMessage = '此電子郵件已被使用';
+        } else if (error.code === 'auth/weak-password') {
+            errorMessage = '密碼強度不足，請使用更複雜的密碼';
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = '無效的電子郵件格式';
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorMessage = '電子郵件/密碼登入未啟用，請聯繫管理員';
+        } else if (error.message.includes('Firebase')) {
+            errorMessage = 'Firebase 連接失敗，請刷新頁面';
+        }
+        
+        errorElement.textContent = errorMessage;
+        errorElement.classList.remove('d-none');
+    }
+}
         // 登入功能
         async function login() {
             const email = document.getElementById('loginEmail').value;
@@ -639,3 +709,4 @@
     </script>
 </body>
 </html>
+
