@@ -1,77 +1,100 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <title>測驗系統登入</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+        }
+        .login-btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px;
+        }
+        .login-btn:hover {
+            background: #3367D6;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js"></script>
+</head>
 <body>
-    <button onclick="testGoogleLogin()">🎯 立即测试 Google 登录</button>
+    <h1>測驗系統</h1>
+    <p>使用 Google 帳號登入</p>
     
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <button class="login-btn" onclick="loginWithGoogle()">
+        🔐 用 Google 登入
+    </button>
     
+    <div id="userInfo" style="display:none; margin-top: 20px;">
+        <p>已登入為: <span id="userName"></span></p>
+        <button onclick="logout()">登出</button>
+    </div>
+
     <script>
-        // Firebase 配置 - 保持不变
+        // 你的 Firebase 設定
         const firebaseConfig = {
-            apiKey: "AIzaSyA7FOJbTqI5ThGUIqnp7_BSbALAGQqEA1k",
-            authDomain: "testsystem-2056d.firebaseapp.com",
-            projectId: "testsystem-2056d",
-            storageBucket: "testsystem-2056d.appspot.com",
-            messagingSenderId: "1085110426660",
-            appId: "1:1085110426660:web:48af67864bc567f536ccb1"
+            apiKey: "AIzaSyCafcGCfQZRdpj5xqu-WTDRZFd75BfPtbQ",
+            authDomain: "test-ef369.firebaseapp.com",
+            projectId: "test-ef369",
+            storageBucket: "test-ef369.firebasestorage.app",
+            messagingSenderId: "633157258867",
+            appId: "1:633157258867:web:a844ad7bb6fd0caf74e406"
         };
-        
+
         // 初始化 Firebase
         firebase.initializeApp(firebaseConfig);
         
-        async function testGoogleLogin() {
-            console.log('开始 Google 登录...');
-            
+        // 監聽登入狀態
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // 用戶已登入
+                document.getElementById('userName').textContent = user.displayName || user.email;
+                document.getElementById('userInfo').style.display = 'block';
+                console.log('用戶已登入:', user.email);
+            } else {
+                // 用戶未登入
+                document.getElementById('userInfo').style.display = 'none';
+                console.log('用戶未登入');
+            }
+        });
+
+        // Google 登入函數
+        async function loginWithGoogle() {
             try {
-                // 创建 Google 登录提供者
                 const provider = new firebase.auth.GoogleAuthProvider();
-                
-                // 添加必要的权限范围
-                provider.addScope('email');
-                provider.addScope('profile');
-                
-                // 使用弹窗登录
                 const result = await firebase.auth().signInWithPopup(provider);
                 
-                // 登录成功
                 const user = result.user;
-                console.log('✅ 登录成功！', user);
+                console.log('登入成功:', user.email);
                 
-                alert(
-                    '🎉 Google 登录成功！\n\n' +
-                    '👤 用户名: ' + user.displayName + '\n' +
-                    '📧 邮箱: ' + user.email + '\n' +
-                    '🆔 UID: ' + user.uid
-                );
+                // 儲存到 localStorage（可選）
+                localStorage.setItem('userEmail', user.email);
+                localStorage.setItem('userName', user.displayName);
+                
+                // 顯示成功訊息
+                alert('歡迎 ' + user.displayName + '!');
                 
             } catch (error) {
-                console.error('❌ 登录错误详情:', error);
-                
-                // 友好的错误提示
-                let errorMessage = '登录失败: ';
-                
-                switch (error.code) {
-                    case 'auth/popup-blocked':
-                        errorMessage += '弹窗被浏览器阻止，请允许弹窗';
-                        break;
-                    case 'auth/popup-closed-by-user':
-                        errorMessage += '您关闭了登录窗口';
-                        break;
-                    case 'auth/unauthorized-domain':
-                        errorMessage += '当前域名未授权，请在 Firebase 中添加 localhost 到授权域名';
-                        break;
-                    case 'auth/operation-not-allowed':
-                        errorMessage += 'Google 登录方法未启用，请检查 Firebase 配置';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                alert('❌ ' + errorMessage);
-                console.log('错误代码:', error.code);
-                console.log('完整错误:', error);
+                console.error('登入錯誤:', error);
+                alert('登入失敗: ' + error.message);
             }
+        }
+
+        // 登出函數
+        function logout() {
+            firebase.auth().signOut();
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('userName');
+            alert('已登出');
         }
     </script>
 </body>
