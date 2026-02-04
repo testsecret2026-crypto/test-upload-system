@@ -7,12 +7,15 @@
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="firebase-config.js"></script>
+    
     <style>
-        /* 保持你原來的 CSS 樣式不變 */
         body {
             background-color: #f8f9fa;
             font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -76,7 +79,113 @@
             font-size: 1.8rem;
         }
         
-        /* ... 保持所有其他 CSS 樣式 ... */
+        .search-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .form-label {
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .form-select {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 0.6rem;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+        
+        .results-section {
+            background-color: white;
+            border-radius: 8px;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .results-body {
+            padding: 2rem;
+            min-height: 200px;
+        }
+        
+        .upload-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
+        }
+        
+        /* 登入按鈕樣式 */
+        .user-email {
+            color: #495057;
+            font-size: 0.9rem;
+            margin-right: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.75rem;
+            }
+            
+            .welcome-section {
+                padding: 1.5rem;
+            }
+            
+            .welcome-section h1 {
+                font-size: 1.5rem;
+            }
+            
+            .search-section {
+                padding: 1.2rem;
+            }
+            
+            .upload-section {
+                padding: 1.5rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -87,13 +196,77 @@
                 <a class="navbar-brand" href="#">
                     試卷題庫系統
                 </a>
-                <div class="lang-switcher">
-                    <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
-                    <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <!-- 用戶資訊（登入後顯示） -->
+                    <div id="userInfo" class="user-info d-none">
+                        <span class="user-email" id="userEmail"></span>
+                        <button class="btn btn-outline-danger btn-sm" onclick="logout()">登出</button>
+                    </div>
+                    
+                    <!-- 登入按鈕（未登入時顯示） -->
+                    <button class="btn btn-outline-primary btn-sm" id="loginButton" onclick="showLoginModal()">登入/註冊</button>
+                    
+                    <!-- 語言切換 -->
+                    <div class="lang-switcher">
+                        <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁中</button>
+                        <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">ENG</button>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
+    
+    <!-- 登入/註冊彈窗 -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalTitle">登入系統</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- 登入表單 -->
+                    <div id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">電子郵件</label>
+                            <input type="email" class="form-control" id="loginEmail" placeholder="example@email.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">密碼</label>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼">
+                        </div>
+                        <div class="alert alert-danger d-none" id="loginError"></div>
+                        <button class="btn btn-primary w-100 mb-3" onclick="login()">登入</button>
+                        <div class="text-center">
+                            <a href="#" onclick="showRegisterForm()">還沒有帳號？立即註冊</a>
+                        </div>
+                    </div>
+                    
+                    <!-- 註冊表單 -->
+                    <div id="registerForm" class="d-none">
+                        <div class="mb-3">
+                            <label for="registerEmail" class="form-label">電子郵件</label>
+                            <input type="email" class="form-control" id="registerEmail" placeholder="example@email.com">
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerPassword" class="form-label">密碼</label>
+                            <input type="password" class="form-control" id="registerPassword" placeholder="至少6個字符">
+                        </div>
+                        <div class="mb-3">
+                            <label for="registerConfirmPassword" class="form-label">確認密碼</label>
+                            <input type="password" class="form-control" id="registerConfirmPassword" placeholder="再次輸入密碼">
+                        </div>
+                        <div class="alert alert-danger d-none" id="registerError"></div>
+                        <button class="btn btn-success w-100 mb-3" onclick="register()">註冊帳號</button>
+                        <div class="text-center">
+                            <a href="#" onclick="showLoginForm()">已有帳號？立即登入</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="container">
         <!-- 歡迎區域 -->
@@ -105,11 +278,10 @@
         </div>
         
         <!-- 搜尋區域 -->
-        <div class="search-section" style="background-color: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
-            <h2>瀏覽舊試卷</h2>
+        <div class="search-section">
+            <h2 class="section-title">瀏覽舊試卷</h2>
             
             <div class="row g-3">
-                <!-- 年級選擇 -->
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">年級</label>
                     <select class="form-select" id="gradeDropdown">
@@ -124,7 +296,6 @@
                     </select>
                 </div>
                 
-                <!-- 科目選擇 -->
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">學科</label>
                     <select class="form-select" id="subjectDropdown">
@@ -138,7 +309,6 @@
                     </select>
                 </div>
                 
-                <!-- 學期選擇 -->
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">學期</label>
                     <select class="form-select" id="termDropdown">
@@ -149,7 +319,6 @@
                     </select>
                 </div>
                 
-                <!-- 年份選擇 -->
                 <div class="col-lg-3 col-md-6">
                     <label class="form-label">學年</label>
                     <select class="form-select" id="yearDropdown">
@@ -170,47 +339,220 @@
         
         <!-- 結果區域 -->
         <div id="results-section" class="results-section" style="display: none;">
-            <div class="results-header" style="background-color: #f8f9fa; padding: 1rem 1.5rem; border-bottom: 1px solid #e9ecef; font-weight: 600; color: #2c3e50;">
+            <div class="results-header">
                 <span id="results-title">搜尋結果</span>
             </div>
-            <div class="results-body" id="results-body" style="padding: 2rem;">
+            <div class="results-body" id="results-body">
                 <!-- 結果將顯示在這裡 -->
             </div>
         </div>
         
         <!-- 上傳區域 -->
-        <div class="upload-section" id="upload" style="background-color: white; border-radius: 8px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
-            <h2>上傳您的舊試卷</h2>
+        <div class="upload-section" id="upload">
+            <h2 class="section-title">上傳您的舊試卷</h2>
             
-            <div class="privacy-tip" style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 5px 5px 0;">
-                <h5>隱私保護承諾</h5>
-                <p>所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。</p>
+            <!-- 登入提示 -->
+            <div id="uploadLoginRequired" class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                請先登入才能上傳試卷
+                <button class="btn btn-sm btn-primary ms-2" onclick="showLoginModal()">立即登入</button>
             </div>
             
-            <p>任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。</p>
-            
-            <div class="text-center mt-4">
-                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                    <i class="bi bi-google me-2"></i>
-                    透過 Google 表單上傳
-                </a>
+            <!-- 上傳表單（登入後顯示） -->
+            <div id="uploadForm" class="d-none">
+                <div class="alert alert-warning">
+                    <i class="bi bi-shield-check me-2"></i>
+                    所有上傳的試卷將嚴格保密處理。我們會對個人信息進行打碼處理，所有試卷都會經過管理員審核。
+                </div>
+                
+                <p>您可以上傳您的舊試卷，幫助其他學生學習！</p>
+                
+                <div class="text-center mt-4">
+                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary">
+                        <i class="bi bi-upload me-2"></i>
+                        前往 Google 表單上傳
+                    </a>
+                </div>
             </div>
         </div>
     </div>
     
     <!-- 頁腳 -->
-    <div class="footer" style="background-color: #f8f9fa; color: #6c757d; text-align: center; padding: 1.5rem 0; margin-top: 3rem; border-top: 1px solid #e9ecef;">
+    <div class="footer">
         <div class="container">
-            <span>試卷題庫系統</span>
+            <span>試卷題庫系統 &copy; 2024</span>
         </div>
     </div>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 先使用靜態資料，讓網站能運作 -->
+    <!-- 所有 JavaScript 代碼都在這裡 -->
     <script>
-        // 靜態試卷資料
+        // ========== 登入系統函數 ==========
+        let currentUser = null;
+        
+        // 顯示登入彈窗
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
+            showLoginForm();
+        }
+        
+        // 顯示登入表單
+        function showLoginForm() {
+            document.getElementById('loginForm').classList.remove('d-none');
+            document.getElementById('registerForm').classList.add('d-none');
+            document.getElementById('loginModalTitle').textContent = '登入系統';
+            document.getElementById('loginError').classList.add('d-none');
+        }
+        
+        // 顯示註冊表單
+        function showRegisterForm() {
+            document.getElementById('loginForm').classList.add('d-none');
+            document.getElementById('registerForm').classList.remove('d-none');
+            document.getElementById('loginModalTitle').textContent = '註冊新帳號';
+            document.getElementById('registerError').classList.add('d-none');
+        }
+        
+        // 登入功能
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorElement = document.getElementById('loginError');
+            
+            if (!email || !password) {
+                errorElement.textContent = '請填寫所有欄位';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            try {
+                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // 關閉彈窗
+                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                modal.hide();
+                
+                // 清空表單
+                document.getElementById('loginEmail').value = '';
+                document.getElementById('loginPassword').value = '';
+                
+                alert('登入成功！');
+                
+            } catch (error) {
+                console.error('登入錯誤:', error);
+                let errorMessage = '登入失敗';
+                
+                if (error.code === 'auth/user-not-found') {
+                    errorMessage = '找不到此用戶';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorMessage = '密碼錯誤';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = '無效的電子郵件';
+                }
+                
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('d-none');
+            }
+        }
+        
+        // 註冊功能
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const errorElement = document.getElementById('registerError');
+            
+            if (!email || !password || !confirmPassword) {
+                errorElement.textContent = '請填寫所有欄位';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                errorElement.textContent = '密碼不一致';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorElement.textContent = '密碼至少需要6個字符';
+                errorElement.classList.remove('d-none');
+                return;
+            }
+            
+            try {
+                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+                currentUser = userCredential.user;
+                
+                // 關閉彈窗
+                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                modal.hide();
+                
+                // 清空表單
+                document.getElementById('registerEmail').value = '';
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('registerConfirmPassword').value = '';
+                
+                alert('註冊成功！歡迎使用試卷題庫系統');
+                
+            } catch (error) {
+                console.error('註冊錯誤:', error);
+                let errorMessage = '註冊失敗';
+                
+                if (error.code === 'auth/email-already-in-use') {
+                    errorMessage = '此電子郵件已被使用';
+                } else if (error.code === 'auth/weak-password') {
+                    errorMessage = '密碼強度不足';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorMessage = '無效的電子郵件';
+                }
+                
+                errorElement.textContent = errorMessage;
+                errorElement.classList.remove('d-none');
+            }
+        }
+        
+        // 登出功能
+        async function logout() {
+            try {
+                await firebase.auth().signOut();
+                currentUser = null;
+                updateUI();
+                alert('已成功登出');
+            } catch (error) {
+                console.error('登出錯誤:', error);
+                alert('登出失敗，請稍後再試');
+            }
+        }
+        
+        // 更新介面顯示
+        function updateUI() {
+            const user = firebase.auth().currentUser;
+            
+            if (user) {
+                // 已登入
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userInfo').classList.remove('d-none');
+                document.getElementById('loginButton').classList.add('d-none');
+                
+                // 顯示上傳表單
+                document.getElementById('uploadLoginRequired').classList.add('d-none');
+                document.getElementById('uploadForm').classList.remove('d-none');
+            } else {
+                // 未登入
+                document.getElementById('userInfo').classList.add('d-none');
+                document.getElementById('loginButton').classList.remove('d-none');
+                
+                // 隱藏上傳表單
+                document.getElementById('uploadLoginRequired').classList.remove('d-none');
+                document.getElementById('uploadForm').classList.add('d-none');
+            }
+        }
+        
+        // ========== 試卷搜尋功能 ==========
         const paperDatabase = {
             'jh1_math_t1_2024': {
                 url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
@@ -270,12 +612,30 @@
             resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
         
+        // ========== 語言切換 ==========
         function changeLang(lang) {
-            // 簡單的語言切換
             const buttons = document.querySelectorAll('.lang-btn');
             buttons.forEach(btn => btn.classList.remove('active'));
             document.getElementById(`lang-btn-${lang}`).classList.add('active');
         }
+        
+        // ========== 頁面初始化 ==========
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化Firebase
+            if (window.initializeFirebase) {
+                window.initializeFirebase();
+            }
+            
+            // 監聽登入狀態
+            firebase.auth().onAuthStateChanged(function(user) {
+                updateUI();
+            });
+            
+            // 初始化其他功能
+            document.getElementById('subjectDropdown').disabled = false;
+            document.getElementById('termDropdown').disabled = false;
+            document.getElementById('yearDropdown').disabled = false;
+        });
     </script>
 </body>
 </html>
