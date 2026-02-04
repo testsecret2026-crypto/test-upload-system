@@ -12,7 +12,6 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="firebase-config.js"></script>
     
     <style>
@@ -37,25 +36,22 @@
             font-size: 1.3rem;
         }
         
-        .lang-switcher {
+        .user-info {
             display: flex;
-            gap: 0.5rem;
+            align-items: center;
+            gap: 10px;
         }
         
-        .lang-btn {
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #dee2e6;
+        }
+        
+        .user-name {
             color: #495057;
-            font-size: 0.85rem;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-        
-        .lang-btn:hover, .lang-btn.active {
-            background-color: #007bff;
-            border-color: #007bff;
-            color: white;
+            font-size: 0.9rem;
         }
         
         .container {
@@ -151,20 +147,35 @@
             font-size: 0.9rem;
         }
         
-        /* 登入按鈕樣式 */
-        .user-email {
-            color: #495057;
-            font-size: 0.9rem;
-            margin-right: 1rem;
-        }
-        
-        .user-info {
+        .google-login-btn {
+            background-color: white;
+            color: #5f6368;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
         }
         
-        /* 響應式設計 */
+        .google-login-btn:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .google-icon {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .modal-content {
+            border-radius: 8px;
+        }
+        
         @media (max-width: 768px) {
             .container {
                 padding: 0 0.75rem;
@@ -185,6 +196,10 @@
             .upload-section {
                 padding: 1.5rem;
             }
+            
+            .user-info {
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
@@ -198,70 +213,50 @@
                 </a>
                 
                 <div class="d-flex align-items-center gap-3">
-                    <!-- 用戶資訊（登入後顯示） -->
+                    <!-- 用戶資訊 -->
                     <div id="userInfo" class="user-info d-none">
-                        <span class="user-email" id="userEmail"></span>
+                        <img src="" id="userAvatar" class="user-avatar">
+                        <span id="userName" class="user-name"></span>
                         <button class="btn btn-outline-danger btn-sm" onclick="logout()">登出</button>
                     </div>
                     
-                    <!-- 登入按鈕（未登入時顯示） -->
-                    <button class="btn btn-outline-primary btn-sm" id="loginButton" onclick="showLoginModal()">登入/註冊</button>
-                    
-                    <!-- 語言切換 -->
-                    <div class="lang-switcher">
-                        <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁中</button>
-                        <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">ENG</button>
-                    </div>
+                    <!-- 登入按鈕 -->
+                    <button class="btn btn-outline-primary btn-sm" id="loginButton" onclick="showLoginModal()">
+                        <i class="bi bi-google me-1"></i>登入
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
     
-    <!-- 登入/註冊彈窗 -->
+    <!-- Google 登入模態框 -->
     <div class="modal fade" id="loginModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="loginModalTitle">登入系統</h5>
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">登入系統</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <!-- 登入表單 -->
-                    <div id="loginForm">
-                        <div class="mb-3">
-                            <label for="loginEmail" class="form-label">電子郵件</label>
-                            <input type="email" class="form-control" id="loginEmail" placeholder="example@email.com">
-                        </div>
-                        <div class="mb-3">
-                            <label for="loginPassword" class="form-label">密碼</label>
-                            <input type="password" class="form-control" id="loginPassword" placeholder="請輸入密碼">
-                        </div>
-                        <div class="alert alert-danger d-none" id="loginError"></div>
-                        <button class="btn btn-primary w-100 mb-3" onclick="login()">登入</button>
-                        <div class="text-center">
-                            <a href="#" onclick="showRegisterForm()">還沒有帳號？立即註冊</a>
-                        </div>
-                    </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-google" style="font-size: 3rem; color: #DB4437; margin-bottom: 1rem;"></i>
+                    <h5 class="mb-3">使用 Google 帳號登入</h5>
+                    <p class="text-muted mb-4">安全快速，無需記住新密碼</p>
                     
-                    <!-- 註冊表單 -->
-                    <div id="registerForm" class="d-none">
-                        <div class="mb-3">
-                            <label for="registerEmail" class="form-label">電子郵件</label>
-                            <input type="email" class="form-control" id="registerEmail" placeholder="example@email.com">
-                        </div>
-                        <div class="mb-3">
-                            <label for="registerPassword" class="form-label">密碼</label>
-                            <input type="password" class="form-control" id="registerPassword" placeholder="至少6個字符">
-                        </div>
-                        <div class="mb-3">
-                            <label for="registerConfirmPassword" class="form-label">確認密碼</label>
-                            <input type="password" class="form-control" id="registerConfirmPassword" placeholder="再次輸入密碼">
-                        </div>
-                        <div class="alert alert-danger d-none" id="registerError"></div>
-                        <button class="btn btn-success w-100 mb-3" onclick="register()">註冊帳號</button>
-                        <div class="text-center">
-                            <a href="#" onclick="showLoginForm()">已有帳號？立即登入</a>
-                        </div>
+                    <button class="google-login-btn mb-3" onclick="loginWithGoogle()">
+                        <svg class="google-icon" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        使用 Google 繼續
+                    </button>
+                    
+                    <div class="alert alert-danger d-none" id="loginError"></div>
+                    
+                    <div class="mt-4 text-muted small">
+                        <p>我們僅會取得您的電子郵件和姓名</p>
+                        <p>用於識別身份，不會存取其他資訊</p>
                     </div>
                 </div>
             </div>
@@ -358,17 +353,22 @@
                 <button class="btn btn-sm btn-primary ms-2" onclick="showLoginModal()">立即登入</button>
             </div>
             
-            <!-- 上傳表單（登入後顯示） -->
+            <!-- 上傳表單 -->
             <div id="uploadForm" class="d-none">
-                <div class="alert alert-warning">
-                    <i class="bi bi-shield-check me-2"></i>
-                    所有上傳的試卷將嚴格保密處理。我們會對個人信息進行打碼處理，所有試卷都會經過管理員審核。
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    您已登入，現在可以上傳試卷！
                 </div>
                 
-                <p>您可以上傳您的舊試卷，幫助其他學生學習！</p>
+                <div class="privacy-tip" style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 5px 5px 0;">
+                    <h5>隱私保護承諾</h5>
+                    <p>所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。</p>
+                </div>
+                
+                <p>歡迎上傳您的舊試卷，幫助其他學生學習！</p>
                 
                 <div class="text-center mt-4">
-                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary">
+                    <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" class="btn btn-primary btn-lg">
                         <i class="bi bi-upload me-2"></i>
                         前往 Google 表單上傳
                     </a>
@@ -387,140 +387,57 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- 所有 JavaScript 代碼都在這裡 -->
+    <!-- 主程式碼 -->
     <script>
-        // ========== 登入系統函數 ==========
+        // ========== Firebase 登入功能 ==========
         let currentUser = null;
         
-        // 顯示登入彈窗
-        function showLoginModal() {
-            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
-            modal.show();
-            showLoginForm();
-        }
-        
-        // 顯示登入表單
-        function showLoginForm() {
-            document.getElementById('loginForm').classList.remove('d-none');
-            document.getElementById('registerForm').classList.add('d-none');
-            document.getElementById('loginModalTitle').textContent = '登入系統';
-            document.getElementById('loginError').classList.add('d-none');
-        }
-        
-        // 顯示註冊表單
-        function showRegisterForm() {
-            document.getElementById('loginForm').classList.add('d-none');
-            document.getElementById('registerForm').classList.remove('d-none');
-            document.getElementById('loginModalTitle').textContent = '註冊新帳號';
-            document.getElementById('registerError').classList.add('d-none');
-        }
-
-
-// 修正的註冊函數
-async function register() {
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const confirmPassword = document.getElementById('registerConfirmPassword').value;
-    const errorElement = document.getElementById('registerError');
-    
-    if (!email || !password || !confirmPassword) {
-        errorElement.textContent = '請填寫所有欄位';
-        errorElement.classList.remove('d-none');
-        return;
-    }
-    
-    if (password !== confirmPassword) {
-        errorElement.textContent = '密碼不一致';
-        errorElement.classList.remove('d-none');
-        return;
-    }
-    
-    if (password.length < 6) {
-        errorElement.textContent = '密碼至少需要6個字符';
-        errorElement.classList.remove('d-none');
-        return;
-    }
-    
-    try {
-        // 確保 Firebase 已初始化
-        if (!window.firebaseApp || !window.firebaseApp.getAuth()) {
-            if (!window.firebaseApp.initialize()) {
-                throw new Error('Firebase 初始化失敗');
-            }
-        }
-        
-        const auth = window.firebaseApp.getAuth();
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        currentUser = userCredential.user;
-        
-        // 關閉彈窗
-        const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-        if (modal) modal.hide();
-        
-        // 清空表單
-        document.getElementById('registerEmail').value = '';
-        document.getElementById('registerPassword').value = '';
-        document.getElementById('registerConfirmPassword').value = '';
-        
-        alert('註冊成功！歡迎使用試卷題庫系統');
-        console.log('註冊用戶:', currentUser.email);
-        
-    } catch (error) {
-        console.error('註冊錯誤詳細:', error);
-        let errorMessage = '註冊失敗';
-        
-        if (error.code === 'auth/email-already-in-use') {
-            errorMessage = '此電子郵件已被使用';
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = '密碼強度不足，請使用更複雜的密碼';
-        } else if (error.code === 'auth/invalid-email') {
-            errorMessage = '無效的電子郵件格式';
-        } else if (error.code === 'auth/operation-not-allowed') {
-            errorMessage = '電子郵件/密碼登入未啟用，請聯繫管理員';
-        } else if (error.message.includes('Firebase')) {
-            errorMessage = 'Firebase 連接失敗，請刷新頁面';
-        }
-        
-        errorElement.textContent = errorMessage;
-        errorElement.classList.remove('d-none');
-    }
-}
-        // 登入功能
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+        // 使用 Google 登入
+        async function loginWithGoogle() {
             const errorElement = document.getElementById('loginError');
             
-            if (!email || !password) {
-                errorElement.textContent = '請填寫所有欄位';
-                errorElement.classList.remove('d-none');
-                return;
-            }
-            
             try {
-                const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
+                // 確保 Firebase 已初始化
+                if (typeof firebase === 'undefined') {
+                    throw new Error('Firebase 未加載，請刷新頁面');
+                }
                 
-                // 關閉彈窗
+                // 建立 Google 登入提供者
+                const provider = new firebase.auth.GoogleAuthProvider();
+                
+                // 設定權限範圍
+                provider.addScope('email');
+                provider.addScope('profile');
+                
+                // 顯示載入狀態
+                errorElement.classList.add('d-none');
+                
+                // 彈出登入視窗
+                const result = await firebase.auth().signInWithPopup(provider);
+                currentUser = result.user;
+                
+                // 關閉模態框
                 const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                modal.hide();
+                if (modal) modal.hide();
                 
-                // 清空表單
-                document.getElementById('loginEmail').value = '';
-                document.getElementById('loginPassword').value = '';
+                // 更新介面
+                updateUIForLoggedInUser(currentUser);
                 
-                alert('登入成功！');
+                console.log('登入成功:', currentUser.displayName);
                 
             } catch (error) {
-                console.error('登入錯誤:', error);
-                let errorMessage = '登入失敗';
+                console.error('Google 登入錯誤:', error);
                 
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = '找不到此用戶';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = '密碼錯誤';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '無效的電子郵件';
+                let errorMessage = '登入失敗，請稍後再試';
+                
+                if (error.code === 'auth/popup-closed-by-user') {
+                    errorMessage = '您關閉了登入視窗';
+                } else if (error.code === 'auth/cancelled-popup-request') {
+                    errorMessage = '登入請求已取消';
+                } else if (error.code === 'auth/popup-blocked') {
+                    errorMessage = '彈出視窗被瀏覽器阻擋，請允許彈出視窗';
+                } else if (error.code === 'auth/unauthorized-domain') {
+                    errorMessage = '此網域未授權，請聯繫管理員';
                 }
                 
                 errorElement.textContent = errorMessage;
@@ -528,69 +445,12 @@ async function register() {
             }
         }
         
-        // 註冊功能
-        async function register() {
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            const errorElement = document.getElementById('registerError');
-            
-            if (!email || !password || !confirmPassword) {
-                errorElement.textContent = '請填寫所有欄位';
-                errorElement.classList.remove('d-none');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                errorElement.textContent = '密碼不一致';
-                errorElement.classList.remove('d-none');
-                return;
-            }
-            
-            if (password.length < 6) {
-                errorElement.textContent = '密碼至少需要6個字符';
-                errorElement.classList.remove('d-none');
-                return;
-            }
-            
-            try {
-                const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
-                currentUser = userCredential.user;
-                
-                // 關閉彈窗
-                const modal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                modal.hide();
-                
-                // 清空表單
-                document.getElementById('registerEmail').value = '';
-                document.getElementById('registerPassword').value = '';
-                document.getElementById('registerConfirmPassword').value = '';
-                
-                alert('註冊成功！歡迎使用試卷題庫系統');
-                
-            } catch (error) {
-                console.error('註冊錯誤:', error);
-                let errorMessage = '註冊失敗';
-                
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = '此電子郵件已被使用';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = '密碼強度不足';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '無效的電子郵件';
-                }
-                
-                errorElement.textContent = errorMessage;
-                errorElement.classList.remove('d-none');
-            }
-        }
-        
-        // 登出功能
+        // 登出
         async function logout() {
             try {
                 await firebase.auth().signOut();
                 currentUser = null;
-                updateUI();
+                updateUIForLoggedOutUser();
                 alert('已成功登出');
             } catch (error) {
                 console.error('登出錯誤:', error);
@@ -598,28 +458,38 @@ async function register() {
             }
         }
         
-        // 更新介面顯示
-        function updateUI() {
-            const user = firebase.auth().currentUser;
+        // 更新介面 - 已登入
+        function updateUIForLoggedInUser(user) {
+            // 更新導航欄
+            document.getElementById('userName').textContent = user.displayName || user.email;
             
-            if (user) {
-                // 已登入
-                document.getElementById('userEmail').textContent = user.email;
-                document.getElementById('userInfo').classList.remove('d-none');
-                document.getElementById('loginButton').classList.add('d-none');
-                
-                // 顯示上傳表單
-                document.getElementById('uploadLoginRequired').classList.add('d-none');
-                document.getElementById('uploadForm').classList.remove('d-none');
+            if (user.photoURL) {
+                document.getElementById('userAvatar').src = user.photoURL;
             } else {
-                // 未登入
-                document.getElementById('userInfo').classList.add('d-none');
-                document.getElementById('loginButton').classList.remove('d-none');
-                
-                // 隱藏上傳表單
-                document.getElementById('uploadLoginRequired').classList.remove('d-none');
-                document.getElementById('uploadForm').classList.add('d-none');
+                document.getElementById('userAvatar').src = 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
             }
+            
+            document.getElementById('userInfo').classList.remove('d-none');
+            document.getElementById('loginButton').classList.add('d-none');
+            
+            // 更新上傳區域
+            document.getElementById('uploadLoginRequired').classList.add('d-none');
+            document.getElementById('uploadForm').classList.remove('d-none');
+        }
+        
+        // 更新介面 - 未登入
+        function updateUIForLoggedOutUser() {
+            document.getElementById('userInfo').classList.add('d-none');
+            document.getElementById('loginButton').classList.remove('d-none');
+            
+            document.getElementById('uploadLoginRequired').classList.remove('d-none');
+            document.getElementById('uploadForm').classList.add('d-none');
+        }
+        
+        // 顯示登入模態框
+        function showLoginModal() {
+            const modal = new bootstrap.Modal(document.getElementById('loginModal'));
+            modal.show();
         }
         
         // ========== 試卷搜尋功能 ==========
@@ -631,6 +501,10 @@ async function register() {
             'jh2_math_t1_2024': {
                 url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
                 title: '初中二年級數學第一學期 2024 年試卷'
+            },
+            'jh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
+                title: '初中三年級數學第一學期 2024 年試卷'
             }
         };
         
@@ -652,7 +526,7 @@ async function register() {
             if (paperDatabase[dbKey]) {
                 const paper = paperDatabase[dbKey];
                 resultsBody.innerHTML = `
-                    <div class="result-item" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                    <div style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
                         <div style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
                             ${paper.title}
                         </div>
@@ -682,31 +556,33 @@ async function register() {
             resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
         
-        // ========== 語言切換 ==========
-        function changeLang(lang) {
-            const buttons = document.querySelectorAll('.lang-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`lang-btn-${lang}`).classList.add('active');
-        }
-        
         // ========== 頁面初始化 ==========
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化Firebase
-            if (window.initializeFirebase) {
-                window.initializeFirebase();
-            }
-            
-            // 監聽登入狀態
+            // 監聽 Firebase 登入狀態
             firebase.auth().onAuthStateChanged(function(user) {
-                updateUI();
+                if (user) {
+                    currentUser = user;
+                    updateUIForLoggedInUser(user);
+                } else {
+                    currentUser = null;
+                    updateUIForLoggedOutUser();
+                }
             });
             
-            // 初始化其他功能
+            // 啟用所有下拉選單
             document.getElementById('subjectDropdown').disabled = false;
             document.getElementById('termDropdown').disabled = false;
             document.getElementById('yearDropdown').disabled = false;
+            
+            // 檢查 Firebase 狀態
+            setTimeout(() => {
+                if (typeof firebase !== 'undefined') {
+                    console.log('Firebase 已加載');
+                } else {
+                    console.error('Firebase 未加載');
+                }
+            }, 1000);
         });
     </script>
 </body>
 </html>
-
