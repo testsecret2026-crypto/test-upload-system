@@ -11,12 +11,8 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.2/firebase-firestore.js"></script>
-    
     <style>
-        /* 你的 CSS 樣式保持不變 */
+        /* 保持你原來的 CSS 樣式不變 */
         body {
             background-color: #f8f9fa;
             font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
@@ -24,238 +20,262 @@
             line-height: 1.6;
             min-height: 100vh;
         }
-        /* ... 保持你所有的 CSS 樣式不變 ... */
+        
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .lang-switcher {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .lang-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1200px;
+            padding: 0 1rem;
+        }
+        
+        .welcome-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .welcome-section h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+        
+        /* ... 保持所有其他 CSS 樣式 ... */
     </style>
 </head>
 <body>
-    <!-- 導航欄和所有 HTML 內容保持不變 -->
-    <!-- 你的 HTML 結構完全保持原樣 -->
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand" href="#">
+                    試卷題庫系統
+                </a>
+                <div class="lang-switcher">
+                    <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                    <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
+                </div>
+            </div>
+        </div>
+    </nav>
     
-    <!-- 頁尾保持不變 -->
+    <div class="container">
+        <!-- 歡迎區域 -->
+        <div class="welcome-section">
+            <h1>歡迎來到試卷題庫系統</h1>
+            <p>查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。</p>
+            <p>可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。</p>
+            <a href="#upload" class="btn btn-outline-primary mt-2">上傳試卷</a>
+        </div>
+        
+        <!-- 搜尋區域 -->
+        <div class="search-section" style="background-color: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+            <h2>瀏覽舊試卷</h2>
+            
+            <div class="row g-3">
+                <!-- 年級選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">年級</label>
+                    <select class="form-select" id="gradeDropdown">
+                        <option value="" selected>選擇教育階段</option>
+                        <option value="jh1">初中一年級</option>
+                        <option value="jh2">初中二年級</option>
+                        <option value="jh3">初中三年級</option>
+                        <option value="sh1">高中一年級</option>
+                        <option value="sh2">高中二年級</option>
+                        <option value="sh3">高中三年級</option>
+                        <option value="other">進階學段</option>
+                    </select>
+                </div>
+                
+                <!-- 科目選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">學科</label>
+                    <select class="form-select" id="subjectDropdown">
+                        <option value="" selected>選擇學科</option>
+                        <option value="chi">中文文學</option>
+                        <option value="eng">英語語言</option>
+                        <option value="math">數學</option>
+                        <option value="phy">物理</option>
+                        <option value="chem">化學</option>
+                        <option value="bio">生物</option>
+                    </select>
+                </div>
+                
+                <!-- 學期選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">學期</label>
+                    <select class="form-select" id="termDropdown">
+                        <option value="" selected>選擇學期</option>
+                        <option value="t1">第一學期</option>
+                        <option value="t2">第二學期</option>
+                        <option value="t3">第三學期</option>
+                    </select>
+                </div>
+                
+                <!-- 年份選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label">學年</label>
+                    <select class="form-select" id="yearDropdown">
+                        <option value="" selected>選擇年份</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn btn-primary" onclick="searchPapers()">
+                    <i class="bi bi-search me-2"></i>
+                    瀏覽檔案
+                </button>
+            </div>
+        </div>
+        
+        <!-- 結果區域 -->
+        <div id="results-section" class="results-section" style="display: none;">
+            <div class="results-header" style="background-color: #f8f9fa; padding: 1rem 1.5rem; border-bottom: 1px solid #e9ecef; font-weight: 600; color: #2c3e50;">
+                <span id="results-title">搜尋結果</span>
+            </div>
+            <div class="results-body" id="results-body" style="padding: 2rem;">
+                <!-- 結果將顯示在這裡 -->
+            </div>
+        </div>
+        
+        <!-- 上傳區域 -->
+        <div class="upload-section" id="upload" style="background-color: white; border-radius: 8px; padding: 2rem; margin-top: 3rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e9ecef;">
+            <h2>上傳您的舊試卷</h2>
+            
+            <div class="privacy-tip" style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 5px 5px 0;">
+                <h5>隱私保護承諾</h5>
+                <p>所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。</p>
+            </div>
+            
+            <p>任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。</p>
+            
+            <div class="text-center mt-4">
+                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    <i class="bi bi-google me-2"></i>
+                    透過 Google 表單上傳
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 頁腳 -->
+    <div class="footer" style="background-color: #f8f9fa; color: #6c757d; text-align: center; padding: 1.5rem 0; margin-top: 3rem; border-top: 1px solid #e9ecef;">
+        <div class="container">
+            <span>試卷題庫系統</span>
+        </div>
+    </div>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
+    <!-- 先使用靜態資料，讓網站能運作 -->
     <script>
-        // ========== Firebase 配置和初始化 ==========
-        const firebaseConfig = {
-            apiKey: "AIzaSyA7F0JbTqI5THGUQnqp7_BSBALAQQeIAk",
-            authDomain: "testsystem-2056d.firebaseapp.com",
-            projectId: "testsystem-2056d",
-            storageBucket: "testsystem-2056d.firebasestorage.app",
-            messagingSenderId: "1085110426660",
-            appId: "1:1085110426660:web:48af6f7864bc567f536ccb1"
+        // 靜態試卷資料
+        const paperDatabase = {
+            'jh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
+                title: '初中一年級數學第一學期 2024 年試卷'
+            },
+            'jh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
+                title: '初中二年級數學第一學期 2024 年試卷'
+            }
         };
         
-        // 初始化 Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.getFirestore(app);
-        
-        // ========== 你的原有變量和函數 ==========
-        let currentGrade = null;
-        let currentSubject = null;
-        let currentTerm = null;
-        let currentYear = null;
-        let currentLang = 'zh';
-        
-        // 初始化
-        document.addEventListener('DOMContentLoaded', function() {
-            changeLang('zh');
-            document.getElementById('subjectDropdown').disabled = false;
-            document.getElementById('termDropdown').disabled = false;
-            document.getElementById('yearDropdown').disabled = false;
-            updateSteps();
-        });
-        
-        // ========== 修改搜尋函數，使用 Firebase ==========
-        async function searchPapers() {
-            if (!currentGrade || !currentSubject || !currentTerm || !currentYear) {
-                const alertMsg = currentLang === 'zh' ? 
-                    '請填寫所有搜尋條件！' : 
-                    'Please fill in all search criteria!';
-                alert(alertMsg);
+        function searchPapers() {
+            const grade = document.getElementById('gradeDropdown').value;
+            const subject = document.getElementById('subjectDropdown').value;
+            const term = document.getElementById('termDropdown').value;
+            const year = document.getElementById('yearDropdown').value;
+            
+            if (!grade || !subject || !term || !year) {
+                alert('請填寫所有搜尋條件！');
                 return;
             }
             
-            // 顯示加載中
+            const dbKey = `${grade}_${subject}_${term}_${year}`;
             const resultsBody = document.getElementById('results-body');
-            resultsBody.innerHTML = `
-                <div class="no-results">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p>${currentLang === 'zh' ? '正在搜尋中...' : 'Searching...'}</p>
-                </div>
-            `;
+            const resultsSection = document.getElementById('results-section');
             
-            document.getElementById('results-section').style.display = 'block';
-            
-            try {
-                // 從 Firebase Firestore 搜尋
-                const papers = await searchPapersInFirebase();
-                displaySearchResults(papers);
-            } catch (error) {
-                console.error('搜尋失敗:', error);
+            if (paperDatabase[dbKey]) {
+                const paper = paperDatabase[dbKey];
                 resultsBody.innerHTML = `
-                    <div class="no-results">
-                        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 3rem;"></i>
-                        <p>${currentLang === 'zh' ? '搜尋失敗，請稍後再試' : 'Search failed, please try again'}</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // 從 Firebase 搜尋試卷
-        async function searchPapersInFirebase() {
-            const papersRef = firebase.collection(db, "papers");
-            const q = firebase.query(
-                papersRef,
-                firebase.where("grade", "==", currentGrade),
-                firebase.where("subject", "==", currentSubject),
-                firebase.where("term", "==", currentTerm),
-                firebase.where("year", "==", currentYear)
-            );
-            
-            const querySnapshot = await firebase.getDocs(q);
-            const papers = [];
-            
-            querySnapshot.forEach((doc) => {
-                papers.push({
-                    id: doc.id,
-                    ...doc.data()
-                });
-            });
-            
-            return papers;
-        }
-        
-        // 顯示搜尋結果
-        function displaySearchResults(papers) {
-            const resultsBody = document.getElementById('results-body');
-            updateResultsTitle();
-            
-            if (papers.length === 0) {
-                resultsBody.innerHTML = `
-                    <div class="no-results">
-                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dee2e6;"></i>
-                        <p>${currentLang === 'zh' ? '暫無符合條件的試卷檔案。成為首個貢獻者！' : 'No matching papers found. Be the first contributor!'}</p>
-                        <p style="font-size: 0.9rem; color: #6c757d;">
-                            ${currentLang === 'zh' ? '如果您有此試卷，歡迎透過下方上傳功能分享給大家！' : 'If you have this paper, please share it through the upload section below!'}
-                        </p>
-                    </div>
-                `;
-                return;
-            }
-            
-            let resultsHTML = '';
-            papers.forEach(paper => {
-                const title = currentLang === 'zh' ? paper.title_zh : paper.title_en;
-                const driveUrl = paper.driveUrl || '#';
-                
-                resultsHTML += `
-                    <div class="result-item">
-                        <div class="result-title">${title}</div>
-                        <div class="result-meta">
-                            ${currentLang === 'zh' ? '已找到對應的試卷檔案' : 'Matching paper found'}
+                    <div class="result-item" style="background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem;">
+                        <div style="color: #2c3e50; font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">
+                            ${paper.title}
+                        </div>
+                        <div style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1rem;">
+                            已找到對應的試卷檔案，點擊下方連結查看：
                         </div>
                         <div>
-                            <a href="${driveUrl}" target="_blank" rel="noopener noreferrer" class="result-link">
+                            <a href="${paper.url}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background-color: #007bff; color: white; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 5px; font-weight: 500;">
                                 <i class="bi bi-google-drive"></i>
-                                <span>${currentLang === 'zh' ? '前往 Google Drive 查看試卷' : 'View Papers on Google Drive'}</span>
+                                前往 Google Drive 查看試卷
                             </a>
                         </div>
                     </div>
                 `;
-            });
+            } else {
+                resultsBody.innerHTML = `
+                    <div style="text-align: center; color: #6c757d; padding: 2rem 1rem;">
+                        <i class="bi bi-file-earmark-text" style="font-size: 3rem; color: #dee2e6; margin-bottom: 1rem;"></i>
+                        <p>暫無符合條件的試卷檔案。成為首個貢獻者！</p>
+                        <p style="font-size: 0.9rem;">如果您有此試卷，歡迎透過下方上傳功能分享給大家！</p>
+                    </div>
+                `;
+            }
             
-            resultsBody.innerHTML = resultsHTML;
-            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
-        }
-        
-        // ========== 保持你原有的其他函數不變 ==========
-        function handleGradeSelect(value) { currentGrade = value; updateSteps(); }
-        function handleSubjectSelect(value) { currentSubject = value; updateSteps(); }
-        function handleTermSelect(value) { currentTerm = value; updateSteps(); }
-        function handleYearSelect(value) { currentYear = value; updateSteps(); }
-        
-        function updateSteps() {
-            document.querySelectorAll('.step').forEach(step => step.classList.remove('active'));
-            if (currentGrade) document.getElementById('step1').classList.add('active');
-            if (currentSubject) document.getElementById('step2').classList.add('active');
-            if (currentTerm) document.getElementById('step3').classList.add('active');
-            if (currentYear) document.getElementById('step4').classList.add('active');
-        }
-        
-        function updateResultsTitle() {
-            const gradeNames = {
-                jh1: { en: "Junior High 1", zh: "初中一年級" },
-                jh2: { en: "Junior High 2", zh: "初中二年級" },
-                jh3: { en: "Junior High 3", zh: "初中三年級" },
-                sh1: { en: "Senior High 1", zh: "高中一年級" },
-                sh2: { en: "Senior High 2", zh: "高中二年級" },
-                sh3: { en: "Senior High 3", zh: "高中三年級" },
-                other: { en: "Advanced Level", zh: "進階學段" }
-            };
-            
-            const subjectNames = {
-                chi: { en: "Chinese Literature", zh: "中文文學" },
-                eng: { en: "English Language", zh: "英語語言" },
-                math: { en: "Mathematics", zh: "數學" },
-                phy: { en: "Physics", zh: "物理" },
-                chem: { en: "Chemistry", zh: "化學" },
-                bio: { en: "Biology", zh: "生物" }
-            };
-            
-            const termNames = {
-                t1: { en: "First Semester", zh: "第一學期" },
-                t2: { en: "Second Semester", zh: "第二學期" },
-                t3: { en: "Third Semester", zh: "第三學期" }
-            };
-            
-            const gradeText = gradeNames[currentGrade] ? gradeNames[currentGrade][currentLang] : currentGrade;
-            const subjectText = subjectNames[currentSubject] ? subjectNames[currentSubject][currentLang] : currentSubject;
-            const termText = termNames[currentTerm] ? termNames[currentTerm][currentLang] : currentTerm;
-            
-            const title = currentLang === 'zh' ? 
-                `搜尋結果：${gradeText} / ${subjectText} / ${termText} / ${currentYear}` :
-                `Search Results: ${gradeText} / ${subjectText} / ${termText} / ${currentYear}`;
-            
-            document.getElementById('results-title').textContent = title;
-        }
-        
-        function resetSearch() {
-            currentGrade = currentSubject = currentTerm = currentYear = null;
-            document.getElementById('gradeDropdown').selectedIndex = 0;
-            document.getElementById('subjectDropdown').selectedIndex = 0;
-            document.getElementById('termDropdown').selectedIndex = 0;
-            document.getElementById('yearDropdown').selectedIndex = 0;
-            document.getElementById('results-section').style.display = 'none';
-            updateSteps();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('results-title').textContent = `搜尋結果：${grade} / ${subject} / ${term} / ${year}`;
+            resultsSection.style.display = 'block';
+            resultsSection.scrollIntoView({ behavior: 'smooth' });
         }
         
         function changeLang(lang) {
-            currentLang = lang;
-            document.getElementById('main-html').setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
-            document.querySelectorAll('.lang-text').forEach(element => {
-                const text = element.getAttribute(`data-${lang}`);
-                if (text) element.textContent = text;
-            });
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll(`#lang-btn-${lang}`).forEach(btn => btn.classList.add('active'));
+            // 簡單的語言切換
+            const buttons = document.querySelectorAll('.lang-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`lang-btn-${lang}`).classList.add('active');
         }
-        
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if (targetId === '#') return;
-                const targetElement = document.querySelector(targetId);
-                if (targetElement) {
-                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
     </script>
 </body>
 </html>
