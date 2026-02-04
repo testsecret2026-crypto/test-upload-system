@@ -1,4 +1,4 @@
-// firebase-config.js - 修正版
+// firebase-config.js
 const firebaseConfig = {
     apiKey: "AIzaSyA7F0JbTqI5THGUQnqp7_BSBALAQQeIAk",
     authDomain: "testsystem-2056d.firebaseapp.com",
@@ -8,54 +8,45 @@ const firebaseConfig = {
     appId: "1:1085110426660:web:48af6f7864bc567f536ccb1"
 };
 
-// 檢查是否已初始化
-let app, auth, db;
-
+// 初始化 Firebase
 function initializeFirebase() {
     try {
-        // 檢查是否已經加載了 Firebase SDK
-        if (typeof firebase === 'undefined') {
-            console.error('Firebase SDK 未加載');
-            return false;
+        if (typeof firebase !== 'undefined') {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+                console.log('Firebase 初始化成功');
+            }
+            return true;
         }
-        
-        // 初始化 Firebase
-        if (!firebase.apps.length) {
-            app = firebase.initializeApp(firebaseConfig);
-            console.log('Firebase 應用已初始化');
-        } else {
-            app = firebase.app();
-            console.log('Firebase 應用已存在');
-        }
-        
-        // 獲取服務
-        auth = firebase.auth();
-        db = firebase.firestore();
-        
-        console.log('Firebase 服務初始化完成');
-        return true;
-        
+        return false;
     } catch (error) {
         console.error('Firebase 初始化錯誤:', error);
         return false;
     }
 }
 
-// 暴露給全域使用
-window.firebaseApp = {
+// Google 登入函數
+async function signInWithGoogle() {
+    try {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        const result = await firebase.auth().signInWithPopup(provider);
+        const user = result.user;
+        
+        console.log('Google 登入成功:', user.displayName);
+        return user;
+    } catch (error) {
+        console.error('Google 登入錯誤:', error);
+        throw error;
+    }
+}
+
+// 暴露給全域
+window.firebaseAuth = {
     initialize: initializeFirebase,
-    getAuth: () => auth,
-    getFirestore: () => db,
-    getApp: () => app
+    signInWithGoogle: signInWithGoogle
 };
 
 // 自動初始化
 document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        if (initializeFirebase()) {
-            console.log('Firebase 自動初始化成功');
-        } else {
-            console.error('Firebase 自動初始化失敗');
-        }
-    }, 1000);
+    initializeFirebase();
 });
