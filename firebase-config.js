@@ -1,4 +1,4 @@
-// firebase-config.js
+// firebase-config.js - 修正版
 const firebaseConfig = {
     apiKey: "AIzaSyA7F0JbTqI5THGUQnqp7_BSBALAQQeIAk",
     authDomain: "testsystem-2056d.firebaseapp.com",
@@ -8,27 +8,39 @@ const firebaseConfig = {
     appId: "1:1085110426660:web:48af6f7864bc567f536ccb1"
 };
 
-// 初始化 Firebase
+// 檢查環境
 function initializeFirebase() {
     try {
         if (typeof firebase !== 'undefined') {
+            // 檢查是否已初始化
             if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
+                const app = firebase.initializeApp(firebaseConfig);
                 console.log('Firebase 初始化成功');
+                
+                // 設定語言
+                firebase.auth().languageCode = 'zh-TW';
+                
+                return app;
+            } else {
+                return firebase.app();
             }
-            return true;
         }
-        return false;
+        console.warn('Firebase SDK 未加載');
+        return null;
     } catch (error) {
         console.error('Firebase 初始化錯誤:', error);
-        return false;
+        return null;
     }
 }
 
-// 暴露給全域
-window.initializeFirebase = initializeFirebase;
+// 暴露函數
+window.firebaseTools = {
+    initialize: initializeFirebase,
+    getAuth: () => firebase?.auth(),
+    getFirestore: () => firebase?.firestore()
+};
 
-// 自動初始化
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(initializeFirebase, 100);
-});
+// 嘗試初始化
+if (typeof firebase !== 'undefined') {
+    initializeFirebase();
+}
