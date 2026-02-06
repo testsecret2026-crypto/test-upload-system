@@ -3,103 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Google Login</title>
+    <title>Login System</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Login Screen -->
-        <div id="login-screen" class="screen">
-            <div class="card">
-                <div class="logo">
-                    <i class="fas fa-shield-alt"></i>
-                    <h2>Secure Login</h2>
-                </div>
-                <div class="welcome-message">
-                    <h1>Welcome Back</h1>
-                    <p>Sign in to access your account</p>
-                </div>
-                
-                <div class="login-options">
-                    <button id="google-signin-btn" class="btn google-btn">
-                        <i class="fab fa-google"></i>
-                        Sign in with Google
-                    </button>
-                    
-                    <div class="divider">
-                        <span>OR</span>
-                    </div>
-                    
-                    <div class="email-option">
-                        <p>Or use your email to sign in</p>
-                        <form id="email-login-form" class="form">
-                            <div class="form-group">
-                                <label for="email">Email</label>
-                                <input type="email" id="email" placeholder="Enter your email" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="password">Password</label>
-                                <input type="password" id="password" placeholder="Enter your password" required>
-                            </div>
-                            <button type="submit" class="btn email-btn">
-                                <i class="fas fa-envelope"></i>
-                                Sign in with Email
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                
-                <div class="footer-links">
-                    <a href="#" id="forgot-password">Forgot password?</a>
-                    <p>Don't have an account? <a href="#" id="sign-up">Sign up</a></p>
-                </div>
+        <!-- Login Form -->
+        <div id="login-form" class="form-container">
+            <div class="form-header">
+                <h1>LOGIN</h1>
+                <p>Sign in to your account</p>
             </div>
-        </div>
-
-        <!-- Dashboard Screen (Hidden by default) -->
-        <div id="dashboard-screen" class="screen hidden">
-            <div class="card">
-                <div class="header">
-                    <h1><i class="fas fa-user-circle"></i> User Dashboard</h1>
-                </div>
-                
-                <div id="user-info" class="user-info">
-                    <img id="user-photo" src="" alt="User Photo" class="user-photo">
-                    <h2 id="user-name">Loading...</h2>
-                    <p id="user-email">Loading...</p>
-                    <p class="welcome-text">Welcome to your dashboard! You're successfully logged in.</p>
-                </div>
-                
-                <div class="user-details">
-                    <div class="detail-card">
-                        <i class="fas fa-id-card"></i>
-                        <h3>Account Details</h3>
-                        <p><strong>UID:</strong> <span id="user-uid">Loading...</span></p>
-                        <p><strong>Provider:</strong> <span id="user-provider">Loading...</span></p>
-                        <p><strong>Email Verified:</strong> <span id="email-verified">Loading...</span></p>
-                    </div>
-                    
-                    <div class="detail-card">
-                        <i class="fas fa-calendar-alt"></i>
-                        <h3>Session Info</h3>
-                        <p><strong>Last Login:</strong> <span id="last-login">Loading...</span></p>
-                        <p><strong>Account Created:</strong> <span id="account-created">Loading...</span></p>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="login-username">Username</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="login-username" placeholder="Enter your username or email">
                     </div>
                 </div>
                 
-                <button id="signout-btn" class="btn signout-btn">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Sign Out
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" placeholder="Enter your password">
+                    </div>
+                </div>
+                
+                <div class="remember-forgot">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember-me">
+                        <label for="remember-me">Remember me?</label>
+                    </div>
+                    <a href="#" id="forgot-password" class="text-link">Forgot password?</a>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
                 </button>
-            </div>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <button type="button" id="google-login-btn" class="btn btn-google">
+                    <i class="fab fa-google"></i>
+                    Login with Google
+                </button>
+                
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" id="show-register" class="text-link">Create one.</a></p>
+                </div>
+            </form>
         </div>
 
-        <!-- Loading Screen -->
-        <div id="loading-screen" class="loading-screen">
-            <div class="spinner"></div>
-            <p>Loading...</p>
+        <!-- Register Form (Hidden) -->
+        <div id="register-form" class="form-container hidden">
+            <div class="form-header">
+                <h1>CREATE ACCOUNT</h1>
+                <p>Sign up for a new account</p>
+            </div>
+            
+            <form id="registerForm">
+                <div class="input-group">
+                    <label for="register-name">Your Name</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user-circle"></i>
+                        <input type="text" id="register-name" placeholder="Enter your full name">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-email">Email Address</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="register-email" placeholder="Enter your email">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="register-password" placeholder="Create a password">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="register-confirm-password">Confirm Password</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="register-confirm-password" placeholder="Confirm your password">
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </button>
+                
+                <div class="divider">
+                    <span>or</span>
+                </div>
+                
+                <button type="button" id="google-register-btn" class="btn btn-google">
+                    <i class="fab fa-google"></i>
+                    Sign up with Google
+                </button>
+                
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="show-login" class="text-link">Login here.</a></p>
+                </div>
+            </form>
         </div>
+
+        <!-- Dashboard (Hidden) -->
+        <div id="dashboard" class="dashboard-container hidden">
+            <div class="dashboard-header">
+                <h1>Welcome, <span id="user-display-name"></span></h1>
+                <p>You are successfully logged in</p>
+            </div>
+            
+            <div class="user-profile">
+                <div class="profile-image">
+                    <i class="fas fa-user-circle" id="user-avatar"></i>
+                    <img id="user-photo" src="" alt="Profile" class="hidden">
+                </div>
+                <div class="profile-info">
+                    <h2 id="user-full-name">Loading...</h2>
+                    <p id="user-email-address">Loading...</p>
+                    <div class="profile-details">
+                        <p><strong>Account ID:</strong> <span id="user-id">Loading...</span></p>
+                        <p><strong>Provider:</strong> <span id="account-provider">Loading...</span></p>
+                        <p><strong>Email Verified:</strong> <span id="verified-status">Loading...</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="logout-btn" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
+
+        <!-- Message Toast -->
+        <div id="toast" class="toast hidden"></div>
     </div>
 
     <!-- Firebase SDK -->
