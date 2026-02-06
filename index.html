@@ -3,162 +3,314 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login System</title>
+    <title>Secure Portal | Login</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
-        <!-- Login Form -->
-        <div id="login-form" class="form-container">
-            <div class="form-header">
-                <h1>LOGIN</h1>
-                <p>Sign in to your account</p>
-            </div>
-            
-            <form id="loginForm">
-                <div class="input-group">
-                    <label for="login-username">Username</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-user"></i>
-                        <input type="text" id="login-username" placeholder="Enter your username or email">
-                    </div>
+        <!-- Left Panel - Branding -->
+        <div class="branding-panel">
+            <div class="branding-content">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>SecurePortal</span>
                 </div>
-                
-                <div class="input-group">
-                    <label for="login-password">Password</label>
-                    <div class="input-with-icon">
+                <div class="branding-text">
+                    <h1>Welcome Back</h1>
+                    <p>Access your secure workspace with enterprise-grade authentication and protection.</p>
+                </div>
+                <div class="features">
+                    <div class="feature">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="login-password" placeholder="Enter your password">
+                        <div>
+                            <h3>Enterprise Security</h3>
+                            <p>Military-grade encryption</p>
+                        </div>
                     </div>
-                </div>
-                
-                <div class="remember-forgot">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="remember-me">
-                        <label for="remember-me">Remember me?</label>
+                    <div class="feature">
+                        <i class="fas fa-bolt"></i>
+                        <div>
+                            <h3>Lightning Fast</h3>
+                            <p>Instant access to your workspace</p>
+                        </div>
                     </div>
-                    <a href="#" id="forgot-password" class="text-link">Forgot password?</a>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
-                </button>
-                
-                <div class="divider">
-                    <span>or</span>
-                </div>
-                
-                <button type="button" id="google-login-btn" class="btn btn-google">
-                    <i class="fab fa-google"></i>
-                    Login with Google
-                </button>
-                
-                <div class="form-footer">
-                    <p>Don't have an account? <a href="#" id="show-register" class="text-link">Create one.</a></p>
-                </div>
-            </form>
-        </div>
-
-        <!-- Register Form (Hidden) -->
-        <div id="register-form" class="form-container hidden">
-            <div class="form-header">
-                <h1>CREATE ACCOUNT</h1>
-                <p>Sign up for a new account</p>
-            </div>
-            
-            <form id="registerForm">
-                <div class="input-group">
-                    <label for="register-name">Your Name</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-user-circle"></i>
-                        <input type="text" id="register-name" placeholder="Enter your full name">
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label for="register-email">Email Address</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-envelope"></i>
-                        <input type="email" id="register-email" placeholder="Enter your email">
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label for="register-password">Password</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="register-password" placeholder="Create a password">
-                    </div>
-                </div>
-                
-                <div class="input-group">
-                    <label for="register-confirm-password">Confirm Password</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-lock"></i>
-                        <input type="password" id="register-confirm-password" placeholder="Confirm your password">
-                    </div>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-user-plus"></i>
-                    Create Account
-                </button>
-                
-                <div class="divider">
-                    <span>or</span>
-                </div>
-                
-                <button type="button" id="google-register-btn" class="btn btn-google">
-                    <i class="fab fa-google"></i>
-                    Sign up with Google
-                </button>
-                
-                <div class="form-footer">
-                    <p>Already have an account? <a href="#" id="show-login" class="text-link">Login here.</a></p>
-                </div>
-            </form>
-        </div>
-
-        <!-- Dashboard (Hidden) -->
-        <div id="dashboard" class="dashboard-container hidden">
-            <div class="dashboard-header">
-                <h1>Welcome, <span id="user-display-name"></span></h1>
-                <p>You are successfully logged in</p>
-            </div>
-            
-            <div class="user-profile">
-                <div class="profile-image">
-                    <i class="fas fa-user-circle" id="user-avatar"></i>
-                    <img id="user-photo" src="" alt="Profile" class="hidden">
-                </div>
-                <div class="profile-info">
-                    <h2 id="user-full-name">Loading...</h2>
-                    <p id="user-email-address">Loading...</p>
-                    <div class="profile-details">
-                        <p><strong>Account ID:</strong> <span id="user-id">Loading...</span></p>
-                        <p><strong>Provider:</strong> <span id="account-provider">Loading...</span></p>
-                        <p><strong>Email Verified:</strong> <span id="verified-status">Loading...</span></p>
+                    <div class="feature">
+                        <i class="fas fa-globe"></i>
+                        <div>
+                            <h3>Global Access</h3>
+                            <p>Available anywhere, anytime</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <button id="logout-btn" class="btn btn-logout">
-                <i class="fas fa-sign-out-alt"></i>
-                Logout
-            </button>
         </div>
 
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="loading-overlay hidden">
-            <div class="spinner"></div>
-            <p>Processing...</p>
-        </div>
+        <!-- Right Panel - Authentication -->
+        <div class="auth-panel">
+            <!-- Login Form -->
+            <div id="login-container" class="auth-container">
+                <div class="auth-header">
+                    <h2>Sign In to Your Account</h2>
+                    <p>Enter your credentials to continue</p>
+                </div>
 
-        <!-- Message Toast -->
-        <div id="toast" class="toast hidden"></div>
+                <div class="auth-card">
+                    <div class="auth-methods">
+                        <div class="method-header">
+                            <h3>Continue with Google</h3>
+                            <p>Securely sign in with your Google account</p>
+                        </div>
+                        
+                        <button id="google-login-btn" class="btn btn-google">
+                            <div class="btn-content">
+                                <div class="btn-icon">
+                                    <i class="fab fa-google"></i>
+                                </div>
+                                <div class="btn-text">
+                                    <span class="btn-title">Continue with Google</span>
+                                    <span class="btn-subtitle">Gmail account required</span>
+                                </div>
+                            </div>
+                        </button>
+
+                        <div class="divider">
+                            <span>OR</span>
+                        </div>
+
+                        <div class="email-option">
+                            <p>Use your organization email</p>
+                            <form id="email-login-form" class="auth-form">
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <div class="input-with-icon">
+                                        <i class="fas fa-envelope"></i>
+                                        <input type="email" id="email" placeholder="name@company.com" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                    Continue with Email
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="auth-footer">
+                        <p>Don't have an account? <a href="#" id="show-register" class="link">Sign up here</a></p>
+                        <div class="security-notice">
+                            <i class="fas fa-info-circle"></i>
+                            <span>This system uses secure Google OAuth 2.0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="register-container" class="auth-container hidden">
+                <div class="auth-header">
+                    <h2>Create New Account</h2>
+                    <p>Set up your secure workspace</p>
+                </div>
+
+                <div class="auth-card">
+                    <div class="registration-steps">
+                        <div class="step active" id="step-google">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h3>Connect Google Account</h3>
+                                <p>We'll use your Gmail for secure authentication</p>
+                            </div>
+                        </div>
+                        <div class="step" id="step-details">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h3>Complete Your Profile</h3>
+                                <p>Add your name and set a password</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="google-register-section">
+                        <div class="method-header">
+                            <h3>Start with Google</h3>
+                            <p>Your Gmail account will be used for secure login</p>
+                        </div>
+                        
+                        <button id="google-register-btn" class="btn btn-google">
+                            <div class="btn-content">
+                                <div class="btn-icon">
+                                    <i class="fab fa-google"></i>
+                                </div>
+                                <div class="btn-text">
+                                    <span class="btn-title">Continue with Google</span>
+                                    <span class="btn-subtitle">Required for registration</span>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Registration Form (Shown after Google auth) -->
+                    <div id="registration-form" class="hidden">
+                        <form id="complete-registration-form" class="auth-form">
+                            <div class="user-info-summary">
+                                <div class="user-avatar">
+                                    <img id="reg-user-photo" src="" alt="">
+                                    <i class="fas fa-user-circle fallback-avatar"></i>
+                                </div>
+                                <div class="user-details">
+                                    <h4 id="reg-user-name">Loading...</h4>
+                                    <p id="reg-user-email">Loading...</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="full-name">
+                                    <i class="fas fa-user"></i>
+                                    Full Name
+                                </label>
+                                <input type="text" id="full-name" placeholder="Enter your full name" required>
+                                <div class="input-hint">This will be your display name</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">
+                                    <i class="fas fa-lock"></i>
+                                    Create Password
+                                </label>
+                                <div class="password-input">
+                                    <input type="password" id="password" placeholder="Create a secure password" required>
+                                    <button type="button" class="toggle-password" id="toggle-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="strength-meter">
+                                        <div class="strength-bar"></div>
+                                    </div>
+                                    <span class="strength-text">Password strength</span>
+                                </div>
+                                <div class="password-requirements">
+                                    <p><i class="fas fa-check-circle"></i> Minimum 8 characters</p>
+                                    <p><i class="fas fa-check-circle"></i> At least one number</p>
+                                    <p><i class="fas fa-check-circle"></i> One special character</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm-password">
+                                    <i class="fas fa-lock"></i>
+                                    Confirm Password
+                                </label>
+                                <div class="password-input">
+                                    <input type="password" id="confirm-password" placeholder="Re-enter your password" required>
+                                    <button type="button" class="toggle-password" id="toggle-confirm-password">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="button" id="back-to-google" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i>
+                                    Back
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-check-circle"></i>
+                                    Complete Registration
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="auth-footer">
+                        <p>Already have an account? <a href="#" id="show-login" class="link">Sign in here</a></p>
+                        <div class="security-notice">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Your data is protected with 256-bit encryption</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard-container" class="auth-container hidden">
+                <div class="auth-header">
+                    <h2>Welcome to Your Workspace</h2>
+                    <p>You're securely signed in</p>
+                </div>
+
+                <div class="dashboard-card">
+                    <div class="user-profile">
+                        <div class="profile-header">
+                            <div class="profile-avatar">
+                                <img id="dashboard-photo" src="" alt="">
+                                <div class="status-indicator online"></div>
+                            </div>
+                            <div class="profile-info">
+                                <h3 id="dashboard-name">Loading...</h3>
+                                <p id="dashboard-email">Loading...</p>
+                                <span class="badge google-badge">
+                                    <i class="fab fa-google"></i>
+                                    Google Account
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="profile-details">
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">User ID</span>
+                                    <span id="user-id" class="detail-value">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Member Since</span>
+                                    <span id="member-since" class="detail-value">Loading...</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Last Active</span>
+                                    <span id="last-active" class="detail-value">Just now</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-actions">
+                            <button class="action-btn">
+                                <i class="fas fa-cog"></i>
+                                Settings
+                            </button>
+                            <button class="action-btn">
+                                <i class="fas fa-question-circle"></i>
+                                Help
+                            </button>
+                        </div>
+
+                        <button id="logout-btn" class="btn btn-logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden"></div>
 
     <!-- Firebase SDK -->
     <script type="module" src="firebase-config.js"></script>
