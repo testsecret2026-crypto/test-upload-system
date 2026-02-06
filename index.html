@@ -11,6 +11,10 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
+    
     <style>
         /* 簡潔實用的樣式 */
         body {
@@ -19,6 +23,57 @@
             color: #333;
             line-height: 1.6;
             min-height: 100vh;
+        }
+        
+        /* 用戶登入區域 */
+        #user-auth-section {
+            background-color: #e8f4ff;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #d1e7ff;
+        }
+        
+        #user-photo {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #007bff;
+        }
+        
+        /* 登入提示訊息 */
+        #login-message {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        .login-success {
+            background-color: #198754;
+        }
+        
+        .login-info {
+            background-color: #0dcaf0;
+        }
+        
+        .login-warning {
+            background-color: #ffc107;
         }
         
         .navbar {
@@ -98,6 +153,11 @@
         .main-btn:hover {
             background-color: #0056b3;
             color: white;
+        }
+        
+        .main-btn.disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
         
         .secondary-btn {
@@ -394,19 +454,55 @@
             .result-item {
                 padding: 1.2rem;
             }
+            
+            #login-message {
+                top: 70px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 用戶登入狀態區域 -->
+    <div id="user-auth-section" style="display: none;">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div id="user-info" class="d-flex align-items-center">
+                <i class="bi bi-person-check me-2" style="color: #198754;"></i>
+                <span id="user-name" style="font-weight: 500;"></span>
+            </div>
+            <div>
+                <button id="login-btn" class="btn btn-sm btn-primary">
+                    <i class="bi bi-google me-1"></i>
+                    <span class="lang-text" data-en="Login with Google" data-zh="使用 Google 登入">使用 Google 登入</span>
+                </button>
+                <button id="logout-btn" class="btn btn-sm btn-outline-secondary" style="display: none;">
+                    <span class="lang-text" data-en="Logout" data-zh="登出">登出</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    
     <!-- 導航欄 -->
     <nav class="navbar">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center w-100">
                 <a class="navbar-brand" href="#">
+                    <i class="bi bi-archive me-2"></i>
+                    <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">試卷題庫系統</span>
                 </a>
-                <div class="lang-switcher">
-                    <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
-                    <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
+                <div class="d-flex align-items-center gap-3">
+                    <!-- 用戶頭像 -->
+                    <div id="user-avatar" style="display: none;">
+                        <img id="user-photo" src="" alt="用戶頭像">
+                    </div>
+                    
+                    <!-- 語言切換 -->
+                    <div class="lang-switcher">
+                        <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                        <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -571,7 +667,7 @@
             </div>
             
             <div class="text-center mt-4">
-                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn main-btn">
+                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn main-btn" id="upload-link">
                     <i class="bi bi-google me-2"></i>
                     <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">透過 Google 表單上傳</span>
                 </a>
@@ -592,7 +688,27 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // 當前選擇狀態
+        // ==================== Firebase 設定 ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_9yNhBqfg4oxFU2G9VJY05dtoyekJia0",
+            authDomain: "testpaper-1dcc6.firebaseapp.com",
+            projectId: "testpaper-1dcc6",
+            storageBucket: "testpaper-1dcc6.firebasestorage.app",
+            messagingSenderId: "706612367183",
+            appId: "1:706612367183:web:559597333c89ba34407f3a"
+        };
+
+        // 初始化 Firebase
+        let auth;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            console.log("Firebase 初始化成功");
+        } catch (error) {
+            console.error("Firebase 初始化錯誤:", error);
+        }
+
+        // ==================== 全域變數 ====================
         let currentGrade = null;
         let currentSubject = null;
         let currentTerm = null;
@@ -601,12 +717,6 @@
         
         // 試卷資料庫 (對應 Google Drive 連結) - 已包含所有試卷連結
         const paperDatabase = {
-            // 初中三年級生物第二學期 2024 年試卷 (新增)
-            'jh3_bio_t2_2024': {
-                url: 'https://drive.google.com/drive/folders/1pw744a-f-jRRYdB5KOKWvY9oxdmwWiTM?usp=sharing',
-                title_zh: '初中三年級生物第二學期 2024 年試卷',
-                title_en: 'Junior High 3 Biology Second Semester 2024 Papers'
-            },
             // 初中一年級 (jh1) 數學試卷
             'jh1_math_t1_2024': {
                 url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
@@ -747,6 +857,278 @@
                 title_en: 'Senior High 1 Chinese First Semester 2024 Papers'
             }
         };
+
+        // ==================== Firebase 功能函數 ====================
+        
+        // 監聽認證狀態變化
+        if (auth) {
+            auth.onAuthStateChanged((user) => {
+                console.log("Firebase 認證狀態變化:", user ? "已登入" : "未登入");
+                
+                if (user) {
+                    handleUserLogin(user);
+                } else {
+                    handleUserLogout();
+                }
+            });
+        }
+
+        // 處理用戶登入
+        function handleUserLogin(user) {
+            console.log("處理用戶登入:", user.displayName || user.email);
+            
+            // 更新 UI
+            const userAuthSection = document.getElementById('user-auth-section');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (userAuthSection && loginBtn && logoutBtn) {
+                userAuthSection.style.display = 'block';
+                loginBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            }
+            
+            // 顯示用戶資訊
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+                if (user.displayName) {
+                    userNameElement.textContent = user.displayName;
+                } else if (user.email) {
+                    userNameElement.textContent = user.email;
+                }
+            }
+            
+            // 顯示用戶頭像
+            const userAvatar = document.getElementById('user-avatar');
+            const userPhoto = document.getElementById('user-photo');
+            if (userAvatar && userPhoto) {
+                if (user.photoURL) {
+                    userPhoto.src = user.photoURL;
+                    userAvatar.style.display = 'block';
+                } else {
+                    userAvatar.style.display = 'none';
+                }
+            }
+            
+            // 更新上傳按鈕狀態
+            updateUploadButton();
+            
+            // 顯示登入成功訊息
+            showLoginMessage(true, user.displayName || user.email);
+        }
+
+        // 處理用戶登出
+        function handleUserLogout() {
+            console.log("處理用戶登出");
+            
+            // 更新 UI
+            const userAuthSection = document.getElementById('user-auth-section');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (userAuthSection && loginBtn && logoutBtn) {
+                userAuthSection.style.display = 'none';
+                loginBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+            
+            // 隱藏用戶頭像
+            const userAvatar = document.getElementById('user-avatar');
+            if (userAvatar) {
+                userAvatar.style.display = 'none';
+            }
+            
+            // 清空用戶名稱
+            const userNameElement = document.getElementById('user-name');
+            if (userNameElement) {
+                userNameElement.textContent = '';
+            }
+            
+            // 更新上傳按鈕狀態
+            updateUploadButton();
+            
+            // 顯示登出訊息
+            showLoginMessage(false);
+        }
+
+        // Google 登入
+        function googleLogin() {
+            if (!auth) {
+                console.error("Firebase 未初始化");
+                showLoginMessage(false, null, "Firebase 未初始化，請重新整理頁面");
+                return;
+            }
+            
+            console.log("開始 Google 登入");
+            
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            // 添加權限範圍
+            provider.addScope('profile');
+            provider.addScope('email');
+            
+            // 顯示載入提示
+            const loginBtn = document.getElementById('login-btn');
+            if (loginBtn) {
+                const originalText = loginBtn.innerHTML;
+                loginBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i><span class="lang-text" data-en="Logging in..." data-zh="登入中...">登入中...</span>';
+                loginBtn.disabled = true;
+                
+                auth.signInWithPopup(provider)
+                    .then((result) => {
+                        console.log("Google 登入成功:", result.user.email);
+                        
+                        // 恢復按鈕狀態
+                        loginBtn.innerHTML = originalText;
+                        loginBtn.disabled = false;
+                    })
+                    .catch((error) => {
+                        console.error("Google 登入錯誤:", error);
+                        
+                        // 恢復按鈕狀態
+                        loginBtn.innerHTML = originalText;
+                        loginBtn.disabled = false;
+                        
+                        // 顯示錯誤訊息
+                        const errorMsg = currentLang === 'zh' ? 
+                            `登入失敗：${error.message}` : 
+                            `Login failed: ${error.message}`;
+                        showLoginMessage(false, null, errorMsg);
+                    });
+            }
+        }
+
+        // 用戶登出
+        function logout() {
+            if (!auth) {
+                console.error("Firebase 未初始化");
+                return;
+            }
+            
+            console.log("開始登出");
+            
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) {
+                const originalText = logoutBtn.innerHTML;
+                logoutBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i><span class="lang-text" data-en="Logging out..." data-zh="登出中...">登出中...</span>';
+                logoutBtn.disabled = true;
+                
+                auth.signOut()
+                    .then(() => {
+                        console.log("登出成功");
+                        
+                        // 恢復按鈕狀態
+                        logoutBtn.innerHTML = originalText;
+                        logoutBtn.disabled = false;
+                    })
+                    .catch((error) => {
+                        console.error("登出錯誤:", error);
+                        
+                        // 恢復按鈕狀態
+                        logoutBtn.innerHTML = originalText;
+                        logoutBtn.disabled = false;
+                        
+                        const errorMsg = currentLang === 'zh' ? 
+                            `登出失敗：${error.message}` : 
+                            `Logout failed: ${error.message}`;
+                        showLoginMessage(false, null, errorMsg);
+                    });
+            }
+        }
+
+        // 更新上傳按鈕狀態
+        function updateUploadButton() {
+            if (!auth) return;
+            
+            const user = auth.currentUser;
+            const uploadLink = document.getElementById('upload-link');
+            
+            if (!uploadLink) return;
+            
+            if (user) {
+                // 已登入：正常啟用上傳按鈕
+                uploadLink.classList.remove('disabled');
+                uploadLink.onclick = null;
+                uploadLink.href = "https://forms.gle/zDivK2A37ZDgNQDj8";
+                
+                // 更新提示文字
+                const textElement = uploadLink.querySelector('.lang-text');
+                if (textElement) {
+                    textElement.setAttribute('data-en', 'Upload via Google Form');
+                    textElement.setAttribute('data-zh', '透過 Google 表單上傳');
+                    textElement.textContent = currentLang === 'zh' ? 
+                        '透過 Google 表單上傳' : 'Upload via Google Form';
+                }
+            } else {
+                // 未登入：禁用上傳按鈕並添加提示
+                uploadLink.classList.add('disabled');
+                uploadLink.href = "#";
+                
+                // 更新提示文字
+                const textElement = uploadLink.querySelector('.lang-text');
+                if (textElement) {
+                    textElement.setAttribute('data-en', 'Login to Upload');
+                    textElement.setAttribute('data-zh', '登入後上傳');
+                    textElement.textContent = currentLang === 'zh' ? 
+                        '登入後上傳' : 'Login to Upload';
+                }
+                
+                // 添加點擊事件
+                uploadLink.onclick = function(e) {
+                    e.preventDefault();
+                    
+                    const confirmMsg = currentLang === 'zh' ? 
+                        '需要先登入才能上傳試卷。是否要現在登入？' :
+                        'You need to login to upload papers. Would you like to login now?';
+                    
+                    if (confirm(confirmMsg)) {
+                        googleLogin();
+                    }
+                };
+            }
+        }
+
+        // 顯示登入/登出訊息
+        function showLoginMessage(isLogin, userName = null, customMessage = null) {
+            // 移除現有訊息
+            const existingMessage = document.getElementById('login-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // 創建新訊息
+            const messageDiv = document.createElement('div');
+            messageDiv.id = 'login-message';
+            
+            let messageText = '';
+            
+            if (customMessage) {
+                messageText = customMessage;
+                messageDiv.className = 'login-warning';
+            } else if (isLogin) {
+                messageText = currentLang === 'zh' ? 
+                    `歡迎回來，${userName}！` : 
+                    `Welcome back, ${userName}!`;
+                messageDiv.className = 'login-success';
+            } else {
+                messageText = currentLang === 'zh' ? 
+                    '已成功登出' : 
+                    'Successfully logged out';
+                messageDiv.className = 'login-info';
+            }
+            
+            messageDiv.textContent = messageText;
+            document.body.appendChild(messageDiv);
+            
+            // 3秒後自動移除
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 3000);
+        }
+
+        // ==================== 原有程式功能 ====================
         
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -759,6 +1141,26 @@
             document.getElementById('yearDropdown').disabled = false;
             
             updateSteps();
+            
+            // 綁定登入/登出按鈕事件
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (loginBtn) {
+                loginBtn.addEventListener('click', googleLogin);
+            }
+            
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', logout);
+            }
+            
+            // 初始化上傳按鈕狀態
+            updateUploadButton();
+            
+            // 檢查 Firebase 初始化狀態
+            if (!auth) {
+                console.warn("Firebase 未正確初始化，登入功能可能無法使用");
+            }
         });
         
         // 處理年級選擇
@@ -1037,6 +1439,33 @@
                 btn.classList.add('active');
             });
             
+            // 更新登入按鈕文字
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (loginBtn) {
+                const loginText = loginBtn.querySelector('.lang-text');
+                if (loginText) {
+                    const text = loginText.getAttribute(`data-${lang}`);
+                    if (text) {
+                        loginText.textContent = text;
+                    }
+                }
+            }
+            
+            if (logoutBtn) {
+                const logoutText = logoutBtn.querySelector('.lang-text');
+                if (logoutText) {
+                    const text = logoutText.getAttribute(`data-${lang}`);
+                    if (text) {
+                        logoutText.textContent = text;
+                    }
+                }
+            }
+            
+            // 更新上傳按鈕狀態
+            updateUploadButton();
+            
             // 如果有顯示結果，重新載入結果
             if (currentGrade && currentSubject && currentTerm && currentYear) {
                 updateResultsTitle();
@@ -1063,4 +1492,3 @@
     </script>
 </body>
 </html>
-
