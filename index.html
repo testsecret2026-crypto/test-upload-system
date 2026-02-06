@@ -1,22 +1,138 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Firebase Google 登录示例</title>
-    <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js" defer></script>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #e9ecef;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #007bff;
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+        }
+
+        .login-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+        }
+
+        #main-content {
+            display: none;
+        }
+
+        .welcome-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+        }
+
+        .btn-main {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-main:hover {
+            background-color: #0056b3;
+        }
+
+        .text-danger {
+            color: #dc3545; 
+        }
+        
+        @media (max-width: 768px) {
+            .welcome-section, .login-section {
+                margin: 2rem;
+                padding: 1.5rem;
+                box-shadow: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Firebase Google 登录示例</h1>
-        <button id="loginBtn" class="btn">使用 Google 登录</button>
-        <button id="logoutBtn" class="btn" style="display: none;">登出</button>
-        <div id="userInfo" style="display: none;">
-            <h2>用户信息</h2>
-            <p id="name"></p>
-            <img id="profilePicture" src="" alt="头像" class="profile-pic"/>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">試卷題庫系統</a>
+        </div>
+    </nav>
+
+    <!-- 登入區域 -->
+    <div id="login-section" class="container login-section">
+        <h2>使用 Google 登入以訪問試卷系統</h2>
+        <button class="btn btn-main" onclick="loginWithGoogle()">使用 Google 登入</button>
+        <p id="login-error" class="text-danger"></p>
+    </div>
+
+    <!-- 主內容區域 -->
+    <div id="main-content" class="container">
+        <div class="welcome-section">
+            <h1>歡迎來到試卷題庫系統</h1>
+            <p>查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。</p>
+            <a href="#upload" class="btn btn-secondary mt-2">上傳試卷</a>
         </div>
     </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHaIeMD8WnFKtDuF08_5GseMC6S-OCCi0",
+            authDomain: "project-7983367571690113440.firebaseapp.com",
+            projectId: "project-7983367571690113440",
+            storageBucket: "project-7983367571690113440.appspot.com",
+            messagingSenderId: "17335949650",
+            appId: "1:17335949650:web:ef1f03971b2d0ee74f028b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        function loginWithGoogle() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                })
+                .catch((error) => {
+                    const errorMessage = error.message;
+                    document.getElementById('login-error').textContent = errorMessage;
+                });
+        }
+    </script>
 </body>
 </html>
