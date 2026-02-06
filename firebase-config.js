@@ -5,8 +5,6 @@ import {
     signInWithPopup, 
     signOut, 
     onAuthStateChanged,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
     updateProfile
 } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
 
@@ -23,13 +21,15 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Request additional scopes if needed
+provider.addScope('email');
+provider.addScope('profile');
+
 export { 
     auth, 
     provider, 
     signInWithPopup, 
     signOut, 
-    onAuthStateChanged, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword,
-    updateProfile 
+    onAuthStateChanged,
+    updateProfile
 };
