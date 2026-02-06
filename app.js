@@ -3,50 +3,54 @@ import {
     provider, 
     signInWithPopup, 
     signOut, 
-    onAuthStateChanged, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword,
+    onAuthStateChanged,
     updateProfile
 } from './firebase-config.js';
 
 // DOM Elements
-const loginFormContainer = document.getElementById('login-form');
-const registerFormContainer = document.getElementById('register-form');
-const dashboardContainer = document.getElementById('dashboard');
-const loadingOverlay = document.getElementById('loading-overlay');
+const loginContainer = document.getElementById('login-container');
+const registerContainer = document.getElementById('register-container');
+const dashboardContainer = document.getElementById('dashboard-container');
 const toast = document.getElementById('toast');
 
-// Login Form Elements
-const loginForm = document.getElementById('loginForm');
-const loginUsername = document.getElementById('login-username');
-const loginPassword = document.getElementById('login-password');
+// Login Elements
 const googleLoginBtn = document.getElementById('google-login-btn');
 const showRegisterLink = document.getElementById('show-register');
+const emailLoginForm = document.getElementById('email-login-form');
 
-// Register Form Elements
-const registerForm = document.getElementById('registerForm');
-const registerName = document.getElementById('register-name');
-const registerEmail = document.getElementById('register-email');
-const registerPassword = document.getElementById('register-password');
-const registerConfirmPassword = document.getElementById('register-confirm-password');
+// Registration Elements
 const googleRegisterBtn = document.getElementById('google-register-btn');
 const showLoginLink = document.getElementById('show-login');
+const googleRegisterSection = document.getElementById('google-register-section');
+const registrationForm = document.getElementById('registration-form');
+const completeRegistrationForm = document.getElementById('complete-registration-form');
+const backToGoogleBtn = document.getElementById('back-to-google');
+
+// Registration Form Elements
+const regUserName = document.getElementById('reg-user-name');
+const regUserEmail = document.getElementById('reg-user-email');
+const regUserPhoto = document.getElementById('reg-user-photo');
+const fullNameInput = document.getElementById('full-name');
+const passwordInput = document.getElementById('password');
+const confirmPasswordInput = document.getElementById('confirm-password');
+const togglePasswordBtn = document.getElementById('toggle-password');
+const toggleConfirmPasswordBtn = document.getElementById('toggle-confirm-password');
+const strengthBar = document.querySelector('.strength-bar');
+const strengthText = document.querySelector('.strength-text');
 
 // Dashboard Elements
-const userDisplayName = document.getElementById('user-display-name');
-const userFullName = document.getElementById('user-full-name');
-const userEmailAddress = document.getElementById('user-email-address');
+const dashboardName = document.getElementById('dashboard-name');
+const dashboardEmail = document.getElementById('dashboard-email');
+const dashboardPhoto = document.getElementById('dashboard-photo');
 const userId = document.getElementById('user-id');
-const accountProvider = document.getElementById('account-provider');
-const verifiedStatus = document.getElementById('verified-status');
-const userAvatar = document.getElementById('user-avatar');
-const userPhoto = document.getElementById('user-photo');
+const memberSince = document.getElementById('member-since');
+const lastActive = document.getElementById('last-active');
 const logoutBtn = document.getElementById('logout-btn');
 
-// Forgot Password
-const forgotPasswordLink = document.getElementById('forgot-password');
+// State Variables
+let googleUserData = null;
 
-// Show Toast Message
+// Toast Notification
 function showToast(message, type = 'info') {
     toast.textContent = message;
     toast.className = `toast ${type}`;
@@ -54,157 +58,123 @@ function showToast(message, type = 'info') {
     
     setTimeout(() => {
         toast.classList.add('hidden');
-    }, 3000);
+    }, 4000);
 }
 
-// Show Loading
-function showLoading() {
-    loadingOverlay.classList.remove('hidden');
-}
+// Toggle Password Visibility
+togglePasswordBtn?.addEventListener('click', () => {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    togglePasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+});
 
-// Hide Loading
-function hideLoading() {
-    loadingOverlay.classList.add('hidden');
-}
+toggleConfirmPasswordBtn?.addEventListener('click', () => {
+    const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    confirmPasswordInput.setAttribute('type', type);
+    toggleConfirmPasswordBtn.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+});
 
-// Switch to Login Form
-function showLoginForm() {
-    loginFormContainer.classList.remove('hidden');
-    registerFormContainer.classList.add('hidden');
-    dashboardContainer.classList.add('hidden');
-}
-
-// Switch to Register Form
-function showRegisterForm() {
-    loginFormContainer.classList.add('hidden');
-    registerFormContainer.classList.remove('hidden');
-    dashboardContainer.classList.add('hidden');
-}
-
-// Show Dashboard
-function showDashboard() {
-    loginFormContainer.classList.add('hidden');
-    registerFormContainer.classList.add('hidden');
-    dashboardContainer.classList.remove('hidden');
-}
-
-// Update Dashboard with User Info
-function updateDashboard(user) {
-    userDisplayName.textContent = user.displayName || user.email;
-    userFullName.textContent = user.displayName || 'Not set';
-    userEmailAddress.textContent = user.email;
-    userId.textContent = user.uid;
+// Password Strength Checker
+passwordInput?.addEventListener('input', function() {
+    const password = this.value;
+    let strength = 0;
     
-    // Get provider info
-    const providers = user.providerData.map(p => {
-        switch(p.providerId) {
-            case 'google.com': return 'Google';
-            case 'password': return 'Email/Password';
-            default: return p.providerId;
-        }
-    });
-    accountProvider.textContent = providers.join(', ');
+    if (password.length >= 8) strength += 25;
+    if (/[A-Z]/.test(password)) strength += 25;
+    if (/[0-9]/.test(password)) strength += 25;
+    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
     
-    // Email verification status
-    if (user.emailVerified) {
-        verifiedStatus.textContent = 'Verified';
-        verifiedStatus.style.color = '#4CAF50';
+    strengthBar.style.width = `${strength}%`;
+    
+    if (strength < 25) {
+        strengthBar.style.backgroundColor = '#ef4444';
+        strengthText.textContent = 'Very Weak';
+    } else if (strength < 50) {
+        strengthBar.style.backgroundColor = '#f97316';
+        strengthText.textContent = 'Weak';
+    } else if (strength < 75) {
+        strengthBar.style.backgroundColor = '#f59e0b';
+        strengthText.textContent = 'Good';
     } else {
-        verifiedStatus.textContent = 'Not Verified';
-        verifiedStatus.style.color = '#f44336';
+        strengthBar.style.backgroundColor = '#10b981';
+        strengthText.textContent = 'Strong';
     }
-    
-    // Profile photo
-    if (user.photoURL) {
-        userAvatar.classList.add('hidden');
-        userPhoto.src = user.photoURL;
-        userPhoto.classList.remove('hidden');
-    } else {
-        userAvatar.classList.remove('hidden');
-        userPhoto.classList.add('hidden');
-    }
-}
+});
 
-// Handle Google Login/Signup
-async function handleGoogleAuth() {
+// Handle Google Login
+async function handleGoogleLogin() {
     try {
-        showLoading();
         const result = await signInWithPopup(auth, provider);
-        showToast('Successfully signed in with Google!', 'success');
+        showToast('Successfully signed in!', 'success');
+        return result.user;
     } catch (error) {
-        console.error('Google auth error:', error);
-        showToast(`Error: ${error.message}`, 'error');
-        hideLoading();
-    }
-}
-
-// Handle Email/Password Login
-loginForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value;
-    
-    if (!username || !password) {
-        showToast('Please fill in all fields', 'error');
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        // Check if input is email or username
-        // For Firebase, we use email for login
-        // If user entered username, we need to handle it differently
-        // For now, assuming it's an email
-        const email = username.includes('@') ? username : `${username}@example.com`;
-        
-        await signInWithEmailAndPassword(auth, email, password);
-        showToast('Successfully logged in!', 'success');
-        
-        // Clear form
-        loginForm.reset();
-    } catch (error) {
-        console.error('Login error:', error);
+        console.error('Google login error:', error);
         let errorMessage = 'Login failed';
         
         switch (error.code) {
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
+            case 'auth/popup-closed-by-user':
+                errorMessage = 'Login cancelled';
                 break;
-            case 'auth/user-disabled':
-                errorMessage = 'Account disabled';
+            case 'auth/popup-blocked':
+                errorMessage = 'Popup blocked by browser. Please allow popups for this site.';
                 break;
-            case 'auth/user-not-found':
-                errorMessage = 'Account not found';
-                break;
-            case 'auth/wrong-password':
-                errorMessage = 'Incorrect password';
-                break;
-            case 'auth/invalid-credential':
-                errorMessage = 'Invalid credentials';
+            case 'auth/unauthorized-domain':
+                errorMessage = 'This domain is not authorized. Please check Firebase console settings.';
                 break;
             default:
                 errorMessage = error.message;
         }
         
         showToast(`Error: ${errorMessage}`, 'error');
-        hideLoading();
+        return null;
     }
-});
+}
 
-// Handle Email/Password Registration
-registerForm.addEventListener('submit', async (e) => {
+// Handle Google Registration
+async function handleGoogleRegistration() {
+    const user = await handleGoogleLogin();
+    if (user) {
+        googleUserData = user;
+        
+        // Update registration form with Google user info
+        regUserName.textContent = user.displayName || 'Set your name';
+        regUserEmail.textContent = user.email;
+        
+        if (user.photoURL) {
+            regUserPhoto.src = user.photoURL;
+            regUserPhoto.style.display = 'block';
+            document.querySelector('.fallback-avatar').style.display = 'none';
+        }
+        
+        // Pre-fill name field
+        fullNameInput.value = user.displayName || '';
+        
+        // Switch to registration form
+        googleRegisterSection.classList.add('hidden');
+        registrationForm.classList.remove('hidden');
+        
+        // Update step indicator
+        document.getElementById('step-google').classList.remove('active');
+        document.getElementById('step-details').classList.add('active');
+    }
+}
+
+// Complete Registration
+completeRegistrationForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const name = registerName.value.trim();
-    const email = registerEmail.value.trim();
-    const password = registerPassword.value;
-    const confirmPassword = registerConfirmPassword.value;
+    const name = fullNameInput.value.trim();
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
     
     // Validation
-    if (!name || !email || !password || !confirmPassword) {
-        showToast('Please fill in all fields', 'error');
+    if (!name) {
+        showToast('Please enter your name', 'error');
+        return;
+    }
+    
+    if (password.length < 8) {
+        showToast('Password must be at least 8 characters', 'error');
         return;
     }
     
@@ -213,108 +183,115 @@ registerForm.addEventListener('submit', async (e) => {
         return;
     }
     
-    if (password.length < 6) {
-        showToast('Password must be at least 6 characters', 'error');
-        return;
-    }
-    
-    if (!email.includes('@')) {
-        showToast('Please enter a valid email', 'error');
-        return;
-    }
-    
     try {
-        showLoading();
-        
-        // Create user with email and password
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Update profile with display name
-        await updateProfile(userCredential.user, {
-            displayName: name
-        });
-        
-        showToast('Account created successfully!', 'success');
-        
-        // Clear form
-        registerForm.reset();
-        
-        // Show dashboard (auth state change will handle this)
-    } catch (error) {
-        console.error('Registration error:', error);
-        let errorMessage = 'Registration failed';
-        
-        switch (error.code) {
-            case 'auth/email-already-in-use':
-                errorMessage = 'Email already in use';
-                break;
-            case 'auth/invalid-email':
-                errorMessage = 'Invalid email address';
-                break;
-            case 'auth/operation-not-allowed':
-                errorMessage = 'Email/password accounts not enabled';
-                break;
-            case 'auth/weak-password':
-                errorMessage = 'Password is too weak';
-                break;
-            default:
-                errorMessage = error.message;
+        // Update user profile with name
+        if (googleUserData) {
+            await updateProfile(googleUserData, {
+                displayName: name
+            });
         }
         
-        showToast(`Error: ${errorMessage}`, 'error');
-        hideLoading();
+        showToast('Registration complete! Welcome aboard!', 'success');
+        
+        // Reset registration form
+        googleUserData = null;
+        registrationForm.classList.add('hidden');
+        googleRegisterSection.classList.remove('hidden');
+        document.getElementById('step-google').classList.add('active');
+        document.getElementById('step-details').classList.remove('active');
+        completeRegistrationForm.reset();
+        
+    } catch (error) {
+        console.error('Registration error:', error);
+        showToast(`Error: ${error.message}`, 'error');
     }
 });
 
-// Handle Logout
-logoutBtn.addEventListener('click', async () => {
+// Email Login (for organizations - optional)
+emailLoginForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showToast('Please use Google login for this system', 'info');
+});
+
+// Back to Google button
+backToGoogleBtn?.addEventListener('click', () => {
+    googleRegisterSection.classList.remove('hidden');
+    registrationForm.classList.add('hidden');
+    document.getElementById('step-google').classList.add('active');
+    document.getElementById('step-details').classList.remove('active');
+    completeRegistrationForm.reset();
+    googleUserData = null;
+});
+
+// Logout
+logoutBtn?.addEventListener('click', async () => {
     try {
-        showLoading();
         await signOut(auth);
-        showToast('Successfully logged out', 'info');
+        showToast('Successfully signed out', 'info');
     } catch (error) {
         console.error('Logout error:', error);
         showToast(`Error: ${error.message}`, 'error');
-        hideLoading();
-    }
-});
-
-// Forgot Password Handler
-forgotPasswordLink.addEventListener('click', (e) => {
-    e.preventDefault();
-    const email = prompt('Please enter your email address to reset password:');
-    if (email) {
-        showToast(`Password reset email would be sent to ${email}. Please enable email/password auth in Firebase console.`, 'info');
     }
 });
 
 // Form Switching
-showRegisterLink.addEventListener('click', (e) => {
+showRegisterLink?.addEventListener('click', (e) => {
     e.preventDefault();
-    showRegisterForm();
+    loginContainer.classList.add('hidden');
+    registerContainer.classList.remove('hidden');
+    dashboardContainer.classList.add('hidden');
 });
 
-showLoginLink.addEventListener('click', (e) => {
+showLoginLink?.addEventListener('click', (e) => {
     e.preventDefault();
-    showLoginForm();
+    loginContainer.classList.remove('hidden');
+    registerContainer.classList.add('hidden');
+    dashboardContainer.classList.add('hidden');
 });
 
-// Google Auth Buttons
-googleLoginBtn.addEventListener('click', handleGoogleAuth);
-googleRegisterBtn.addEventListener('click', handleGoogleAuth);
+// Event Listeners
+googleLoginBtn?.addEventListener('click', handleGoogleLogin);
+googleRegisterBtn?.addEventListener('click', handleGoogleRegistration);
 
-// Initialize Auth State Listener
-function init() {
-    showLoading();
+// Update Dashboard
+function updateDashboard(user) {
+    dashboardName.textContent = user.displayName || 'User';
+    dashboardEmail.textContent = user.email;
+    userId.textContent = user.uid.substring(0, 8) + '...';
     
+    // Format dates
+    const creationDate = new Date(user.metadata.creationTime);
+    memberSince.textContent = creationDate.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+    });
+    
+    lastActive.textContent = 'Just now';
+    
+    // Update photo
+    if (user.photoURL) {
+        dashboardPhoto.src = user.photoURL;
+        dashboardPhoto.style.display = 'block';
+    } else {
+        dashboardPhoto.style.display = 'none';
+    }
+}
+
+// Auth State Listener
+function init() {
     onAuthStateChanged(auth, (user) => {
         if (user) {
+            // User is signed in
             updateDashboard(user);
-            showDashboard();
+            loginContainer.classList.add('hidden');
+            registerContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
         } else {
-            showLoginForm();
+            // User is signed out
+            loginContainer.classList.remove('hidden');
+            registerContainer.classList.add('hidden');
+            dashboardContainer.classList.add('hidden');
         }
-        hideLoading();
     });
 }
 
