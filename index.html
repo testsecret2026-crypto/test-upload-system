@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>試卷題庫系統 - 登入或註冊</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 添加Google登入API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         * {
             margin: 0;
@@ -387,32 +389,94 @@
         
         .social-login {
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
         
-        .social-btn {
+        /* 真正的Google登入按鈕容器 */
+        #google-login-container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        
+        /* 通知訊息樣式 */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4a6ee0;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-width: 300px;
+            max-width: 400px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            margin-left: 15px;
+            padding: 0;
+            width: 24px;
+            height: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 56px;
-            height: 56px;
             border-radius: 50%;
-            border: 1px solid #ddd;
-            background-color: white;
-            color: #555;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.2s;
         }
         
-        .social-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        .notification-close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
         }
         
-        .social-btn.google:hover {
-            color: #DB4437;
-            border-color: #DB4437;
+        .notification.success {
+            background: #2ecc71;
+        }
+        
+        .notification.error {
+            background: #e74c3c;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
         }
         
         .terms {
@@ -487,6 +551,13 @@
             
             .verification-title {
                 font-size: 1.5rem;
+            }
+            
+            .notification {
+                min-width: 250px;
+                max-width: 300px;
+                right: 10px;
+                left: 10px;
             }
         }
         
@@ -581,9 +652,8 @@
                     </div>
                     
                     <div class="social-login">
-                        <button type="button" class="social-btn google">
-                            <i class="fab fa-google"></i>
-                        </button>
+                        <!-- 真正的Google登入按鈕容器 -->
+                        <div id="google-login-container"></div>
                     </div>
                 </form>
                 
@@ -662,9 +732,8 @@
                     </div>
                     
                     <div class="social-login">
-                        <button type="button" class="social-btn google">
-                            <i class="fab fa-google"></i>
-                        </button>
+                        <!-- 真正的Google登入按鈕容器（註冊頁面） -->
+                        <div id="google-register-container"></div>
                     </div>
                 </form>
                 
@@ -747,6 +816,123 @@
     </div>
 
     <script>
+        // 工具函數：顯示通知
+        function showNotification(message, type = 'info') {
+            // 如果已經有通知，先移除
+            const existingNotification = document.querySelector('.notification');
+            if (existingNotification) {
+                existingNotification.remove();
+            }
+            
+            // 創建通知元素
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            // 添加到頁面
+            document.body.appendChild(notification);
+            
+            // 添加關閉功能
+            const closeBtn = notification.querySelector('.notification-close');
+            closeBtn.addEventListener('click', () => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            });
+            
+            // 自動消失（成功訊息5秒，其他訊息3秒）
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOut 0.3s ease-out';
+                    setTimeout(() => notification.remove(), 300);
+                }
+            }, type === 'success' ? 5000 : 3000);
+        }
+        
+        // Google登入處理函數
+        function handleGoogleLogin(credentialResponse) {
+            console.log('Google登入成功:', credentialResponse);
+            
+            // 解碼JWT令牌以獲取用戶信息
+            const credential = credentialResponse.credential;
+            const payload = JSON.parse(atob(credential.split('.')[1]));
+            
+            console.log('用戶信息:', {
+                name: payload.name,
+                email: payload.email,
+                picture: payload.picture,
+                sub: payload.sub
+            });
+            
+            // 顯示成功訊息
+            showNotification(`歡迎 ${payload.name}！Google登入成功`, 'success');
+            
+            // 這裡可以發送用戶信息到你的後端服務器
+            // 例如：fetch('/api/google-login', { method: 'POST', body: JSON.stringify(payload) })
+            
+            // 模擬登入成功後的跳轉
+            setTimeout(() => {
+                showNotification('正在導向到主頁面...', 'info');
+                // 實際應用中這裡會跳轉到主頁面
+                // window.location.href = '/dashboard';
+            }, 1000);
+        }
+        
+        // 初始化Google登入
+        function initializeGoogleLogin() {
+            // 檢查Google API是否已載入
+            if (typeof google === 'undefined') {
+                console.error('Google API未載入');
+                return;
+            }
+            
+            // 初始化Google登入
+            google.accounts.id.initialize({
+                client_id: "YOUR_GOOGLE_CLIENT_ID", // 需要替換為你的Google Client ID
+                callback: handleGoogleLogin,
+                auto_select: false,
+                cancel_on_tap_outside: false
+            });
+            
+            // 為登入頁面添加Google登入按鈕
+            const loginContainer = document.getElementById('google-login-container');
+            if (loginContainer) {
+                google.accounts.id.renderButton(
+                    loginContainer,
+                    {
+                        theme: "outline",
+                        size: "large",
+                        width: loginContainer.offsetWidth,
+                        text: "continue_with",
+                        shape: "pill"
+                    }
+                );
+            }
+            
+            // 為註冊頁面添加Google登入按鈕
+            const registerContainer = document.getElementById('google-register-container');
+            if (registerContainer) {
+                google.accounts.id.renderButton(
+                    registerContainer,
+                    {
+                        theme: "outline",
+                        size: "large",
+                        width: registerContainer.offsetWidth,
+                        text: "continue_with",
+                        shape: "pill"
+                    }
+                );
+            }
+            
+            // 也可以顯示One Tap登入（可選）
+            // google.accounts.id.prompt();
+        }
+        
         // 工具函數：驗證電子郵件格式
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1099,10 +1285,10 @@
                 const password = document.getElementById('login-password').value;
                 
                 // 這裡應該是實際的登入驗證邏輯
-                console.log('登入嘗試:', { email, password });
+                console.log('傳統登入嘗試:', { email, password });
                 
-                // 模擬登入成功
-                alert('登入成功！(模擬)');
+                // 顯示成功訊息
+                showNotification('傳統登入成功！', 'success');
             }
         });
         
@@ -1115,7 +1301,7 @@
                 const password = document.getElementById('register-password').value;
                 
                 // 這裡應該是實際的註冊邏輯
-                console.log('註冊嘗試:', { name, email, password });
+                console.log('傳統註冊嘗試:', { name, email, password });
                 
                 // 顯示郵件驗證頁面
                 showVerificationPage(email);
@@ -1131,8 +1317,8 @@
                 // 這裡應該是實際的忘記密碼邏輯
                 console.log('重置密碼請求:', { email });
                 
-                // 模擬發送重置郵件
-                alert(`密碼重置連結已發送至: ${email} (模擬)`);
+                // 顯示成功訊息
+                showNotification(`密碼重置連結已發送至: ${email}`, 'success');
                 switchToForm('login');
             }
         });
@@ -1145,22 +1331,7 @@
             console.log('重新發送驗證郵件到:', email);
             
             // 顯示成功訊息
-            alert(`已重新發送驗證郵件到: ${email} (模擬)`);
-            
-            // 按鈕反饋效果
-            const btn = this;
-            const originalText = btn.textContent;
-            btn.textContent = '已重新發送';
-            btn.style.backgroundColor = '#2ecc71';
-            btn.style.borderColor = '#2ecc71';
-            btn.style.color = 'white';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.backgroundColor = '';
-                btn.style.borderColor = '';
-                btn.style.color = '';
-            }, 2000);
+            showNotification(`已重新發送驗證郵件到: ${email}`, 'success');
         });
         
         // 驗證完成按鈕
@@ -1168,19 +1339,46 @@
             // 這裡應該是實際的驗證檢查邏輯
             console.log('用戶點擊了「我已驗證」按鈕');
             
-            // 模擬驗證成功
-            alert('電子郵件驗證成功！歡迎使用試卷題庫系統 (模擬)');
+            // 顯示成功訊息
+            showNotification('電子郵件驗證成功！歡迎使用試卷題庫系統', 'success');
             
             // 返回登入頁面
             switchToForm('login');
         });
         
-        // 社交登入按鈕處理
-        document.querySelectorAll('.social-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                alert('使用Google登入 (模擬)');
-            });
-        });
+        // 等待Google API載入後初始化
+        window.onload = function() {
+            // 延遲初始化以確保Google API已載入
+            setTimeout(initializeGoogleLogin, 1000);
+            
+            // 如果Google API載入失敗，顯示替代按鈕
+            setTimeout(() => {
+                if (typeof google === 'undefined') {
+                    console.warn('Google API載入失敗，使用替代按鈕');
+                    
+                    const loginContainer = document.getElementById('google-login-container');
+                    const registerContainer = document.getElementById('google-register-container');
+                    
+                    if (loginContainer) {
+                        loginContainer.innerHTML = `
+                            <button class="submit-btn" onclick="showNotification('Google登入功能需要設置Google Client ID', 'info')" style="background-color: #DB4437;">
+                                <i class="fab fa-google"></i> 使用Google登入
+                            </button>
+                        `;
+                    }
+                    
+                    if (registerContainer) {
+                        registerContainer.innerHTML = `
+                            <button class="submit-btn" onclick="showNotification('Google登入功能需要設置Google Client ID', 'info')" style="background-color: #DB4437;">
+                                <i class="fab fa-google"></i> 使用Google註冊
+                            </button>
+                        `;
+                    }
+                    
+                    showNotification('請設置Google Client ID以啟用Google登入功能', 'info');
+                }
+            }, 3000);
+        };
         
         // 初始驗證
         validateRegisterForm();
