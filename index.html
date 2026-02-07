@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>試卷題庫系統 - 驗證碼註冊</title>
+    <title>試卷題庫系統 - 登入或註冊</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,7 +14,8 @@
         }
         
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-color: #f5f7fa;
+            color: #333;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,932 +23,1167 @@
             padding: 20px;
         }
         
-        /* 登出成功提示 */
-        .logout-toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #4CAF50;
-            color: white;
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .container {
             display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: all 0.3s ease;
-        }
-        
-        .logout-toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        /* 主容器 */
-        .login-container {
+            max-width: 800px;
             width: 100%;
-            max-width: 420px;
-            background: white;
+            background-color: white;
             border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }
         
-        /* 右上角控制面板 */
-        .top-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-        }
-        
-        .logout-btn {
-            background: rgba(255,255,255,0.9);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
+        .right-panel {
+            flex: 1;
+            padding: 60px 50px;
             display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: #555;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            flex-direction: column;
         }
         
-        .logout-btn:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        .form-header {
+            margin-bottom: 40px;
         }
         
-        /* 頂部區域 */
-        .header {
-            background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-            padding: 50px 40px 40px;
-            color: white;
-            text-align: center;
-        }
-        
-        .logo {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-        }
-        
-        .main-title {
-            font-size: 24px;
-            font-weight: 600;
+        .form-header h2 {
+            font-size: 2.2rem;
+            color: #333;
             margin-bottom: 10px;
         }
         
-        .subtitle {
-            font-size: 14px;
-            opacity: 0.9;
-            line-height: 1.5;
-        }
-        
-        /* 表單區域 */
-        .form-area {
-            padding: 40px;
-        }
-        
-        /* 表單切換 */
-        .form-tabs {
-            display: flex;
-            background: #f5f7fa;
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 30px;
-        }
-        
-        .tab-btn {
-            flex: 1;
-            padding: 14px;
-            text-align: center;
-            background: transparent;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
+        .form-header p {
             color: #666;
+            font-size: 1rem;
+        }
+        
+        .form-toggle {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-toggle button {
+            background: none;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #888;
             cursor: pointer;
             transition: all 0.3s;
+            position: relative;
         }
         
-        .tab-btn.active {
-            background: white;
-            color: #3a7bd5;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        .form-toggle button.active {
+            color: #4a6ee0;
         }
         
-        /* 表單內容 */
-        .form-content {
+        .form-toggle button.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: #4a6ee0;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .form-container {
+            flex: 1;
+        }
+        
+        .form {
             display: none;
         }
         
-        .form-content.active {
+        .form.active {
             display: block;
         }
         
-        .input-group {
+        /* 註冊步驟指示器 */
+        .registration-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .registration-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #eee;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
+        }
+        
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #888;
+            border: 2px solid #eee;
+            transition: all 0.3s;
+        }
+        
+        .step.active .step-circle {
+            background-color: #4a6ee0;
+            color: white;
+            border-color: #4a6ee0;
+        }
+        
+        .step.completed .step-circle {
+            background-color: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+        
+        .step-label {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
+        }
+        
+        .step.active .step-label {
+            color: #4a6ee0;
+            font-weight: 600;
+        }
+        
+        .step.completed .step-label {
+            color: #2ecc71;
+        }
+        
+        /* 郵件驗證頁面 */
+        .verification-container {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .verification-icon {
+            font-size: 4rem;
+            color: #4a6ee0;
             margin-bottom: 20px;
         }
         
-        .input-group label {
+        .verification-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .verification-message {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+        
+        .email-address {
+            background-color: #f8f9fa;
+            padding: 12px 20px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: 600;
+            color: #4a6ee0;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+        }
+        
+        .verification-note {
+            color: #777;
+            font-size: 0.9rem;
+            margin-top: 25px;
+            line-height: 1.5;
+            font-style: italic;
+        }
+        
+        .resend-button {
+            background-color: #f8f9fa;
+            color: #4a6ee0;
+            border: 1px solid #4a6ee0;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px 0;
+        }
+        
+        .resend-button:hover {
+            background-color: #4a6ee0;
+            color: white;
+        }
+        
+        .verification-success-button {
+            background-color: #4a6ee0;
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+        
+        .verification-success-button:hover {
+            background-color: #3a5ecf;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
             display: block;
             margin-bottom: 8px;
-            color: #444;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e1e5eb;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .input-group input:focus {
-            border-color: #3a7bd5;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.1);
-        }
-        
-        .input-group input.error {
-            border-color: #ff3860;
-        }
-        
-        /* 驗證碼區塊 */
-        .verification-code {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .verification-code input {
-            flex: 1;
-            text-align: center;
-            font-size: 20px;
             font-weight: 600;
-            letter-spacing: 3px;
+            color: #555;
+            font-size: 0.95rem;
         }
         
-        .resend-code {
-            margin-top: 10px;
-            text-align: center;
+        .input-with-icon {
+            position: relative;
         }
         
-        .send-code-btn {
-            padding: 10px 20px;
-            background: #3a7bd5;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
+        .input-with-icon i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
         }
         
-        .send-code-btn:hover:not(:disabled) {
-            background: #2a6bc4;
+        .form-control {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border 0.3s, box-shadow 0.3s;
         }
         
-        .send-code-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
+        .form-control:focus {
+            outline: none;
+            border-color: #4a6ee0;
+            box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
         }
         
-        /* 倒數計時 */
-        .countdown {
-            font-size: 14px;
-            color: #ff9800;
-            margin-top: 5px;
+        .form-control.error {
+            border-color: #e74c3c;
         }
         
-        /* 提交按鈕 */
+        .form-control.success {
+            border-color: #2ecc71;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .success-message {
+            color: #2ecc71;
+            font-size: 0.85rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .password-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            margin-right: 6px;
+        }
+        
+        .forgot-password {
+            color: #4a6ee0;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .forgot-password:hover {
+            color: #3a5ecf;
+            text-decoration: underline;
+        }
+        
         .submit-btn {
             width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+            background-color: #4a6ee0;
             color: white;
             border: none;
+            padding: 16px;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background-color 0.3s;
             margin-top: 10px;
         }
         
         .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 7px 20px rgba(58, 123, 213, 0.3);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(0);
+            background-color: #3a5ecf;
         }
         
         .submit-btn:disabled {
-            background: #ccc;
+            background-color: #cccccc;
             cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
         }
         
-        /* 分隔線 */
         .divider {
             display: flex;
             align-items: center;
             margin: 30px 0;
-            color: #95a5a6;
+            color: #888;
         }
         
-        .divider::before, .divider::after {
+        .divider::before,
+        .divider::after {
             content: '';
             flex: 1;
             height: 1px;
-            background: #e1e5eb;
+            background-color: #eee;
         }
         
         .divider span {
             padding: 0 15px;
-            font-size: 14px;
+            font-size: 0.9rem;
         }
         
-        /* Google登入按鈕 */
-        .google-btn {
-            width: 100%;
-            padding: 16px;
-            background: white;
-            color: #444;
-            border: 2px solid #e1e5eb;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
+        .social-login {
             display: flex;
             justify-content: center;
+        }
+        
+        .social-btn {
+            display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: center;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #555;
+            font-size: 1.2rem;
+            cursor: pointer;
             transition: all 0.3s;
         }
         
-        .google-btn:hover {
-            border-color: #3a7bd5;
-            background: #f8fafc;
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         }
         
-        .google-btn img {
-            width: 20px;
-            height: 20px;
+        .social-btn.google:hover {
+            color: #DB4437;
+            border-color: #DB4437;
         }
         
-        /* 錯誤訊息 */
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #c62828;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: flex;
-        }
-        
-        /* 成功訊息 */
-        .success-message {
-            background: #e8f5e9;
-            color: #2e7d32;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #4CAF50;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            display: none;
-        }
-        
-        .success-message.show {
-            display: flex;
-        }
-        
-        /* 底部文字 */
-        .footer-text {
+        .terms {
+            margin-top: 40px;
             text-align: center;
-            color: #95a5a6;
-            font-size: 13px;
-            margin-top: 25px;
+            font-size: 0.85rem;
+            color: #777;
             line-height: 1.5;
         }
         
-        /* 響應式設計 */
+        .terms a {
+            color: #4a6ee0;
+            text-decoration: none;
+        }
+        
+        .terms a:hover {
+            text-decoration: underline;
+        }
+        
+        .forgot-password-form {
+            display: none;
+        }
+        
+        .back-to-login {
+            color: #4a6ee0;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .back-to-login:hover {
+            text-decoration: underline;
+        }
+        
+        .password-strength {
+            margin-top: 8px;
+        }
+        
+        .strength-meter {
+            height: 5px;
+            background-color: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        
+        .strength-fill {
+            height: 100%;
+            width: 0;
+            transition: width 0.3s, background-color 0.3s;
+        }
+        
+        .strength-text {
+            font-size: 0.8rem;
+            color: #777;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 500px;
+            }
+            
+            .right-panel {
+                padding: 40px 30px;
+            }
+            
+            .verification-icon {
+                font-size: 3rem;
+            }
+            
+            .verification-title {
+                font-size: 1.5rem;
+            }
+        }
+        
         @media (max-width: 480px) {
-            .header {
-                padding: 40px 30px 30px;
+            body {
+                padding: 10px;
             }
             
-            .form-area {
-                padding: 30px;
+            .right-panel {
+                padding: 30px 20px;
             }
             
-            .main-title {
-                font-size: 22px;
+            .form-header h2 {
+                font-size: 1.8rem;
+            }
+            
+            .form-toggle button {
+                padding: 10px 16px;
+                font-size: 1rem;
+            }
+            
+            .registration-steps {
+                margin-bottom: 30px;
+            }
+            
+            .step-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .step-label {
+                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 登出成功提示 -->
-    <div class="logout-toast" id="logoutToast">
-        <i class="fas fa-check-circle"></i>
-        <span>登出成功</span>
-    </div>
-    
-    <div class="login-container">
-        <!-- 右上角登出按鈕 -->
-        <div class="top-controls">
-            <button class="logout-btn" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i>
-                登出
-            </button>
-        </div>
-        
-        <!-- 頂部區域 -->
-        <div class="header">
-            <div class="logo">TestPaper System</div>
-            <h1 class="main-title">迅速登入或註冊</h1>
-            <p class="subtitle">使用你的電子郵件或其他服務，以繼續使用試卷題庫系統！</p>
-        </div>
-        
-        <!-- 表單區域 -->
-        <div class="form-area">
-            <!-- 表單切換 -->
-            <div class="form-tabs">
-                <button class="tab-btn active" id="loginTab">登入</button>
-                <button class="tab-btn" id="registerTab">註冊</button>
+    <div class="container">
+        <!-- 右侧表单面板 -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2>迅速登入或註冊</h2>
+                <p>使用你的電子郵件或其他服務，以繼續使用試卷題庫系統！</p>
             </div>
             
-            <!-- 錯誤訊息 -->
-            <div class="error-message" id="errorMessage">
-                <i class="fas fa-exclamation-circle"></i>
-                <span id="errorText">請檢查您的輸入</span>
+            <!-- 表单切换 -->
+            <div class="form-toggle">
+                <button id="login-toggle" class="active">登入</button>
+                <button id="register-toggle">註冊</button>
             </div>
             
-            <!-- 成功訊息 -->
-            <div class="success-message" id="successMessage">
-                <i class="fas fa-check-circle"></i>
-                <span id="successText">操作成功</span>
-            </div>
-            
-            <!-- 登入表單 -->
-            <div class="form-content active" id="loginForm">
-                <form id="loginFormElement">
-                    <div class="input-group">
-                        <label for="loginEmail">電子郵件</label>
-                        <input type="email" id="loginEmail" placeholder="example@email.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="loginPassword">密碼</label>
-                        <input type="password" id="loginPassword" placeholder="請輸入密碼" required>
-                    </div>
-                    <button type="submit" class="submit-btn">登入</button>
-                </form>
-            </div>
-            
-            <!-- 註冊表單 -->
-            <div class="form-content" id="registerForm">
-                <form id="registerFormElement">
-                    <div class="input-group">
-                        <label for="registerEmail">電子郵件</label>
-                        <input type="email" id="registerEmail" placeholder="example@email.com" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="registerPassword">密碼</label>
-                        <input type="password" id="registerPassword" placeholder="至少8個字元" required>
-                    </div>
-                    <div class="input-group">
-                        <label for="confirmPassword">確認密碼</label>
-                        <input type="password" id="confirmPassword" placeholder="再次輸入密碼" required>
-                    </div>
-                    
-                    <!-- 驗證碼區域 -->
-                    <div class="input-group" id="verificationGroup">
-                        <label for="verificationCode">驗證碼</label>
-                        <div class="verification-code">
-                            <input type="text" id="verificationCode" placeholder="輸入6位驗證碼" maxlength="6" required>
+            <!-- 表单容器 -->
+            <div class="form-container">
+                <!-- 登录表单 -->
+                <form id="login-form" class="form active">
+                    <div class="form-group">
+                        <label for="login-email">電子郵件</label>
+                        <div class="input-with-icon">
+                            <i class="far fa-envelope"></i>
+                            <input type="email" id="login-email" class="form-control" placeholder="請輸入電子郵件" required>
                         </div>
-                        <div class="resend-code">
-                            <button type="button" class="send-code-btn" id="sendCodeBtn">發送驗證碼</button>
-                            <div class="countdown" id="countdown"></div>
+                        <div id="login-email-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>請輸入有效的電子郵件地址</span>
                         </div>
                     </div>
                     
-                    <button type="submit" class="submit-btn" id="registerSubmitBtn">註冊並驗證</button>
+                    <div class="form-group">
+                        <label for="login-password">密碼</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" class="form-control" placeholder="請輸入密碼" required>
+                        </div>
+                        <div id="login-password-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>密碼不能為空</span>
+                        </div>
+                        <div class="password-actions">
+                            <div class="remember-me">
+                                <input type="checkbox" id="remember">
+                                <label for="remember">記住我</label>
+                            </div>
+                            <a href="#" class="forgot-password" id="forgot-password-link">忘記密碼？</a>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="login-submit">登入</button>
+                    
+                    <div class="divider">
+                        <span>或使用第三方服務</span>
+                    </div>
+                    
+                    <div class="social-login">
+                        <button type="button" class="social-btn google">
+                            <i class="fab fa-google"></i>
+                        </button>
+                    </div>
                 </form>
+                
+                <!-- 註冊表單 - 基本資料步驟 -->
+                <form id="register-form" class="form">
+                    <!-- 註冊步驟指示器 -->
+                    <div class="registration-steps">
+                        <div class="step active" id="step-1">
+                            <div class="step-circle">1</div>
+                            <div class="step-label">基本資料</div>
+                        </div>
+                        <div class="step" id="step-2">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">驗證郵件</div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-name">姓名</label>
+                        <div class="input-with-icon">
+                            <i class="far fa-user"></i>
+                            <input type="text" id="register-name" class="form-control" placeholder="請輸入姓名" required>
+                        </div>
+                        <div id="register-name-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>姓名不能為空</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-email">電子郵件</label>
+                        <div class="input-with-icon">
+                            <i class="far fa-envelope"></i>
+                            <input type="email" id="register-email" class="form-control" placeholder="請輸入電子郵件" required>
+                        </div>
+                        <div id="register-email-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>請輸入有效的電子郵件地址</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-password">密碼</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="register-password" class="form-control" placeholder="請輸入密碼 (至少8個字符)" required>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <div class="strength-fill" id="password-strength-fill"></div>
+                            </div>
+                            <div class="strength-text" id="password-strength-text">密碼強度：弱</div>
+                        </div>
+                        <div id="register-password-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="register-password-error-text">密碼必須至少8個字符，包含大寫字母、小寫字母和數字</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="register-confirm-password">確認密碼</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="register-confirm-password" class="form-control" placeholder="請再次輸入密碼" required>
+                        </div>
+                        <div id="register-confirm-password-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>密碼與確認密碼不一致</span>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="register-submit" disabled>下一步：驗證郵件</button>
+                    
+                    <div class="divider">
+                        <span>或使用第三方服務</span>
+                    </div>
+                    
+                    <div class="social-login">
+                        <button type="button" class="social-btn google">
+                            <i class="fab fa-google"></i>
+                        </button>
+                    </div>
+                </form>
+                
+                <!-- 註冊表單 - 郵件驗證步驟 -->
+                <div id="verification-form" class="form">
+                    <!-- 註冊步驟指示器 -->
+                    <div class="registration-steps">
+                        <div class="step completed" id="step-1-completed">
+                            <div class="step-circle"><i class="fas fa-check"></i></div>
+                            <div class="step-label">基本資料</div>
+                        </div>
+                        <div class="step active" id="step-2-active">
+                            <div class="step-circle">2</div>
+                            <div class="step-label">驗證郵件</div>
+                        </div>
+                    </div>
+                    
+                    <div class="verification-container">
+                        <div class="verification-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        
+                        <h2 class="verification-title">請驗證您的電子郵件</h2>
+                        
+                        <p class="verification-message">
+                            我們已發送驗證連結到：
+                        </p>
+                        
+                        <div class="email-address" id="verification-email-display">
+                            <!-- 這裡會動態顯示用戶的電子郵件 -->
+                        </div>
+                        
+                        <p class="verification-message">
+                            請檢查您的收件匣（包含垃圾郵件資料夾），點擊郵件中的驗證連結以完成註冊。
+                        </p>
+                        
+                        <div class="verification-note">
+                            <p>如果幾分鐘內沒有收到郵件，請檢查您的垃圾郵件資料夾或點擊下方按鈕重新發送驗證郵件。</p>
+                        </div>
+                        
+                        <button type="button" class="resend-button" id="resend-verification-btn">
+                            重新發送驗證郵件
+                        </button>
+                        
+                        <div style="margin-top: 40px;">
+                            <button type="button" class="verification-success-button" id="verification-complete-btn">
+                                我已驗證，繼續使用
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 忘记密码表单 -->
+                <form id="forgot-password-form" class="form forgot-password-form">
+                    <div class="form-group">
+                        <label for="forgot-email">電子郵件</label>
+                        <div class="input-with-icon">
+                            <i class="far fa-envelope"></i>
+                            <input type="email" id="forgot-email" class="form-control" placeholder="請輸入註冊時使用的電子郵件" required>
+                        </div>
+                        <div id="forgot-email-error" class="error-message" style="display: none;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>請輸入有效的電子郵件地址</span>
+                        </div>
+                        <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
+                            我們將向此郵箱發送重置密碼的連結
+                        </p>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn" id="forgot-submit">發送重置連結</button>
+                    
+                    <a href="#" class="back-to-login" id="back-to-login-link">返回登入</a>
+                </form>
+                
+                <div class="terms">
+                    點擊「註冊」即表示您同意我們的<a href="#">服務條款</a>和<a href="#">隱私政策</a>
+                </div>
             </div>
-            
-            <!-- 分隔線 -->
-            <div class="divider">
-                <span>或使用第三方服務</span>
-            </div>
-            
-            <!-- Google登入按鈕 -->
-            <button class="google-btn" id="googleLogin">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="Google">
-                <span>使用 Google 帳號繼續</span>
-            </button>
-            
-            <!-- 底部文字 -->
-            <p class="footer-text">
-                點擊「註冊」即表示您同意我們的服務條款和隱私政策
-            </p>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    
     <script>
-        // Firebase 設定 - 使用您的設定
-        const firebaseConfig = {
-            apiKey: "AIzaSyDHaIeMD8WnFKtDuF08_5GseMC6S-OCCi0",
-            authDomain: "project-7983367571690113440.firebaseapp.com",
-            projectId: "project-7983367571690113440",
-            storageBucket: "project-7983367571690113440.firebasestorage.app",
-            messagingSenderId: "17335949650",
-            appId: "1:17335949650:web:ef1f03971b2d0ee74f028b"
-        };
-        
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        
-        // DOM元素
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const loginForm = document.getElementById('loginForm');
-        const registerForm = document.getElementById('registerForm');
-        const loginFormElement = document.getElementById('loginFormElement');
-        const registerFormElement = document.getElementById('registerFormElement');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
-        const errorText = document.getElementById('errorText');
-        const successText = document.getElementById('successText');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const logoutToast = document.getElementById('logoutToast');
-        const googleLoginBtn = document.getElementById('googleLogin');
-        const sendCodeBtn = document.getElementById('sendCodeBtn');
-        const countdownEl = document.getElementById('countdown');
-        const verificationCodeInput = document.getElementById('verificationCode');
-        const registerEmailInput = document.getElementById('registerEmail');
-        const registerSubmitBtn = document.getElementById('registerSubmitBtn');
-        
-        // 驗證碼相關變數
-        let currentVerificationCode = '';
-        let countdownTimer = null;
-        let countdownSeconds = 60;
-        
-        // 表單切換
-        loginTab.addEventListener('click', () => {
-            switchToForm('login');
-        });
-        
-        registerTab.addEventListener('click', () => {
-            switchToForm('register');
-        });
-        
-        function switchToForm(formType) {
-            // 更新選項卡
-            loginTab.classList.remove('active');
-            registerTab.classList.remove('active');
-            
-            // 隱藏所有表單
-            loginForm.classList.remove('active');
-            registerForm.classList.remove('active');
-            
-            // 清除訊息
-            hideMessages();
-            
-            // 顯示選擇的表單
-            if (formType === 'login') {
-                loginTab.classList.add('active');
-                loginForm.classList.add('active');
-            } else {
-                registerTab.classList.add('active');
-                registerForm.classList.add('active');
-            }
-        }
-        
-        // 發送驗證碼函數
-        async function sendVerificationCode() {
-            const email = registerEmailInput.value;
-            
-            if (!email) {
-                showError('請先輸入電子郵件');
-                return false;
-            }
-            
-            if (!isValidEmail(email)) {
-                showError('請輸入有效的電子郵件地址');
-                return false;
-            }
-            
-            // 檢查是否已註冊
-            try {
-                const methods = await auth.fetchSignInMethodsForEmail(email);
-                if (methods.length > 0) {
-                    showError('此電子郵件已註冊，請直接登入');
-                    switchToForm('login');
-                    document.getElementById('loginEmail').value = email;
-                    return false;
-                }
-            } catch (error) {
-                console.log('檢查用戶是否存在時發生錯誤:', error);
-                // 繼續發送驗證碼
-            }
-            
-            // 禁用發送按鈕
-            sendCodeBtn.disabled = true;
-            sendCodeBtn.textContent = '發送中...';
-            
-            try {
-                // 生成6位數字驗證碼
-                currentVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-                
-                console.log('生成的驗證碼:', currentVerificationCode, 'for email:', email);
-                
-                // 儲存到 Firestore
-                await db.collection('verificationCodes').doc(email).set({
-                    code: currentVerificationCode,
-                    email: email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10分鐘後過期
-                    verified: false,
-                    attempts: 0
-                });
-                
-                console.log('驗證碼已儲存到 Firestore');
-                
-                // 顯示成功訊息（實際應用中這裡會發送郵件）
-                showSuccess(`驗證碼已發送到 ${email}`);
-                
-                // 在控制台顯示驗證碼（方便測試）
-                console.log(`測試用驗證碼: ${currentVerificationCode}`);
-                
-                // 開始倒數計時
-                countdownSeconds = 60;
-                updateCountdown();
-                
-                countdownTimer = setInterval(() => {
-                    countdownSeconds--;
-                    updateCountdown();
-                    if (countdownSeconds <= 0) {
-                        clearInterval(countdownTimer);
-                        sendCodeBtn.disabled = false;
-                        sendCodeBtn.textContent = '重新發送驗證碼';
-                        countdownEl.textContent = '';
-                    }
-                }, 1000);
-                
-                return true;
-                
-            } catch (error) {
-                console.error('發送驗證碼失敗:', error);
-                
-                // 顯示詳細錯誤訊息
-                let errorMsg = '無法發送驗證碼';
-                
-                if (error.code === 'permission-denied') {
-                    errorMsg += ' (權限被拒絕)。請檢查 Firestore 規則設定。';
-                    console.error('Firestore 權限錯誤，請檢查規則設定');
-                } else {
-                    errorMsg += `: ${error.message}`;
-                }
-                
-                showError(errorMsg);
-                
-                // 重新啟用按鈕
-                sendCodeBtn.disabled = false;
-                sendCodeBtn.textContent = '發送驗證碼';
-                
-                return false;
-            }
-        }
-        
-        // 更新倒數計時顯示
-        function updateCountdown() {
-            countdownEl.textContent = `${countdownSeconds}秒後可重新發送`;
-            sendCodeBtn.textContent = `發送中 (${countdownSeconds}s)`;
-        }
-        
-        // 發送驗證碼按鈕點擊
-        sendCodeBtn.addEventListener('click', sendVerificationCode);
-        
-        // 登出功能
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut().then(() => {
-                logoutToast.classList.add('show');
-                
-                setTimeout(() => {
-                    logoutToast.classList.remove('show');
-                }, 3000);
-                
-                console.log('用戶已登出');
-                showSuccess('已成功登出');
-            }).catch(error => {
-                showError('登出失敗: ' + error.message);
-            });
-        });
-        
-        // Google登入
-        googleLoginBtn.addEventListener('click', () => {
-            showError('Google登入功能需配置OAuth客户端ID');
-        });
-        
-        // 註冊表單提交
-        registerFormElement.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = registerEmailInput.value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const verificationCode = verificationCodeInput.value;
-            
-            // 清除之前的訊息
-            hideMessages();
-            
-            // 基本驗證
-            if (!isValidEmail(email)) {
-                showError('請輸入有效的電子郵件地址');
-                return;
-            }
-            
-            if (password.length < 8) {
-                showError('密碼長度至少需要8個字元');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showError('兩次輸入的密碼不一致');
-                return;
-            }
-            
-            if (!verificationCode || verificationCode.length !== 6) {
-                showError('請輸入6位驗證碼');
-                return;
-            }
-            
-            // 檢查是否已發送驗證碼
-            if (!currentVerificationCode) {
-                showError('請先發送驗證碼');
-                return;
-            }
-            
-            // 禁用提交按鈕
-            registerSubmitBtn.disabled = true;
-            registerSubmitBtn.textContent = '註冊中...';
-            
-            try {
-                // 從 Firestore 取得驗證碼
-                const verificationDoc = await db.collection('verificationCodes').doc(email).get();
-                
-                if (!verificationDoc.exists) {
-                    showError('請先發送驗證碼');
-                    registerSubmitBtn.disabled = false;
-                    registerSubmitBtn.textContent = '註冊並驗證';
-                    return;
-                }
-                
-                const verificationData = verificationDoc.data();
-                
-                // 檢查是否過期
-                const expiresAt = verificationData.expiresAt.toDate();
-                if (expiresAt < new Date()) {
-                    showError('驗證碼已過期，請重新發送');
-                    registerSubmitBtn.disabled = false;
-                    registerSubmitBtn.textContent = '註冊並驗證';
-                    return;
-                }
-                
-                // 檢查是否已驗證
-                if (verificationData.verified) {
-                    showError('此驗證碼已使用過');
-                    registerSubmitBtn.disabled = false;
-                    registerSubmitBtn.textContent = '註冊並驗證';
-                    return;
-                }
-                
-                // 檢查嘗試次數
-                if (verificationData.attempts >= 5) {
-                    showError('嘗試次數過多，請重新發送驗證碼');
-                    registerSubmitBtn.disabled = false;
-                    registerSubmitBtn.textContent = '註冊並驗證';
-                    return;
-                }
-                
-                // 檢查驗證碼是否正確
-                if (verificationData.code !== verificationCode) {
-                    // 增加嘗試次數
-                    await verificationDoc.ref.update({
-                        attempts: firebase.firestore.FieldValue.increment(1)
-                    });
-                    
-                    showError('驗證碼錯誤，請重新輸入');
-                    registerSubmitBtn.disabled = false;
-                    registerSubmitBtn.textContent = '註冊並驗證';
-                    return;
-                }
-                
-                // 建立使用者帳號
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // 更新驗證碼狀態為已驗證
-                await verificationDoc.ref.update({
-                    verified: true,
-                    verifiedAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 建立使用者資料文件
-                await db.collection('users').doc(user.uid).set({
-                    email: email,
-                    displayName: email.split('@')[0],
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    emailVerified: true,
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                // 更新用戶顯示名稱
-                await user.updateProfile({
-                    displayName: email.split('@')[0]
-                });
-                
-                // 顯示成功訊息
-                showSuccess('註冊成功！帳號已驗證，現在可以登入。');
-                
-                // 清除表單
-                registerEmailInput.value = '';
-                document.getElementById('registerPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-                verificationCodeInput.value = '';
-                currentVerificationCode = '';
-                
-                // 停止計時器
-                if (countdownTimer) {
-                    clearInterval(countdownTimer);
-                }
-                sendCodeBtn.disabled = false;
-                sendCodeBtn.textContent = '發送驗證碼';
-                countdownEl.textContent = '';
-                
-                // 自動切換到登入表單
-                setTimeout(() => {
-                    switchToForm('login');
-                    document.getElementById('loginEmail').value = email;
-                }, 1500);
-                
-            } catch (error) {
-                console.error('註冊錯誤:', error);
-                
-                let errorMessage = '註冊失敗: ';
-                
-                switch(error.code) {
-                    case 'auth/email-already-in-use':
-                        errorMessage = '此電子郵件已註冊，請直接登入';
-                        switchToForm('login');
-                        document.getElementById('loginEmail').value = email;
-                        break;
-                    case 'auth/invalid-email':
-                        errorMessage = '電子郵件格式無效';
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = '密碼強度不足，請使用更複雜的密碼';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                showError(errorMessage);
-            } finally {
-                // 重新啟用提交按鈕
-                registerSubmitBtn.disabled = false;
-                registerSubmitBtn.textContent = '註冊並驗證';
-            }
-        });
-        
-        // 登入表單提交
-        loginFormElement.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            // 清除之前的訊息
-            hideMessages();
-            
-            if (!isValidEmail(email)) {
-                showError('請輸入有效的電子郵件地址');
-                return;
-            }
-            
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // 更新最後登入時間
-                await db.collection('users').doc(user.uid).update({
-                    lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                showSuccess(`登入成功！歡迎 ${user.email}`);
-                
-                setTimeout(() => {
-                    alert(`歡迎回來 ${user.email}！`);
-                    // window.location.href = '/dashboard.html';
-                }, 1000);
-                
-            } catch (error) {
-                let errorMessage = '登入失敗: ';
-                
-                switch(error.code) {
-                    case 'auth/user-not-found':
-                        errorMessage = '此電子郵件尚未註冊';
-                        switchToForm('register');
-                        registerEmailInput.value = email;
-                        break;
-                    case 'auth/wrong-password':
-                        errorMessage = '密碼錯誤，請重新輸入';
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = '此帳號已被停用';
-                        break;
-                    default:
-                        errorMessage += error.message;
-                }
-                
-                showError(errorMessage);
-            }
-        });
-        
-        // 顯示錯誤訊息
-        function showError(message) {
-            errorText.textContent = message;
-            errorMessage.classList.add('show');
-            successMessage.classList.remove('show');
-        }
-        
-        // 顯示成功訊息
-        function showSuccess(message) {
-            successText.textContent = message;
-            successMessage.classList.add('show');
-            errorMessage.classList.remove('show');
-        }
-        
-        // 隱藏所有訊息
-        function hideMessages() {
-            errorMessage.classList.remove('show');
-            successMessage.classList.remove('show');
-        }
-        
-        // 驗證電子郵件格式
+        // 工具函數：驗證電子郵件格式
         function isValidEmail(email) {
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
         
-        // 初始化：檢查用戶登入狀態
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                console.log('用戶已登入:', user.email);
-                logoutBtn.style.display = 'flex';
+        // 工具函數：驗證密碼強度
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            return strength;
+        }
+        
+        // 更新密碼強度指示器
+        function updatePasswordStrength(password) {
+            const strength = checkPasswordStrength(password);
+            const strengthFill = document.getElementById('password-strength-fill');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            let color, width, text;
+            
+            if (password.length === 0) {
+                color = '#eee';
+                width = '0%';
+                text = '密碼強度：無';
+            } else if (strength <= 2) {
+                color = '#e74c3c';
+                width = '33%';
+                text = '密碼強度：弱';
+            } else if (strength <= 4) {
+                color = '#f39c12';
+                width = '66%';
+                text = '密碼強度：中等';
             } else {
-                console.log('用戶未登入');
-                logoutBtn.style.display = 'flex';
+                color = '#2ecc71';
+                width = '100%';
+                text = '密碼強度：強';
+            }
+            
+            strengthFill.style.backgroundColor = color;
+            strengthFill.style.width = width;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+            
+            return strength;
+        }
+        
+        // 表單驗證函數
+        function validateLoginForm() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            let isValid = true;
+            
+            // 驗證電子郵件
+            if (!email || !isValidEmail(email)) {
+                document.getElementById('login-email-error').style.display = 'flex';
+                document.getElementById('login-email').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('login-email-error').style.display = 'none';
+                document.getElementById('login-email').classList.remove('error');
+            }
+            
+            // 驗證密碼
+            if (!password) {
+                document.getElementById('login-password-error').style.display = 'flex';
+                document.getElementById('login-password').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('login-password-error').style.display = 'none';
+                document.getElementById('login-password').classList.remove('error');
+            }
+            
+            return isValid;
+        }
+        
+        function validateRegisterForm() {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            let isValid = true;
+            
+            // 驗證姓名
+            if (!name) {
+                document.getElementById('register-name-error').style.display = 'flex';
+                document.getElementById('register-name').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('register-name-error').style.display = 'none';
+                document.getElementById('register-name').classList.remove('error');
+            }
+            
+            // 驗證電子郵件
+            if (!email || !isValidEmail(email)) {
+                document.getElementById('register-email-error').style.display = 'flex';
+                document.getElementById('register-email').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('register-email-error').style.display = 'none';
+                document.getElementById('register-email').classList.remove('error');
+            }
+            
+            // 驗證密碼
+            const strength = checkPasswordStrength(password);
+            if (password.length < 8 || strength < 3) {
+                document.getElementById('register-password-error').style.display = 'flex';
+                document.getElementById('register-password').classList.add('error');
+                isValid = false;
+                
+                if (password.length < 8) {
+                    document.getElementById('register-password-error-text').textContent = '密碼必須至少8個字符';
+                } else {
+                    document.getElementById('register-password-error-text').textContent = '密碼強度太弱，請包含大寫字母、小寫字母和數字';
+                }
+            } else {
+                document.getElementById('register-password-error').style.display = 'none';
+                document.getElementById('register-password').classList.remove('error');
+            }
+            
+            // 驗證確認密碼
+            if (!confirmPassword || password !== confirmPassword) {
+                document.getElementById('register-confirm-password-error').style.display = 'flex';
+                document.getElementById('register-confirm-password').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('register-confirm-password-error').style.display = 'none';
+                document.getElementById('register-confirm-password').classList.remove('error');
+            }
+            
+            // 更新註冊按鈕狀態
+            const registerSubmitBtn = document.getElementById('register-submit');
+            if (isValid) {
+                registerSubmitBtn.disabled = false;
+            } else {
+                registerSubmitBtn.disabled = true;
+            }
+            
+            return isValid;
+        }
+        
+        function validateForgotPasswordForm() {
+            const email = document.getElementById('forgot-email').value;
+            let isValid = true;
+            
+            // 驗證電子郵件
+            if (!email || !isValidEmail(email)) {
+                document.getElementById('forgot-email-error').style.display = 'flex';
+                document.getElementById('forgot-email').classList.add('error');
+                isValid = false;
+            } else {
+                document.getElementById('forgot-email-error').style.display = 'none';
+                document.getElementById('forgot-email').classList.remove('error');
+            }
+            
+            return isValid;
+        }
+        
+        // 顯示郵件驗證頁面
+        function showVerificationPage(email) {
+            // 更新顯示的電子郵件地址
+            document.getElementById('verification-email-display').textContent = email;
+            
+            // 切換到驗證頁面
+            document.querySelectorAll('.form').forEach(form => {
+                form.classList.remove('active');
+            });
+            document.getElementById('verification-form').classList.add('active');
+        }
+        
+        // 表單切換功能
+        document.getElementById('login-toggle').addEventListener('click', function() {
+            switchToForm('login');
+        });
+        
+        document.getElementById('register-toggle').addEventListener('click', function() {
+            switchToForm('register');
+        });
+        
+        document.getElementById('forgot-password-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToForm('forgot-password');
+        });
+        
+        document.getElementById('back-to-login-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToForm('login');
+        });
+        
+        function switchToForm(formName) {
+            // 更新切換按鈕狀態
+            document.getElementById('login-toggle').classList.remove('active');
+            document.getElementById('register-toggle').classList.remove('active');
+            
+            if (formName === 'login') {
+                document.getElementById('login-toggle').classList.add('active');
+            } else if (formName === 'register') {
+                document.getElementById('register-toggle').classList.add('active');
+            }
+            
+            // 隱藏所有表單
+            document.querySelectorAll('.form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // 顯示目標表單
+            if (formName === 'verification') {
+                document.getElementById('verification-form').classList.add('active');
+            } else {
+                document.getElementById(`${formName}-form`).classList.add('active');
+            }
+            
+            // 清除所有錯誤訊息
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.form-control').forEach(input => {
+                input.classList.remove('error');
+            });
+        }
+        
+        // 實時驗證
+        document.getElementById('login-email').addEventListener('input', function() {
+            if (this.value) {
+                const isValid = isValidEmail(this.value);
+                if (!isValid) {
+                    document.getElementById('login-email-error').style.display = 'flex';
+                    this.classList.add('error');
+                } else {
+                    document.getElementById('login-email-error').style.display = 'none';
+                    this.classList.remove('error');
+                }
+            } else {
+                document.getElementById('login-email-error').style.display = 'none';
+                this.classList.remove('error');
             }
         });
         
-        // 隱藏登出提示
-        logoutToast.classList.remove('show');
+        document.getElementById('login-password').addEventListener('input', function() {
+            if (!this.value) {
+                document.getElementById('login-password-error').style.display = 'flex';
+                this.classList.add('error');
+            } else {
+                document.getElementById('login-password-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+        });
+        
+        document.getElementById('register-name').addEventListener('input', function() {
+            if (!this.value) {
+                document.getElementById('register-name-error').style.display = 'flex';
+                this.classList.add('error');
+            } else {
+                document.getElementById('register-name-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+            validateRegisterForm();
+        });
+        
+        document.getElementById('register-email').addEventListener('input', function() {
+            if (this.value) {
+                const isValid = isValidEmail(this.value);
+                if (!isValid) {
+                    document.getElementById('register-email-error').style.display = 'flex';
+                    this.classList.add('error');
+                } else {
+                    document.getElementById('register-email-error').style.display = 'none';
+                    this.classList.remove('error');
+                }
+            } else {
+                document.getElementById('register-email-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+            validateRegisterForm();
+        });
+        
+        document.getElementById('register-password').addEventListener('input', function() {
+            const strength = updatePasswordStrength(this.value);
+            
+            if (this.value.length < 8 || strength < 3) {
+                document.getElementById('register-password-error').style.display = 'flex';
+                this.classList.add('error');
+                
+                if (this.value.length < 8) {
+                    document.getElementById('register-password-error-text').textContent = '密碼必須至少8個字符';
+                } else {
+                    document.getElementById('register-password-error-text').textContent = '密碼強度太弱，請包含大寫字母、小寫字母和數字';
+                }
+            } else {
+                document.getElementById('register-password-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+            
+            // 同時檢查確認密碼
+            const confirmPassword = document.getElementById('register-confirm-password').value;
+            if (confirmPassword && this.value !== confirmPassword) {
+                document.getElementById('register-confirm-password-error').style.display = 'flex';
+                document.getElementById('register-confirm-password').classList.add('error');
+            } else if (confirmPassword) {
+                document.getElementById('register-confirm-password-error').style.display = 'none';
+                document.getElementById('register-confirm-password').classList.remove('error');
+            }
+            
+            validateRegisterForm();
+        });
+        
+        document.getElementById('register-confirm-password').addEventListener('input', function() {
+            const password = document.getElementById('register-password').value;
+            
+            if (this.value && password !== this.value) {
+                document.getElementById('register-confirm-password-error').style.display = 'flex';
+                this.classList.add('error');
+            } else {
+                document.getElementById('register-confirm-password-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+            
+            validateRegisterForm();
+        });
+        
+        document.getElementById('forgot-email').addEventListener('input', function() {
+            if (this.value) {
+                const isValid = isValidEmail(this.value);
+                if (!isValid) {
+                    document.getElementById('forgot-email-error').style.display = 'flex';
+                    this.classList.add('error');
+                } else {
+                    document.getElementById('forgot-email-error').style.display = 'none';
+                    this.classList.remove('error');
+                }
+            } else {
+                document.getElementById('forgot-email-error').style.display = 'none';
+                this.classList.remove('error');
+            }
+        });
+        
+        // 表單提交處理
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateLoginForm()) {
+                const email = document.getElementById('login-email').value;
+                const password = document.getElementById('login-password').value;
+                
+                // 這裡應該是實際的登入驗證邏輯
+                console.log('登入嘗試:', { email, password });
+                
+                // 模擬登入成功
+                alert('登入成功！(模擬)');
+            }
+        });
+        
+        document.getElementById('register-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateRegisterForm()) {
+                const name = document.getElementById('register-name').value;
+                const email = document.getElementById('register-email').value;
+                const password = document.getElementById('register-password').value;
+                
+                // 這裡應該是實際的註冊邏輯
+                console.log('註冊嘗試:', { name, email, password });
+                
+                // 顯示郵件驗證頁面
+                showVerificationPage(email);
+            }
+        });
+        
+        document.getElementById('forgot-password-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (validateForgotPasswordForm()) {
+                const email = document.getElementById('forgot-email').value;
+                
+                // 這裡應該是實際的忘記密碼邏輯
+                console.log('重置密碼請求:', { email });
+                
+                // 模擬發送重置郵件
+                alert(`密碼重置連結已發送至: ${email} (模擬)`);
+                switchToForm('login');
+            }
+        });
+        
+        // 重新發送驗證郵件
+        document.getElementById('resend-verification-btn').addEventListener('click', function() {
+            const email = document.getElementById('verification-email-display').textContent;
+            
+            // 這裡應該是實際的重新發送邏輯
+            console.log('重新發送驗證郵件到:', email);
+            
+            // 顯示成功訊息
+            alert(`已重新發送驗證郵件到: ${email} (模擬)`);
+            
+            // 按鈕反饋效果
+            const btn = this;
+            const originalText = btn.textContent;
+            btn.textContent = '已重新發送';
+            btn.style.backgroundColor = '#2ecc71';
+            btn.style.borderColor = '#2ecc71';
+            btn.style.color = 'white';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.backgroundColor = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }, 2000);
+        });
+        
+        // 驗證完成按鈕
+        document.getElementById('verification-complete-btn').addEventListener('click', function() {
+            // 這裡應該是實際的驗證檢查邏輯
+            console.log('用戶點擊了「我已驗證」按鈕');
+            
+            // 模擬驗證成功
+            alert('電子郵件驗證成功！歡迎使用試卷題庫系統 (模擬)');
+            
+            // 返回登入頁面
+            switchToForm('login');
+        });
+        
+        // 社交登入按鈕處理
+        document.querySelectorAll('.social-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                alert('使用Google登入 (模擬)');
+            });
+        });
+        
+        // 初始驗證
+        validateRegisterForm();
     </script>
 </body>
 </html>
