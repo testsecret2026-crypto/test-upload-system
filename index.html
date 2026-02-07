@@ -1,60 +1,466 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW">
 <head>
-    <title>測試 Firestore</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase 連線測試</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .step {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .step h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            margin: 10px 5px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .config-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .checklist {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .checklist li {
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        .checklist li:before {
+            content: '☐';
+            position: absolute;
+            left: 0;
+            color: #6c757d;
+        }
+        
+        .checklist li.checked:before {
+            content: '✓';
+            color: #28a745;
+        }
+    </style>
 </head>
 <body>
-    <h1>測試 Firestore 連線</h1>
-    
+    <div class="container">
+        <h1>Firebase 連線測試器</h1>
+        <p class="subtitle">專案：project-7983367571690113440</p>
+        
+        <div id="status" class="status-box loading">
+            正在載入...
+        </div>
+        
+        <div class="config-display">
+// Firebase 設定
+const firebaseConfig = {
+  apiKey: "AIzaSyDHaIeMD8WnFKtDuF08_5GseMC6S-OCCi0",
+  authDomain: "project-7983367571690113440.firebaseapp.com",
+  projectId: "project-7983367571690113440",
+  storageBucket: "project-7983367571690113440.firebasestorage.app",
+  messagingSenderId: "17335949650",
+  appId: "1:17335949650:web:ef1f03971b2d0ee74f028b"
+};</div>
+        
+        <div class="step">
+            <h3>步驟 1：檢查設定</h3>
+            <ul class="checklist" id="checklist">
+                <li id="check1">已設定 Firebase 設定</li>
+                <li id="check2">已授權網域 (testsecret2026-crypto.github.io)</li>
+                <li id="check3">已啟用 Email/Password 登入</li>
+                <li id="check4">已建立測試用戶 (test@example.com)</li>
+            </ul>
+        </div>
+        
+        <div class="step">
+            <h3>步驟 2：執行測試</h3>
+            <p>點擊下方按鈕開始測試 Firebase 連線</p>
+            <button class="btn" onclick="runAllTests()">開始完整測試</button>
+            <button class="btn btn-secondary" onclick="testFirebaseInit()">僅測試初始化</button>
+            <button class="btn btn-secondary" onclick="testAuthentication()">僅測試登入</button>
+        </div>
+        
+        <div id="testResults" style="display: none;">
+            <h3>測試結果</h3>
+            <div class="result" id="results"></div>
+            
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="resetTest()">重新測試</button>
+                <button class="btn btn-secondary" onclick="showHelp()">顯示幫助</button>
+            </div>
+        </div>
+        
+        <div id="helpSection" style="display: none; margin-top: 30px;">
+            <h3>故障排除幫助</h3>
+            <div class="info" id="helpContent">
+                <!-- 幫助內容會動態產生 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     
     <script>
-        // 從 Firebase Console 複製的設定
+        // Firebase 設定
         const firebaseConfig = {
-            apiKey: "您的 apiKey",
-            authDomain: "您的 authDomain",
-            projectId: "您的 projectId",
-            storageBucket: "您的 storageBucket",
-            messagingSenderId: "您的 messagingSenderId",
-            appId: "您的 appId"
+            apiKey: "AIzaSyDHaIeMD8WnFKtDuF08_5GseMC6S-OCCi0",
+            authDomain: "project-7983367571690113440.firebaseapp.com",
+            projectId: "project-7983367571690113440",
+            storageBucket: "project-7983367571690113440.firebasestorage.app",
+            messagingSenderId: "17335949650",
+            appId: "1:17335949650:web:ef1f03971b2d0ee74f028b"
         };
-
-        // 初始化 Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // 測試讀取資料
-        async function testReadData() {
+        
+        let firebaseApp = null;
+        let testResults = [];
+        
+        // 更新狀態顯示
+        function updateStatus(message, type = 'loading') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-box ${type}`;
+            statusDiv.style.display = 'block';
+            
+            // 添加到測試結果
+            if (type === 'error' || type === 'success') {
+                addTestResult(message, type);
+            }
+        }
+        
+        // 添加測試結果
+        function addTestResult(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            testResults.push({ time: timestamp, message, type });
+            
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = testResults.map(result => 
+                `<div class="${result.type === 'error' ? 'error' : result.type === 'success' ? 'success' : 'info'}" 
+                      style="margin: 5px 0; padding: 10px; border-radius: 5px;">
+                    [${result.time}] ${result.message}
+                </div>`
+            ).join('');
+            
+            document.getElementById('testResults').style.display = 'block';
+        }
+        
+        // 更新檢查清單
+        function updateChecklist(itemId, checked) {
+            const item = document.getElementById(itemId);
+            if (checked) {
+                item.classList.add('checked');
+            } else {
+                item.classList.remove('checked');
+            }
+        }
+        
+        // 測試 Firebase 初始化
+        async function testFirebaseInit() {
+            updateStatus('正在初始化 Firebase...', 'loading');
+            
             try {
-                // 先登入測試帳號
-                await auth.signInWithEmailAndPassword(
+                // 檢查是否已經初始化
+                if (firebase.apps.length > 0) {
+                    firebaseApp = firebase.apps[0];
+                    updateChecklist('check1', true);
+                    updateStatus('Firebase 已成功初始化', 'success');
+                } else {
+                    // 初始化 Firebase
+                    firebaseApp = firebase.initializeApp(firebaseConfig);
+                    updateChecklist('check1', true);
+                    updateStatus('Firebase 初始化成功！', 'success');
+                }
+                
+                return true;
+            } catch (error) {
+                updateStatus(`Firebase 初始化失敗: ${error.message}`, 'error');
+                console.error('Firebase 初始化錯誤:', error);
+                return false;
+            }
+        }
+        
+        // 測試 Authentication
+        async function testAuthentication() {
+            updateStatus('正在測試 Authentication...', 'loading');
+            
+            try {
+                // 確保 Firebase 已初始化
+                if (!firebaseApp) {
+                    const initialized = await testFirebaseInit();
+                    if (!initialized) return false;
+                }
+                
+                const auth = firebase.auth();
+                
+                // 嘗試登入測試用戶
+                updateStatus('正在嘗試登入測試帳戶...', 'loading');
+                
+                const userCredential = await auth.signInWithEmailAndPassword(
                     "test@example.com", 
                     "test123456"
                 );
                 
-                const user = auth.currentUser;
-                console.log("當前用戶 UID:", user.uid);
+                const user = userCredential.user;
+                updateChecklist('check4', true);
+                updateStatus(`✅ 登入成功！用戶: ${user.email}, UID: ${user.uid}`, 'success');
                 
-                // 讀取 users 資料
-                const doc = await db.collection("users").doc(user.uid).get();
+                // 登出
+                await auth.signOut();
                 
-                if (doc.exists) {
-                    console.log("用戶資料:", doc.data());
-                    alert("成功讀取資料！\nEmail: " + doc.data().email);
-                } else {
-                    console.log("找不到文件");
-                }
+                return true;
             } catch (error) {
-                console.error("錯誤:", error);
-                alert("錯誤: " + error.message);
+                let errorMessage = `❌ Authentication 測試失敗: ${error.code} - ${error.message}`;
+                
+                // 提供特定錯誤的建議
+                switch(error.code) {
+                    case 'auth/network-request-failed':
+                        errorMessage += '\n\n🔧 解決方案:\n1. 檢查網路連線\n2. 確認網域已授權\n3. 檢查防火牆設定';
+                        updateChecklist('check2', false);
+                        break;
+                    case 'auth/invalid-api-key':
+                        errorMessage += '\n\n🔧 解決方案: 請檢查 apiKey 是否正確';
+                        break;
+                    case 'auth/user-not-found':
+                        errorMessage += '\n\n🔧 解決方案: 請先在 Firebase Console 建立測試用戶 test@example.com';
+                        updateChecklist('check4', false);
+                        break;
+                    case 'auth/wrong-password':
+                        errorMessage += '\n\n🔧 解決方案: 測試密碼應為 test123456';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage += '\n\n🔧 解決方案: 請在 Firebase Console 啟用 Email/Password 登入方法';
+                        updateChecklist('check3', false);
+                        break;
+                }
+                
+                updateStatus(errorMessage, 'error');
+                console.error('Authentication 錯誤:', error);
+                return false;
             }
         }
         
-        // 頁面載入後執行測試
-        window.onload = testReadData;
+        // 執行完整測試
+        async function runAllTests() {
+            testResults = [];
+            document.getElementById('testResults').style.display = 'block';
+            document.getElementById('helpSection').style.display = 'none';
+            
+            addTestResult('開始 Firebase 完整測試', 'info');
+            
+            // 測試 1: Firebase 初始化
+            const initSuccess = await testFirebaseInit();
+            if (!initSuccess) return;
+            
+            // 測試 2: Authentication
+            const authSuccess = await testAuthentication();
+            if (!authSuccess) return;
+            
+            // 測試 3: Firestore（可選）
+            try {
+                updateStatus('正在測試 Firestore...', 'loading');
+                
+                const db = firebase.firestore();
+                const auth = firebase.auth();
+                
+                // 重新登入以取得用戶
+                await auth.signInWithEmailAndPassword("test@example.com", "test123456");
+                const user = auth.currentUser;
+                
+                // 嘗試讀取 users 集合
+                const docRef = db.collection("users").doc(user.uid);
+                const doc = await docRef.get();
+                
+                if (doc.exists) {
+                    updateStatus(`✅ Firestore 測試成功！找到用戶資料`, 'success');
+                } else {
+                    updateStatus(`⚠️ Firestore: 用戶資料不存在，但連線正常`, 'info');
+                }
+                
+                // 登出
+                await auth.signOut();
+                
+            } catch (error) {
+                updateStatus(`⚠️ Firestore 測試遇到問題: ${error.message}`, 'info');
+                console.log('Firestore 測試訊息:', error);
+            }
+            
+            updateStatus('🎉 所有測試完成！', 'success');
+        }
+        
+        // 顯示幫助
+        function showHelp() {
+            const helpContent = document.getElementById('helpContent');
+            helpContent.innerHTML = `
+                <h4>常見問題解決方案：</h4>
+                <ol>
+                    <li><strong>auth/network-request-failed</strong>
+                        <ul>
+                            <li>前往 Firebase Console → Authentication → 設定</li>
+                            <li>在「授權網域」中添加: testsecret2026-crypto.github.io</li>
+                            <li>如果本地測試，也添加: localhost, 127.0.0.1</li>
+                        </ul>
+                    </li>
+                    <li><strong>auth/operation-not-allowed</strong>
+                        <ul>
+                            <li>前往 Firebase Console → Authentication → 登入方法</li>
+                            <li>找到「電子郵件/密碼」並點擊「啟用」</li>
+                        </ul>
+                    </li>
+                    <li><strong>auth/user-not-found</strong>
+                        <ul>
+                            <li>前往 Firebase Console → Authentication → 用戶</li>
+                            <li>點擊「新增用戶」，建立 test@example.com</li>
+                        </ul>
+                    </li>
+                    <li><strong>其他錯誤</strong>
+                        <ul>
+                            <li>檢查瀏覽器控制台 (F12) 查看詳細錯誤</li>
+                            <li>確認沒有廣告阻擋器阻擋 Firebase</li>
+                            <li>嘗試使用無痕視窗測試</li>
+                        </ul>
+                    </li>
+                </ol>
+            `;
+            document.getElementById('helpSection').style.display = 'block';
+        }
+        
+        // 重置測試
+        function resetTest() {
+            testResults = [];
+            document.getElementById('results').innerHTML = '';
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('helpSection').style.display = 'none';
+            updateStatus('已重置，請重新開始測試', 'info');
+            
+            // 重置檢查清單
+            ['check1', 'check2', 'check3', 'check4'].forEach(id => {
+                updateChecklist(id, false);
+            });
+        }
+        
+        // 頁面載入時初始化
+        window.onload = function() {
+            updateStatus('準備就緒，請點擊「開始完整測試」按鈕', 'info');
+            updateChecklist('check1', true); // 設定已正確
+        };
     </script>
 </body>
 </html>
