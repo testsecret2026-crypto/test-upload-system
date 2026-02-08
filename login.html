@@ -1227,14 +1227,16 @@
                 
                 // 登入成功
                 const user = result.user;
-                showNotification(`歡迎 ${user.displayName}！Google 登入成功`, 'success');
-                
-                // 儲存登入狀態並跳轉
+
+                // 在 signInWithEmail 和 signInWithGoogle 函数中，找到登录成功的部分：
+                showNotification('登入成功！', 'success');
+
+// 确保以下三行代码被正确执行：
                 localStorage.setItem('isLoggedIn', 'true');
                 localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName);
-                
-                // 登入成功後導向到主頁面
+                localStorage.setItem('userName', user.displayName || email.split('@')[0]);
+
+// 然后跳转
                 setTimeout(() => {
                     window.location.href = 'index.html';
                 }, 1500);
