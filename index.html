@@ -1027,6 +1027,26 @@
             return strength;
         }
         
+        // 檢查是否已驗證電子郵件並跳轉
+        function checkEmailVerificationAndRedirect(user) {
+            if (user && user.emailVerified) {
+                // 電子郵件已驗證，跳轉到主頁面
+                showNotification('電子郵件驗證成功！正在導向到主頁面...', 'success');
+                
+                // 儲存登入狀態到 localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', user.email);
+                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
+                
+                // 延遲 2 秒後跳轉，讓用戶看到成功訊息
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // 跳轉到主頁面
+                }, 2000);
+                return true;
+            }
+            return false;
+        }
+        
         // ====================== Firebase 功能 ======================
         
         // Google 登入
@@ -1044,9 +1064,14 @@
                 const user = result.user;
                 showNotification(`歡迎 ${user.displayName}！Google 登入成功`, 'success');
                 
+                // 儲存登入狀態並跳轉
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', user.email);
+                localStorage.setItem('userName', user.displayName);
+                
                 // 登入成功後導向到主頁面
                 setTimeout(() => {
-                    showNotification('正在導向到主頁面...', 'info');
+                    window.location.href = 'index.html';
                 }, 1500);
                 
             } catch (error) {
@@ -1077,13 +1102,20 @@
                 if (!user.emailVerified) {
                     showNotification('請先驗證您的電子郵件地址', 'error');
                     await sendEmailVerification(user);
+                    // 顯示驗證頁面
+                    showVerificationPage(user.email);
                     return;
                 }
                 
                 showNotification('登入成功！', 'success');
                 
+                // 儲存登入狀態並跳轉
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', user.email);
+                localStorage.setItem('userName', user.displayName || email.split('@')[0]);
+                
                 setTimeout(() => {
-                    showNotification('正在導向到主頁面...', 'info');
+                    window.location.href = 'index.html';
                 }, 1500);
                 
             } catch (error) {
@@ -1146,7 +1178,10 @@
         // 發送驗證郵件
         async function sendEmailVerification(user) {
             try {
-                await user.sendEmailVerification();
+                await user.sendEmailVerification({
+                    url: window.location.href, // 指定回調URL
+                    handleCodeInApp: true
+                });
                 console.log('驗證郵件已發送');
             } catch (error) {
                 console.error('發送驗證郵件錯誤:', error);
@@ -1216,6 +1251,21 @@
             } finally {
                 hideLoading('resend-verification-btn');
             }
+        }
+        
+        // 重新載入用戶資訊以獲取最新的 emailVerified 狀態
+        async function reloadUser() {
+            const user = auth.currentUser;
+            if (user) {
+                try {
+                    await user.reload();
+                    return user;
+                } catch (error) {
+                    console.error('重新載入用戶資訊失敗:', error);
+                    return user;
+                }
+            }
+            return null;
         }
         
         // ====================== 表單處理 ======================
@@ -1449,10 +1499,19 @@
         
         // 驗證完成按鈕
         document.getElementById('verification-complete-btn').addEventListener('click', async function() {
-            const user = auth.currentUser;
+            const user = await reloadUser(); // 重新載入用戶資訊
+            
             if (user && user.emailVerified) {
                 showNotification('電子郵件驗證成功！歡迎使用試卷題庫系統', 'success');
-                switchToForm('login');
+                
+                // 儲存登入狀態並跳轉
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', user.email);
+                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
             } else {
                 showNotification('請先點擊驗證郵件中的連結完成驗證', 'error');
             }
@@ -1564,13 +1623,51 @@
         });
         
         // 監聽 Firebase 認證狀態變化
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
                 console.log('用戶已登入:', user.email);
+                
+                // 檢查 URL 參數是否包含驗證回調
+                const urlParams = new URLSearchParams(window.location.search);
+                const mode = urlParams.get('mode');
+                const oobCode = urlParams.get('oobCode');
+                
+                if (mode === 'verifyEmail' && oobCode) {
+                    // 處理驗證郵件回調
+                    try {
+                        showNotification('正在驗證您的電子郵件...', 'info');
+                        await auth.applyActionCode(oobCode);
+                        
+                        // 重新載入用戶以獲取最新的 emailVerified 狀態
+                        await user.reload();
+                        
+                        // 檢查是否已驗證並跳轉
+                        checkEmailVerificationAndRedirect(user);
+                    } catch (error) {
+                        console.error('驗證郵件錯誤:', error);
+                        showNotification('驗證失敗，請檢查驗證連結是否有效', 'error');
+                    }
+                } else {
+                    // 正常登入，檢查是否已驗證
+                    if (checkEmailVerificationAndRedirect(user)) {
+                        return;
+                    }
+                }
             } else {
                 console.log('用戶已登出');
             }
         });
+        
+        // 檢查是否已有登入狀態
+        function checkExistingLogin() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const user = auth.currentUser;
+            
+            if (isLoggedIn === 'true' && user) {
+                // 如果已有登入狀態，直接跳轉到主頁面
+                window.location.href = 'index.html';
+            }
+        }
         
         // 初始驗證
         validateRegisterForm();
@@ -1578,6 +1675,7 @@
         // 頁面載入完成後
         window.addEventListener('load', () => {
             console.log('頁面載入完成');
+            checkExistingLogin();
         });
     </script>
 </body>
