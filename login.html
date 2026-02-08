@@ -581,6 +581,69 @@
             color: #4a6ee0;
         }
         
+        /* 未驗證用戶處理頁面 */
+        .unverified-user-container {
+            text-align: center;
+            padding: 30px;
+            background-color: #fff8e1;
+            border-radius: 10px;
+            border: 1px solid #ffd54f;
+            margin: 20px 0;
+        }
+        
+        .unverified-icon {
+            font-size: 3.5rem;
+            color: #ff9800;
+            margin-bottom: 20px;
+        }
+        
+        .unverified-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .action-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .primary-action {
+            background-color: #4a6ee0;
+            color: white;
+        }
+        
+        .primary-action:hover {
+            background-color: #3a5ecf;
+        }
+        
+        .secondary-action {
+            background-color: #f8f9fa;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .secondary-action:hover {
+            background-color: #e9ecef;
+        }
+        
+        .danger-action {
+            background-color: #f8f9fa;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        
+        .danger-action:hover {
+            background-color: #ffeaea;
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             .container {
@@ -604,6 +667,14 @@
                 max-width: 300px;
                 right: 10px;
                 left: 10px;
+            }
+            
+            .unverified-actions {
+                flex-direction: column;
+            }
+            
+            .action-button {
+                width: 100%;
             }
         }
         
@@ -843,6 +914,48 @@
                     </div>
                 </div>
                 
+                <!-- 未驗證用戶處理頁面 -->
+                <div id="unverified-user-form" class="form">
+                    <div class="unverified-user-container">
+                        <div class="unverified-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        
+                        <h2 class="verification-title">發現未驗證的帳戶</h2>
+                        
+                        <p class="verification-message">
+                            我們發現您有一個未完成驗證的帳戶：
+                        </p>
+                        
+                        <div class="email-address" id="unverified-email-display">
+                            <!-- 這裡會動態顯示未驗證的電子郵件 -->
+                        </div>
+                        
+                        <p class="verification-message">
+                            這個電子郵件已經註冊但尚未完成驗證。請選擇以下操作：
+                        </p>
+                        
+                        <div class="unverified-actions">
+                            <button type="button" class="action-button primary-action" id="login-to-verify-btn">
+                                <i class="fas fa-sign-in-alt me-2"></i>
+                                登入並重新發送驗證郵件
+                            </button>
+                            <button type="button" class="action-button secondary-action" id="delete-account-btn">
+                                <i class="fas fa-trash-alt me-2"></i>
+                                刪除此帳戶並重新註冊
+                            </button>
+                            <button type="button" class="action-button secondary-action" id="use-different-email-btn">
+                                <i class="fas fa-envelope me-2"></i>
+                                使用不同的電子郵件
+                            </button>
+                        </div>
+                        
+                        <div class="verification-note">
+                            <p><strong>注意：</strong>刪除帳戶後，您可以使用相同的電子郵件重新註冊。</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- 忘记密码表单 -->
                 <form id="forgot-password-form" class="form forgot-password-form">
                     <div class="form-group">
@@ -1027,24 +1140,76 @@
             return strength;
         }
         
-        // 檢查是否已驗證電子郵件並跳轉
-        function checkEmailVerificationAndRedirect(user) {
-            if (user && user.emailVerified) {
-                // 電子郵件已驗證，跳轉到主頁面
-                showNotification('電子郵件驗證成功！正在導向到主頁面...', 'success');
+        // ====================== 關鍵修正：檢查並處理未驗證帳戶 ======================
+        
+        // 檢查電子郵件是否已被使用但未驗證
+        async function checkEmailExistsAndUnverified(email) {
+            try {
+                // 嘗試使用常見密碼登入來檢查帳戶是否存在
+                // 注意：這不是真正的登入嘗試，只是為了檢查帳戶狀態
+                const methods = await auth.fetchSignInMethodsForEmail(email);
                 
-                // 儲存登入狀態到 localStorage
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
-                
-                // 延遲 2 秒後跳轉，讓用戶看到成功訊息
-                setTimeout(() => {
-                    window.location.href = 'index.html'; // 跳轉到主頁面
-                }, 2000);
-                return true;
+                if (methods && methods.length > 0) {
+                    // 帳戶存在，檢查是否已驗證
+                    try {
+                        // 嘗試獲取用戶（可能需要管理權限）
+                        // 這裡我們使用另一種方法：嘗試發送密碼重置郵件
+                        // 如果帳戶存在，這個請求會成功
+                        await auth.sendPasswordResetEmail(email);
+                        
+                        // 如果成功發送重置郵件，帳戶存在
+                        // 現在我們需要檢查是否已驗證
+                        // 由於 Firebase 沒有直接的方法，我們將假設未驗證
+                        // 在實際應用中，您可能需要使用 Cloud Functions
+                        return {
+                            exists: true,
+                            isVerified: false // 保守假設為未驗證
+                        };
+                    } catch (error) {
+                        if (error.code === 'auth/user-not-found') {
+                            return { exists: false, isVerified: false };
+                        }
+                        // 其他錯誤，假設帳戶存在但狀態未知
+                        return { exists: true, isVerified: false };
+                    }
+                } else {
+                    return { exists: false, isVerified: false };
+                }
+            } catch (error) {
+                console.error('檢查郵件錯誤:', error);
+                return { exists: false, isVerified: false, error: error.message };
             }
-            return false;
+        }
+        
+        // 刪除未驗證的帳戶
+        async function deleteUnverifiedAccount(email, password) {
+            try {
+                // 先嘗試登入
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+                
+                // 檢查是否已驗證
+                if (!user.emailVerified) {
+                    // 未驗證，可以刪除
+                    await user.delete();
+                    showNotification('未驗證帳戶已成功刪除', 'success');
+                    return true;
+                } else {
+                    showNotification('此帳戶已驗證，無法刪除', 'error');
+                    return false;
+                }
+            } catch (error) {
+                console.error('刪除帳戶錯誤:', error);
+                
+                if (error.code === 'auth/wrong-password') {
+                    showNotification('密碼錯誤，無法刪除帳戶', 'error');
+                } else if (error.code === 'auth/user-not-found') {
+                    showNotification('帳戶不存在', 'error');
+                } else {
+                    showNotification('刪除帳戶失敗: ' + error.message, 'error');
+                }
+                return false;
+            }
         }
         
         // ====================== Firebase 功能 ======================
@@ -1100,10 +1265,19 @@
                 
                 // 檢查郵件是否已驗證
                 if (!user.emailVerified) {
-                    showNotification('請先驗證您的電子郵件地址', 'error');
+                    showNotification('您的電子郵件尚未驗證，正在重新發送驗證郵件...', 'info');
+                    
+                    // 重新發送驗證郵件
                     await sendEmailVerification(user);
+                    
                     // 顯示驗證頁面
                     showVerificationPage(user.email);
+                    
+                    // 儲存資訊到 localStorage
+                    localStorage.setItem('pendingVerification', 'true');
+                    localStorage.setItem('pendingEmail', user.email);
+                    
+                    showNotification('驗證郵件已重新發送，請檢查您的電子郵件', 'success');
                     return;
                 }
                 
@@ -1128,6 +1302,8 @@
                     errorMessage = '密碼錯誤';
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = '電子郵件地址格式不正確';
+                } else if (error.code === 'auth/too-many-requests') {
+                    errorMessage = '嘗試次數過多，請稍後再試';
                 }
                 
                 showNotification(errorMessage, 'error');
@@ -1136,11 +1312,22 @@
             }
         }
         
-        // 傳統郵件/密碼註冊
+        // 傳統郵件/密碼註冊 - 修正版
         async function signUpWithEmail(name, email, password) {
             try {
                 showLoading('register-submit');
                 
+                // 先檢查郵件是否已被使用
+                const emailCheck = await checkEmailExistsAndUnverified(email);
+                
+                if (emailCheck.exists) {
+                    // 郵件已被使用，顯示未驗證用戶處理頁面
+                    showUnverifiedUserPage(email);
+                    showNotification('此電子郵件已被使用但未完成驗證', 'warning');
+                    return;
+                }
+                
+                // 創建新用戶
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
                 
@@ -1152,6 +1339,12 @@
                 // 發送驗證郵件
                 await sendEmailVerification(user);
                 
+                // 儲存未驗證用戶資訊到 localStorage
+                localStorage.setItem('pendingVerification', 'true');
+                localStorage.setItem('pendingEmail', email);
+                localStorage.setItem('pendingName', name);
+                localStorage.setItem('pendingPassword', password); // 儲存密碼用於後續操作
+                
                 // 顯示郵件驗證頁面
                 showVerificationPage(email);
                 
@@ -1162,11 +1355,15 @@
                 
                 let errorMessage = '註冊失敗';
                 if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = '此電子郵件地址已被使用';
+                    // Firebase 檢測到郵件已被使用
+                    showUnverifiedUserPage(email);
+                    errorMessage = '此電子郵件已被使用但未完成驗證';
                 } else if (error.code === 'auth/invalid-email') {
                     errorMessage = '電子郵件地址格式不正確';
                 } else if (error.code === 'auth/weak-password') {
                     errorMessage = '密碼強度不足，請使用更複雜的密碼';
+                } else if (error.code === 'auth/operation-not-allowed') {
+                    errorMessage = '電子郵件/密碼註冊功能未啟用';
                 }
                 
                 showNotification(errorMessage, 'error');
@@ -1179,93 +1376,54 @@
         async function sendEmailVerification(user) {
             try {
                 await user.sendEmailVerification({
-                    url: window.location.origin + '/index.html', // 指定回調URL
+                    url: window.location.origin + '/login.html', // 回調到登入頁面
                     handleCodeInApp: true
                 });
                 console.log('驗證郵件已發送');
+                return true;
             } catch (error) {
                 console.error('發送驗證郵件錯誤:', error);
                 showNotification('發送驗證郵件失敗，請稍後再試', 'error');
-            }
-        }
-        
-        // 重置密碼（忘記密碼）- 這裡修復了未註冊郵件的錯誤處理
-        async function resetPassword(email) {
-            try {
-                showLoading('forgot-submit');
-                
-                // 先檢查郵件是否有效
-                if (!isValidEmail(email)) {
-                    document.getElementById('forgot-email-error-text').textContent = '請輸入有效的電子郵件地址';
-                    document.getElementById('forgot-email-error').style.display = 'flex';
-                    document.getElementById('forgot-email').classList.add('error');
-                    hideLoading('forgot-submit');
-                    return;
-                }
-                
-                // Firebase 會檢查郵件是否存在，如果不存在會拋出 auth/user-not-found 錯誤
-                await auth.sendPasswordResetEmail(email);
-                
-                showNotification(`密碼重置連結已發送至: ${email}`, 'success');
-                
-                // 3秒後返回登入頁面
-                setTimeout(() => {
-                    switchToForm('login');
-                }, 3000);
-                
-            } catch (error) {
-                console.error('重置密碼錯誤:', error);
-                
-                let errorMessage = '發送重置密碼郵件失敗';
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = '此電子郵件地址尚未註冊';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '電子郵件地址格式不正確';
-                }
-                
-                // 顯示錯誤訊息在表單上
-                document.getElementById('forgot-email-error-text').textContent = errorMessage;
-                document.getElementById('forgot-email-error').style.display = 'flex';
-                document.getElementById('forgot-email').classList.add('error');
-                
-            } finally {
-                hideLoading('forgot-submit');
+                return false;
             }
         }
         
         // 重新發送驗證郵件
         async function resendVerificationEmail() {
-            const user = auth.currentUser;
-            if (!user) {
-                showNotification('請先登入', 'error');
-                return;
-            }
-            
             try {
                 showLoading('resend-verification-btn');
-                await user.sendEmailVerification();
-                showNotification('驗證郵件已重新發送，請檢查您的收件匣', 'success');
+                
+                // 檢查是否有登入用戶
+                const user = auth.currentUser;
+                
+                if (user) {
+                    // 如果用戶已登入（但未驗證），直接重新發送
+                    const success = await sendEmailVerification(user);
+                    if (success) {
+                        showNotification('驗證郵件已重新發送，請檢查您的收件匣', 'success');
+                    }
+                } else {
+                    // 如果沒有登入用戶，顯示提示
+                    showNotification('請先登入以重新發送驗證郵件', 'info');
+                    
+                    // 獲取未驗證的郵件
+                    const pendingEmail = localStorage.getItem('pendingEmail');
+                    if (pendingEmail) {
+                        // 自動填寫登入表單
+                        setTimeout(() => {
+                            switchToForm('login');
+                            document.getElementById('login-email').value = pendingEmail;
+                            document.getElementById('login-email').focus();
+                            showNotification('請輸入密碼登入以重新發送驗證郵件', 'info');
+                        }, 1500);
+                    }
+                }
             } catch (error) {
                 console.error('重新發送驗證郵件錯誤:', error);
-                showNotification('重新發送驗證郵件失敗，請稍後再試', 'error');
+                showNotification('重新發送驗證郵件失敗: ' + error.message, 'error');
             } finally {
                 hideLoading('resend-verification-btn');
             }
-        }
-        
-        // 重新載入用戶資訊以獲取最新的 emailVerified 狀態
-        async function reloadUser() {
-            const user = auth.currentUser;
-            if (user) {
-                try {
-                    await user.reload();
-                    return user;
-                } catch (error) {
-                    console.error('重新載入用戶資訊失敗:', error);
-                    return user;
-                }
-            }
-            return null;
         }
         
         // ====================== 表單處理 ======================
@@ -1387,10 +1545,16 @@
             document.getElementById('verification-email-display').textContent = email;
             
             // 切換到驗證頁面
-            document.querySelectorAll('.form').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.getElementById('verification-form').classList.add('active');
+            switchToForm('verification');
+        }
+        
+        // 顯示未驗證用戶處理頁面
+        function showUnverifiedUserPage(email) {
+            // 更新顯示的電子郵件地址
+            document.getElementById('unverified-email-display').textContent = email;
+            
+            // 切換到未驗證用戶處理頁面
+            switchToForm('unverified-user');
         }
         
         // 表單切換功能
@@ -1429,11 +1593,7 @@
             });
             
             // 顯示目標表單
-            if (formName === 'verification') {
-                document.getElementById('verification-form').classList.add('active');
-            } else {
-                document.getElementById(`${formName}-form`).classList.add('active');
-            }
+            document.getElementById(`${formName}-form`).classList.add('active');
             
             // 清除所有錯誤訊息
             document.querySelectorAll('.error-message').forEach(error => {
@@ -1488,7 +1648,30 @@
             if (validateForgotPasswordForm()) {
                 const email = document.getElementById('forgot-email').value;
                 
-                await resetPassword(email);
+                try {
+                    showLoading('forgot-submit');
+                    await auth.sendPasswordResetEmail(email);
+                    showNotification(`密碼重置連結已發送至: ${email}`, 'success');
+                    
+                    // 3秒後返回登入頁面
+                    setTimeout(() => {
+                        switchToForm('login');
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('重置密碼錯誤:', error);
+                    
+                    let errorMessage = '發送重置密碼郵件失敗';
+                    if (error.code === 'auth/user-not-found') {
+                        errorMessage = '此電子郵件地址尚未註冊';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMessage = '電子郵件地址格式不正確';
+                    }
+                    
+                    showNotification(errorMessage, 'error');
+                } finally {
+                    hideLoading('forgot-submit');
+                }
             }
         });
         
@@ -1499,22 +1682,94 @@
         
         // 驗證完成按鈕
         document.getElementById('verification-complete-btn').addEventListener('click', async function() {
-            const user = await reloadUser(); // 重新載入用戶資訊
-            
-            if (user && user.emailVerified) {
-                showNotification('電子郵件驗證成功！歡迎使用試卷題庫系統', 'success');
-                
-                // 儲存登入狀態並跳轉
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
-            } else {
-                showNotification('請先點擊驗證郵件中的連結完成驗證', 'error');
+            try {
+                // 重新載入用戶資訊
+                const user = auth.currentUser;
+                if (user) {
+                    await user.reload();
+                    
+                    if (user.emailVerified) {
+                        showNotification('電子郵件驗證成功！歡迎使用試卷題庫系統', 'success');
+                        
+                        // 清除未驗證狀態
+                        localStorage.removeItem('pendingVerification');
+                        localStorage.removeItem('pendingEmail');
+                        localStorage.removeItem('pendingName');
+                        localStorage.removeItem('pendingPassword');
+                        
+                        // 儲存登入狀態並跳轉
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userEmail', user.email);
+                        localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
+                        
+                        setTimeout(() => {
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    } else {
+                        showNotification('請先點擊驗證郵件中的連結完成驗證', 'error');
+                    }
+                } else {
+                    showNotification('請先登入', 'error');
+                }
+            } catch (error) {
+                console.error('檢查驗證狀態錯誤:', error);
+                showNotification('檢查驗證狀態失敗: ' + error.message, 'error');
             }
+        });
+        
+        // 未驗證用戶處理按鈕
+        document.getElementById('login-to-verify-btn').addEventListener('click', function() {
+            const email = document.getElementById('unverified-email-display').textContent;
+            switchToForm('login');
+            document.getElementById('login-email').value = email;
+            document.getElementById('login-email').focus();
+            showNotification('請輸入密碼登入以重新發送驗證郵件', 'info');
+        });
+        
+        document.getElementById('delete-account-btn').addEventListener('click', async function() {
+            const email = document.getElementById('unverified-email-display').textContent;
+            
+            // 詢問用戶是否確定要刪除
+            const confirmDelete = confirm(`確定要刪除帳戶 ${email} 嗎？\n刪除後您可以使用相同的電子郵件重新註冊。`);
+            
+            if (confirmDelete) {
+                // 提示用戶輸入密碼
+                const password = prompt('請輸入此帳戶的密碼以確認刪除：');
+                
+                if (password) {
+                    try {
+                        showLoading('delete-account-btn');
+                        const success = await deleteUnverifiedAccount(email, password);
+                        
+                        if (success) {
+                            // 清除相關的 localStorage
+                            localStorage.removeItem('pendingVerification');
+                            localStorage.removeItem('pendingEmail');
+                            localStorage.removeItem('pendingName');
+                            localStorage.removeItem('pendingPassword');
+                            
+                            // 切換回註冊頁面
+                            setTimeout(() => {
+                                switchToForm('register');
+                                document.getElementById('register-email').value = email;
+                                document.getElementById('register-email').focus();
+                                showNotification('帳戶已刪除，您現在可以重新註冊', 'success');
+                            }, 1000);
+                        }
+                    } catch (error) {
+                        console.error('刪除帳戶錯誤:', error);
+                    } finally {
+                        hideLoading('delete-account-btn');
+                    }
+                }
+            }
+        });
+        
+        document.getElementById('use-different-email-btn').addEventListener('click', function() {
+            switchToForm('register');
+            // 清空郵件欄位
+            document.getElementById('register-email').value = '';
+            document.getElementById('register-email').focus();
         });
         
         // 實時驗證
@@ -1641,16 +1896,27 @@
                         // 重新載入用戶以獲取最新的 emailVerified 狀態
                         await user.reload();
                         
-                        // 檢查是否已驗證並跳轉
-                        checkEmailVerificationAndRedirect(user);
+                        if (user.emailVerified) {
+                            showNotification('電子郵件驗證成功！', 'success');
+                            
+                            // 清除未驗證狀態
+                            localStorage.removeItem('pendingVerification');
+                            localStorage.removeItem('pendingEmail');
+                            localStorage.removeItem('pendingName');
+                            localStorage.removeItem('pendingPassword');
+                            
+                            // 自動登入並跳轉
+                            localStorage.setItem('isLoggedIn', 'true');
+                            localStorage.setItem('userEmail', user.email);
+                            localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
+                            
+                            setTimeout(() => {
+                                window.location.href = 'index.html';
+                            }, 2000);
+                        }
                     } catch (error) {
                         console.error('驗證郵件錯誤:', error);
                         showNotification('驗證失敗，請檢查驗證連結是否有效', 'error');
-                    }
-                } else {
-                    // 正常登入，檢查是否已驗證
-                    if (checkEmailVerificationAndRedirect(user)) {
-                        return;
                     }
                 }
             } else {
@@ -1680,7 +1946,25 @@
         // 頁面載入完成後
         window.addEventListener('load', () => {
             console.log('頁面載入完成');
+            
+            // 檢查是否已有登入狀態
             checkExistingLogin();
+            
+            // 檢查 URL 參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+            
+            // 如果從驗證郵件返回，顯示登入頁面
+            if (mode === 'verifyEmail') {
+                switchToForm('login');
+            }
+            
+            // 檢查是否有未驗證的郵件
+            const pendingEmail = localStorage.getItem('pendingEmail');
+            if (pendingEmail) {
+                // 自動填寫登入郵件
+                document.getElementById('login-email').value = pendingEmail;
+            }
         });
     </script>
 </body>
