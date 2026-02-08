@@ -1,423 +1,409 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" id="main-html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>試卷題庫系統 - 登入或註冊</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- 加入 Firebase SDK -->
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
-        }
-        
+        /* 簡潔實用的樣式 */
         body {
-            background-color: #f5f7fa;
+            background-color: #f8f9fa;
+            font-family: 'Microsoft JhengHei', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
             color: #333;
+            line-height: 1.6;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
         
-        .container {
-            display: flex;
-            max-width: 800px;
-            width: 100%;
-            background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            overflow: hidden;
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 1rem 0;
         }
         
-        .right-panel {
-            flex: 1;
-            padding: 60px 50px;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .form-header {
-            margin-bottom: 40px;
-        }
-        
-        .form-header h2 {
-            font-size: 2.2rem;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .form-header p {
-            color: #666;
-            font-size: 1rem;
-        }
-        
-        .form-toggle {
-            display: flex;
-            margin-bottom: 30px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .form-toggle button {
-            background: none;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1.1rem;
+        .navbar-brand {
+            color: #2c3e50;
             font-weight: 600;
-            color: #888;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
+            font-size: 1.3rem;
         }
         
-        .form-toggle button.active {
-            color: #4a6ee0;
-        }
-        
-        .form-toggle button.active::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background-color: #4a6ee0;
-            border-radius: 3px 3px 0 0;
-        }
-        
-        .form-container {
-            flex: 1;
-        }
-        
-        .form {
-            display: none;
-        }
-        
-        .form.active {
-            display: block;
-        }
-        
-        /* 註冊步驟指示器 */
-        .registration-steps {
+        /* 用戶資訊樣式 */
+        .user-info {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 40px;
-            position: relative;
-        }
-        
-        .registration-steps::before {
-            content: '';
-            position: absolute;
-            top: 20px;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background-color: #eee;
-            z-index: 1;
-        }
-        
-        .step {
-            display: flex;
-            flex-direction: column;
             align-items: center;
-            z-index: 2;
+            gap: 1rem;
         }
         
-        .step-circle {
-            width: 40px;
-            height: 40px;
+        .user-avatar {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            background-color: #f0f0f0;
+            background-color: #007bff;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: 600;
-            margin-bottom: 10px;
-            color: #888;
-            border: 2px solid #eee;
-            transition: all 0.3s;
+            font-weight: bold;
         }
         
-        .step.active .step-circle {
-            background-color: #4a6ee0;
-            color: white;
-            border-color: #4a6ee0;
-        }
-        
-        .step.completed .step-circle {
-            background-color: #2ecc71;
-            color: white;
-            border-color: #2ecc71;
-        }
-        
-        .step-label {
-            font-size: 0.9rem;
-            color: #888;
+        .user-name {
+            color: #495057;
             font-weight: 500;
         }
         
-        .step.active .step-label {
-            color: #4a6ee0;
-            font-weight: 600;
+        .logout-btn {
+            background-color: transparent;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
         }
         
-        .step.completed .step-label {
-            color: #2ecc71;
+        .logout-btn:hover {
+            background-color: #dc3545;
+            color: white;
         }
         
-        /* 郵件驗證頁面 */
-        .verification-container {
-            text-align: center;
-            padding: 20px 0;
+        .login-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
         }
         
-        .verification-icon {
-            font-size: 4rem;
-            color: #4a6ee0;
-            margin-bottom: 20px;
+        .login-btn:hover {
+            background-color: #0056b3;
+            color: white;
         }
         
-        .verification-title {
-            font-size: 1.8rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #333;
+        /* 語言切換按鈕 */
+        .lang-switcher {
+            display: flex;
+            gap: 0.5rem;
         }
         
-        .verification-message {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            font-size: 1.1rem;
-        }
-        
-        .email-address {
+        .lang-btn {
             background-color: #f8f9fa;
-            padding: 12px 20px;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        
+        /* 主要內容區域 */
+        .container {
+            max-width: 1200px;
+            padding: 0 1rem;
+        }
+        
+        /* 歡迎區域 */
+        .welcome-section {
+            background-color: white;
             border-radius: 8px;
-            display: inline-block;
-            font-weight: 600;
-            color: #4a6ee0;
-            margin: 15px 0;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             border: 1px solid #e9ecef;
         }
         
-        .verification-note {
-            color: #777;
-            font-size: 0.9rem;
-            margin-top: 25px;
-            line-height: 1.5;
-            font-style: italic;
-        }
-        
-        .resend-button {
-            background-color: #f8f9fa;
-            color: #4a6ee0;
-            border: 1px solid #4a6ee0;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 1rem;
+        .welcome-section h1 {
+            color: #2c3e50;
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 20px 0;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
         }
         
-        .resend-button:hover {
-            background-color: #4a6ee0;
-            color: white;
-        }
-        
-        .verification-success-button {
-            background-color: #4a6ee0;
-            color: white;
-            border: none;
-            padding: 14px 40px;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 20px;
-        }
-        
-        .verification-success-button:hover {
-            background-color: #3a5ecf;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
+        .welcome-section p {
             color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        /* 按鈕樣式 */
+        .main-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .main-btn:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .secondary-btn {
+            background-color: white;
+            border: 1px solid #007bff;
+            color: #007bff;
+            font-weight: 500;
+            padding: 0.7rem 1.5rem;
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #f8f9fa;
+            color: #0056b3;
+        }
+        
+        /* 搜尋區域 */
+        .search-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        .section-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+        }
+        
+        /* 表單元素 */
+        .form-label {
+            color: #495057;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
             font-size: 0.95rem;
         }
         
-        .input-with-icon {
+        .form-select {
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            padding: 0.6rem;
+            color: #495057;
+            font-size: 0.95rem;
+        }
+        
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        
+        /* 步驟指示器 - 簡化版 */
+        .steps-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
             position: relative;
         }
         
-        .input-with-icon i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #888;
-        }
-        
-        .form-control {
-            width: 100%;
-            padding: 16px 16px 16px 48px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border 0.3s, box-shadow 0.3s;
-        }
-        
-        .form-control:focus {
-            outline: none;
-            border-color: #4a6ee0;
-            box-shadow: 0 0 0 3px rgba(74, 110, 224, 0.1);
-        }
-        
-        .form-control.error {
-            border-color: #e74c3c;
-        }
-        
-        .form-control.success {
-            border-color: #2ecc71;
-        }
-        
-        .error-message {
-            color: #e74c3c;
-            font-size: 0.85rem;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .success-message {
-            color: #2ecc71;
-            font-size: 0.85rem;
-            margin-top: 6px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .password-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-        }
-        
-        .remember-me input {
-            margin-right: 6px;
-        }
-        
-        .forgot-password {
-            color: #4a6ee0;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-        
-        .forgot-password:hover {
-            color: #3a5ecf;
-            text-decoration: underline;
-        }
-        
-        .submit-btn {
-            width: 100%;
-            background-color: #4a6ee0;
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            margin-top: 10px;
-        }
-        
-        .submit-btn:hover {
-            background-color: #3a5ecf;
-        }
-        
-        .submit-btn:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        
-        .google-btn {
-            width: 100%;
-            background-color: white;
-            color: #555;
-            border: 1px solid #ddd;
-            padding: 16px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .google-btn:hover {
-            background-color: #f8f9fa;
-            border-color: #DB4437;
-            color: #DB4437;
-        }
-        
-        .divider {
-            display: flex;
-            align-items: center;
-            margin: 30px 0;
-            color: #888;
-        }
-        
-        .divider::before,
-        .divider::after {
-            content: '';
+        .step {
+            text-align: center;
+            position: relative;
             flex: 1;
-            height: 1px;
-            background-color: #eee;
         }
         
-        .divider span {
-            padding: 0 15px;
+        .step-number {
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            color: #6c757d;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+            border: 2px solid #dee2e6;
+        }
+        
+        .step.active .step-number {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+        
+        .step-label {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+        
+        .step.active .step-label {
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        /* 結果區域 */
+        .results-section {
+            background-color: white;
+            border-radius: 8px;
+            margin-top: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+        
+        .results-header {
+            background-color: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .results-body {
+            padding: 2rem;
+            min-height: 200px;
+        }
+        
+        .no-results {
+            text-align: center;
+            color: #6c757d;
+            padding: 2rem 1rem;
+        }
+        
+        /* 結果項目 */
+        .result-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .result-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        
+        .result-title {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .result-meta {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 5px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .result-link:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+        
+        .result-link .bi {
+            font-size: 1.2rem;
+        }
+        
+        /* 上傳區域 */
+        .upload-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #e9ecef;
+        }
+        
+        /* 隱私提示 */
+        .privacy-tip {
+            background-color: #e7f3ff;
+            border-left: 4px solid #007bff;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .privacy-tip h5 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .privacy-tip p {
+            color: #495057;
+            margin-bottom: 0;
+        }
+        
+        /* 功能特色 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .feature-item {
+            padding: 1.2rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .feature-icon {
+            color: #007bff;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .feature-title {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+        
+        .feature-desc {
+            color: #6c757d;
             font-size: 0.9rem;
         }
         
-        .social-login {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
+        /* 頁腳 */
+        .footer {
+            background-color: #f8f9fa;
+            color: #6c757d;
+            text-align: center;
+            padding: 1.5rem 0;
+            margin-top: 3rem;
+            border-top: 1px solid #e9ecef;
+            font-size: 0.9rem;
         }
         
         /* 通知訊息樣式 */
@@ -487,394 +473,279 @@
             }
         }
         
-        @keyframes slideOut {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-        }
-        
-        .terms {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: #777;
-            line-height: 1.5;
-        }
-        
-        .terms a {
-            color: #4a6ee0;
-            text-decoration: none;
-        }
-        
-        .terms a:hover {
-            text-decoration: underline;
-        }
-        
-        .forgot-password-form {
-            display: none;
-        }
-        
-        .back-to-login {
-            color: #4a6ee0;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-            font-weight: 500;
-        }
-        
-        .back-to-login:hover {
-            text-decoration: underline;
-        }
-        
-        .password-strength {
-            margin-top: 8px;
-        }
-        
-        .strength-meter {
-            height: 5px;
-            background-color: #eee;
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 5px;
-        }
-        
-        .strength-fill {
-            height: 100%;
-            width: 0;
-            transition: width 0.3s, background-color 0.3s;
-        }
-        
-        .strength-text {
-            font-size: 0.8rem;
-            color: #777;
-        }
-        
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* 新增：統一錯誤圖標樣式 */
-        .error-icon {
-            color: #e74c3c;
-        }
-        
-        .success-icon {
-            color: #2ecc71;
-        }
-        
-        .info-icon {
-            color: #4a6ee0;
-        }
-        
-        /* 响应式设计 */
+        /* 響應式設計 */
         @media (max-width: 768px) {
             .container {
                 max-width: 500px;
+                padding: 0 0.75rem;
             }
             
-            .right-panel {
-                padding: 40px 30px;
+            .welcome-section {
+                padding: 1.5rem;
             }
             
-            .verification-icon {
-                font-size: 3rem;
-            }
-            
-            .verification-title {
+            .welcome-section h1 {
                 font-size: 1.5rem;
             }
             
-            .notification {
-                min-width: 250px;
-                max-width: 300px;
-                right: 10px;
-                left: 10px;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            body {
-                padding: 10px;
+            .search-section {
+                padding: 1.2rem;
             }
             
-            .right-panel {
-                padding: 30px 20px;
+            .steps-indicator {
+                flex-direction: column;
+                gap: 1.2rem;
             }
             
-            .form-header h2 {
-                font-size: 1.8rem;
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                text-align: left;
             }
             
-            .form-toggle button {
-                padding: 10px 16px;
-                font-size: 1rem;
+            .step-number {
+                margin: 0;
+                flex-shrink: 0;
             }
             
-            .registration-steps {
-                margin-bottom: 30px;
+            .upload-section {
+                padding: 1.5rem;
             }
             
-            .step-circle {
-                width: 35px;
-                height: 35px;
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .result-item {
+                padding: 1.2rem;
+            }
+            
+            .user-info {
+                flex-direction: column;
+                align-items: flex-end;
+                gap: 0.5rem;
+            }
+            
+            .user-name {
                 font-size: 0.9rem;
-            }
-            
-            .step-label {
-                font-size: 0.8rem;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 右侧表单面板 -->
-        <div class="right-panel">
-            <div class="form-header">
-                <h2>迅速登入或註冊</h2>
-                <p>使用你的電子郵件或其他服務，以繼續使用試卷題庫系統！</p>
-            </div>
-            
-            <!-- 表单切换 -->
-            <div class="form-toggle">
-                <button id="login-toggle" class="active">登入</button>
-                <button id="register-toggle">註冊</button>
-            </div>
-            
-            <!-- 表单容器 -->
-            <div class="form-container">
-                <!-- 登录表单 -->
-                <form id="login-form" class="form active">
-                    <div class="form-group">
-                        <label for="login-email">電子郵件</label>
-                        <div class="input-with-icon">
-                            <i class="far fa-envelope" style="color: #888;"></i>
-                            <input type="email" id="login-email" class="form-control" placeholder="請輸入您的電子郵件地址" required>
+    <!-- 導航欄 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <a class="navbar-brand" href="index.html">
+                    <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">
+                        試卷題庫系統
+                    </span>
+                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="user-info" id="user-info" style="display: none;">
+                        <div class="user-avatar" id="user-avatar">
+                            <!-- 用戶首字母會顯示在這裡 -->
                         </div>
-                        <div id="login-email-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span>請輸入有效的電子郵件地址</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="login-password">密碼</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock" style="color: #888;"></i>
-                            <input type="password" id="login-password" class="form-control" placeholder="請輸入密碼" required>
-                        </div>
-                        <div id="login-password-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span>密碼不能為空</span>
-                        </div>
-                        <div class="password-actions">
-                            <div class="remember-me">
-                                <input type="checkbox" id="remember">
-                                <label for="remember">記住我</label>
-                            </div>
-                            <a href="#" class="forgot-password" id="forgot-password-link">忘記密碼？</a>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn" id="login-submit">
-                        <span id="login-text">登入</span>
-                        <span id="login-loading" class="loading" style="display: none;"></span>
-                    </button>
-                    
-                    <div class="divider">
-                        <span>或使用第三方服務</span>
-                    </div>
-                    
-                    <div class="social-login">
-                        <button type="button" class="google-btn" id="google-login-btn">
-                            <i class="fab fa-google"></i>
-                            使用 Google 登入
+                        <span class="user-name" id="user-name"></span>
+                        <button class="btn logout-btn" onclick="logout()">
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            <span class="lang-text" data-en="Logout" data-zh="登出">登出</span>
                         </button>
                     </div>
-                </form>
-                
-                <!-- 註冊表單 - 基本資料步驟 -->
-                <form id="register-form" class="form">
-                    <!-- 註冊步驟指示器 -->
-                    <div class="registration-steps">
-                        <div class="step active" id="step-1">
-                            <div class="step-circle">1</div>
-                            <div class="step-label">基本資料</div>
-                        </div>
-                        <div class="step" id="step-2">
-                            <div class="step-circle">2</div>
-                            <div class="step-label">驗證郵件</div>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-name">姓名</label>
-                        <div class="input-with-icon">
-                            <i class="far fa-user" style="color: #888;"></i>
-                            <input type="text" id="register-name" class="form-control" placeholder="請輸入姓名" required>
-                        </div>
-                        <div id="register-name-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span>姓名不能為空</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-email">電子郵件</label>
-                        <div class="input-with-icon">
-                            <i class="far fa-envelope" style="color: #888;"></i>
-                            <input type="email" id="register-email" class="form-control" placeholder="請輸入您的電子郵件地址" required>
-                        </div>
-                        <div id="register-email-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span>請輸入有效的電子郵件地址</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-password">密碼</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock" style="color: #888;"></i>
-                            <input type="password" id="register-password" class="form-control" placeholder="請輸入密碼 (至少8個字符)" required>
-                        </div>
-                        <div class="password-strength">
-                            <div class="strength-meter">
-                                <div class="strength-fill" id="password-strength-fill"></div>
-                            </div>
-                            <div class="strength-text" id="password-strength-text">密碼強度：弱</div>
-                        </div>
-                        <div id="register-password-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span id="register-password-error-text">密碼必須至少8個字符，包含大寫字母、小寫字母和數字</span>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="register-confirm-password">確認密碼</label>
-                        <div class="input-with-icon">
-                            <i class="fas fa-lock" style="color: #888;"></i>
-                            <input type="password" id="register-confirm-password" class="form-control" placeholder="請再次輸入密碼" required>
-                        </div>
-                        <div id="register-confirm-password-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span>密碼與確認密碼不一致</span>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn" id="register-submit" disabled>
-                        <span id="register-text">下一步：驗證郵件</span>
-                        <span id="register-loading" class="loading" style="display: none;"></span>
+                    <button class="btn login-btn" id="login-btn" onclick="goToLogin()" style="display: none;">
+                        <i class="bi bi-person me-1"></i>
+                        <span class="lang-text" data-en="Login" data-zh="登入">登入</span>
                     </button>
-                    
-                    <div class="divider">
-                        <span>或使用第三方服務</span>
+                    <div class="lang-switcher">
+                        <button class="btn lang-btn active" onclick="changeLang('zh')" id="lang-btn-zh">繁體中文</button>
+                        <button class="btn lang-btn" onclick="changeLang('en')" id="lang-btn-en">English</button>
                     </div>
-                    
-                    <div class="social-login">
-                        <button type="button" class="google-btn" id="google-register-btn">
-                            <i class="fab fa-google"></i>
-                            使用 Google 註冊
-                        </button>
-                    </div>
-                </form>
-                
-                <!-- 註冊表單 - 郵件驗證步驟 -->
-                <div id="verification-form" class="form">
-                    <!-- 註冊步驟指示器 -->
-                    <div class="registration-steps">
-                        <div class="step completed" id="step-1-completed">
-                            <div class="step-circle"><i class="fas fa-check"></i></div>
-                            <div class="step-label">基本資料</div>
-                        </div>
-                        <div class="step active" id="step-2-active">
-                            <div class="step-circle">2</div>
-                            <div class="step-label">驗證郵件</div>
-                        </div>
-                    </div>
-                    
-                    <div class="verification-container">
-                        <div class="verification-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        
-                        <h2 class="verification-title">請驗證您的電子郵件</h2>
-                        
-                        <p class="verification-message">
-                            我們已發送驗證連結到：
-                        </p>
-                        
-                        <div class="email-address" id="verification-email-display">
-                            <!-- 這裡會動態顯示用戶的電子郵件 -->
-                        </div>
-                        
-                        <p class="verification-message">
-                            請檢查您的收件匣（包含垃圾郵件資料夾），點擊郵件中的驗證連結以完成註冊。
-                        </p>
-                        
-                        <div class="verification-note">
-                            <p>如果幾分鐘內沒有收到郵件，請檢查您的垃圾郵件資料夾或點擊下方按鈕重新發送驗證郵件。</p>
-                        </div>
-                        
-                        <button type="button" class="resend-button" id="resend-verification-btn">
-                            <span id="resend-text">重新發送驗證郵件</span>
-                            <span id="resend-loading" class="loading" style="display: none;"></span>
-                        </button>
-                        
-                        <div style="margin-top: 40px;">
-                            <button type="button" class="verification-success-button" id="verification-complete-btn">
-                                我已驗證，繼續使用
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- 忘记密码表单 -->
-                <form id="forgot-password-form" class="form forgot-password-form">
-                    <div class="form-group">
-                        <label for="forgot-email">電子郵件</label>
-                        <div class="input-with-icon">
-                            <i class="far fa-envelope" style="color: #888;"></i>
-                            <input type="email" id="forgot-email" class="form-control" placeholder="請輸入註冊時使用的電子郵件" required>
-                        </div>
-                        <div id="forgot-email-error" class="error-message" style="display: none;">
-                            <i class="fas fa-exclamation-circle error-icon"></i>
-                            <span id="forgot-email-error-text">請輸入有效的電子郵件地址</span>
-                        </div>
-                        <p style="font-size: 0.9rem; color: #666; margin-top: 8px;">
-                            我們將向此郵箱發送重置密碼的連結
-                        </p>
-                    </div>
-                    
-                    <button type="submit" class="submit-btn" id="forgot-submit">
-                        <span id="forgot-text">發送重置連結</span>
-                        <span id="forgot-loading" class="loading" style="display: none;"></span>
-                    </button>
-                    
-                    <a href="#" class="back-to-login" id="back-to-login-link">返回登入</a>
-                </form>
-                
-                <div class="terms">
-                    點擊「註冊」即表示您同意我們的<a href="#">服務條款</a>和<a href="#">隱私政策</a>
                 </div>
             </div>
         </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 歡迎區域 -->
+        <div class="welcome-section">
+            <h1 class="lang-text" data-en="Welcome to the Paper Repository System" data-zh="歡迎來到試卷題庫系統">
+                歡迎來到試卷題庫系統
+            </h1>
+            <p class="lang-text" data-en="Find old examination papers from junior high to senior high: Chinese, English, Math, Physics, Chemistry, and Biology." data-zh="查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。">
+                查找初中至高中的舊試卷：中文、英文、數學、物理、化學、生物。
+            </p>
+            <p class="lang-text" data-en="Browse by grade, subject, term and year. Contribute by uploading your own papers (Google Form, admin-reviewed)." data-zh="可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。">
+                可按年級、科目、學期及年份瀏覽，亦可透過 Google 表單上傳您的試卷（需經管理員審核後顯示）。
+            </p>
+            <a href="#upload" class="btn secondary-btn mt-2 lang-text" data-en="Upload Your Paper" data-zh="上傳試卷">
+                上傳試卷
+            </a>
+        </div>
+        
+        <!-- 步驟指示器 -->
+        <div class="steps-indicator">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-label lang-text" data-en="Grade" data-zh="年級">年級</div>
+            </div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-label lang-text" data-en="Subject" data-zh="科目">科目</div>
+            </div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-label lang-text" data-en="Term" data-zh="學期">學期</div>
+            </div>
+            <div class="step" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-label lang-text" data-en="Year" data-zh="年份">年份</div>
+            </div>
+        </div>
+        
+        <!-- 搜尋區域 -->
+        <div class="search-section">
+            <h2 class="section-title lang-text" data-en="Browse Old Papers" data-zh="瀏覽舊試卷">瀏覽舊試卷</h2>
+            
+            <div class="row g-3">
+                <!-- 年級選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Grade Level" data-zh="年級">年級</label>
+                    <select class="form-select" id="gradeDropdown" onchange="handleGradeSelect(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Grade" data-zh="選擇教育階段">選擇教育階段</option>
+                        <option value="jh1" class="lang-text" data-en="Junior High 1" data-zh="初中一年級">初中一年級</option>
+                        <option value="jh2" class="lang-text" data-en="Junior High 2" data-zh="初中二年級">初中二年級</option>
+                        <option value="jh3" class="lang-text" data-en="Junior High 3" data-zh="初中三年級">初中三年級</option>
+                        <option value="sh1" class="lang-text" data-en="Senior High 1" data-zh="高中一年級">高中一年級</option>
+                        <option value="sh2" class="lang-text" data-en="Senior High 2" data-zh="高中二年級">高中二年級</option>
+                        <option value="sh3" class="lang-text" data-en="Senior High 3" data-zh="高中三年級">高中三年級</option>
+                        <option value="other" class="lang-text" data-en="Advanced Level" data-zh="進階學段">進階學段</option>
+                    </select>
+                </div>
+                
+                <!-- 科目選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Subject" data-zh="學科">學科</label>
+                    <select class="form-select" id="subjectDropdown" onchange="handleSubjectSelect(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Subject" data-zh="選擇學科">選擇學科</option>
+                        <option value="chi" class="lang-text" data-en="Chinese Literature" data-zh="中文文學">中文文學</option>
+                        <option value="eng" class="lang-text" data-en="English Language" data-zh="英語語言">英語語言</option>
+                        <option value="math" class="lang-text" data-en="Mathematics" data-zh="數學">數學</option>
+                        <option value="phy" class="lang-text" data-en="Physics" data-zh="物理">物理</option>
+                        <option value="chem" class="lang-text" data-en="Chemistry" data-zh="化學">化學</option>
+                        <option value="bio" class="lang-text" data-en="Biology" data-zh="生物">生物</option>
+                    </select>
+                </div>
+                
+                <!-- 學期選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Semester" data-zh="學期">學期</label>
+                    <select class="form-select" id="termDropdown" onchange="handleTermSelect(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Term" data-zh="選擇學期">選擇學期</option>
+                        <option value="t1" class="lang-text" data-en="First Semester" data-zh="第一學期">第一學期</option>
+                        <option value="t2" class="lang-text" data-en="Second Semester" data-zh="第二學期">第二學期</option>
+                        <option value="t3" class="lang-text" data-en="Third Semester" data-zh="第三學期">第三學期</option>
+                    </select>
+                </div>
+                
+                <!-- 年份選擇 -->
+                <div class="col-lg-3 col-md-6">
+                    <label class="form-label lang-text" data-en="Academic Year" data-zh="學年">學年</label>
+                    <select class="form-select" id="yearDropdown" onchange="handleYearSelect(this.value)">
+                        <option value="" selected class="lang-text" data-en="Select Year" data-zh="選擇年份">選擇年份</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button class="btn main-btn" onclick="searchPapers()">
+                    <i class="bi bi-search me-2"></i>
+                    <span class="lang-text" data-en="Browse Old Papers" data-zh="瀏覽檔案">瀏覽檔案</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 結果區域 -->
+        <div id="results-section" class="results-section" style="display: none;">
+            <div class="results-header">
+                <span id="results-title">搜尋結果</span>
+            </div>
+            <div class="results-body" id="results-body">
+                <!-- 結果將動態顯示在這裡 -->
+            </div>
+            <div class="text-center p-3 border-top">
+                <button class="btn secondary-btn" onclick="resetSearch()">
+                    <i class="bi bi-arrow-left me-2"></i>
+                    <span class="lang-text" data-en="New Search" data-zh="新搜尋">新搜尋</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 上傳區域 -->
+        <div class="upload-section" id="upload">
+            <h2 class="section-title lang-text" data-en="Upload Your Old Paper" data-zh="上傳您的舊試卷">上傳您的舊試卷</h2>
+            
+            <div class="privacy-tip">
+                <h5 class="lang-text" data-en="Privacy Protection Guarantee" data-zh="隱私保護承諾">隱私保護承諾</h5>
+                <p class="lang-text" data-en="All uploaded papers will be treated with strict confidentiality. We will redact personal information (names, student IDs, etc.) to protect uploaders' identities. All papers undergo administrator review before publication to ensure compliance with privacy policies." data-zh="所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。">
+                    所有上傳的試卷將嚴格保密處理。我們會對個人信息（姓名、學號等）進行打碼處理，以保護上傳者身份。所有試卷在發布前都會經過管理員審核，確保符合隱私政策。
+                </p>
+            </div>
+            
+            <p class="lang-text" data-en="Anyone can upload their own old exam paper using Google Form. Uploaded content will be reviewed by the administrator before being added to the public system." data-zh="任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。">
+                任何人都可以使用 Google 表單上傳自己的舊考卷。所有上傳內容由管理員審核後才會顯示在本系統。
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-item">
+                    <i class="bi bi-shield-check feature-icon"></i>
+                    <div class="feature-title lang-text" data-en="Confidential Processing" data-zh="保密處理">保密處理</div>
+                    <div class="feature-desc lang-text" data-en="All personal information will be redacted to protect your privacy." data-zh="所有個人信息將被遮蓋，保護您的隱私。">
+                        所有個人信息將被遮蓋，保護您的隱私。
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="bi bi-eye-slash feature-icon"></i>
+                    <div class="feature-title lang-text" data-en="Anonymous Upload" data-zh="匿名上傳">匿名上傳</div>
+                    <div class="feature-desc lang-text" data-en="Uploader information is not displayed publicly. Only administrators can see uploader details." data-zh="上傳者信息不會公開顯示，僅管理員可見。">
+                        上傳者信息不會公開顯示，僅管理員可見。
+                    </div>
+                </div>
+                
+                <div class="feature-item">
+                    <i class="bi bi-clipboard-check feature-icon"></i>
+                    <div class="feature-title lang-text" data-en="Administrator Review" data-zh="管理員審核">管理員審核</div>
+                    <div class="feature-desc lang-text" data-en="All papers are reviewed to ensure quality and privacy compliance before publishing." data-zh="所有試卷都會經過審核，確保質量和隱私合規後才會發布。">
+                        所有試卷都會經過審核，確保質量和隱私合規後才會發布。
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="https://forms.gle/zDivK2A37ZDgNQDj8" target="_blank" rel="noopener noreferrer" class="btn main-btn">
+                    <i class="bi bi-google me-2"></i>
+                    <span class="lang-text" data-en="Upload via Google Form" data-zh="透過 Google 表單上傳">透過 Google 表單上傳</span>
+                </a>
+            </div>
+        </div>
     </div>
-
+    
+    <!-- 頁腳 -->
+    <div class="footer">
+        <div class="container">
+            <span class="lang-text" data-en="Paper Repository System" data-zh="試卷題庫系統">
+                試卷題庫系統
+            </span>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
         // ====================== Firebase 配置 ======================
         const firebaseConfig = {
@@ -887,32 +758,27 @@
         };
         
         // ====================== Firebase 初始化 ======================
+        let auth;
         try {
             firebase.initializeApp(firebaseConfig);
             console.log("Firebase 初始化成功");
+            auth = firebase.auth();
         } catch (error) {
             console.error("Firebase 初始化失敗:", error);
-            showNotification("系統初始化失敗，請檢查 Firebase 配置", "error");
         }
         
-        // 獲取 Firebase Auth 實例
-        const auth = firebase.auth();
+        // ====================== 用戶認證功能 ======================
         
-        // ====================== 工具函數 ======================
-        
-        // 顯示通知
+        // 顯示通知函數
         function showNotification(message, type = 'info') {
-            // 如果已經有通知，先移除
             const existingNotification = document.querySelector('.notification');
             if (existingNotification) {
                 existingNotification.remove();
             }
             
-            // 創建通知元素
             const notification = document.createElement('div');
             notification.className = `notification ${type}`;
             
-            // 根據類型選擇圖標
             let icon = 'info-circle';
             if (type === 'success') icon = 'check-circle';
             if (type === 'error') icon = 'exclamation-circle';
@@ -925,757 +791,562 @@
                 <button class="notification-close">&times;</button>
             `;
             
-            // 添加到頁面
+            // 使用動態添加 Font Awesome
+            if (!document.querySelector('#font-awesome-cdn')) {
+                const link = document.createElement('link');
+                link.id = 'font-awesome-cdn';
+                link.rel = 'stylesheet';
+                link.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+                document.head.appendChild(link);
+            }
+            
             document.body.appendChild(notification);
             
-            // 添加關閉功能
             const closeBtn = notification.querySelector('.notification-close');
             closeBtn.addEventListener('click', () => {
                 notification.style.animation = 'slideOut 0.3s ease-out';
                 setTimeout(() => notification.remove(), 300);
             });
             
-            // 自動消失
-            const duration = type === 'success' ? 5000 : type === 'error' ? 6000 : 3000;
             setTimeout(() => {
                 if (notification.parentNode) {
                     notification.style.animation = 'slideOut 0.3s ease-out';
                     setTimeout(() => notification.remove(), 300);
                 }
-            }, duration);
+            }, type === 'success' ? 5000 : type === 'error' ? 6000 : 3000);
         }
         
-        // 顯示/隱藏載入指示器
-        function showLoading(buttonId) {
-            const button = document.getElementById(buttonId);
-            if (!button) return;
+        // 檢查用戶登入狀態
+        function checkAuthStatus() {
+            const user = auth ? auth.currentUser : null;
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
             
-            const textSpan = button.querySelector('span:first-child');
-            const loadingSpan = button.querySelector('.loading');
+            const userInfo = document.getElementById('user-info');
+            const loginBtn = document.getElementById('login-btn');
             
-            if (textSpan && loadingSpan) {
-                textSpan.style.display = 'none';
-                loadingSpan.style.display = 'inline-block';
-                button.disabled = true;
-            }
-        }
-        
-        function hideLoading(buttonId) {
-            const button = document.getElementById(buttonId);
-            if (!button) return;
-            
-            const textSpan = button.querySelector('span:first-child');
-            const loadingSpan = button.querySelector('.loading');
-            
-            if (textSpan && loadingSpan) {
-                textSpan.style.display = 'inline';
-                loadingSpan.style.display = 'none';
-                button.disabled = false;
-            }
-        }
-        
-        // 驗證電子郵件格式
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-        
-        // 驗證密碼強度
-        function checkPasswordStrength(password) {
-            let strength = 0;
-            
-            if (password.length >= 8) strength++;
-            if (/[a-z]/.test(password)) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
-            
-            return strength;
-        }
-        
-        // 更新密碼強度指示器
-        function updatePasswordStrength(password) {
-            const strength = checkPasswordStrength(password);
-            const strengthFill = document.getElementById('password-strength-fill');
-            const strengthText = document.getElementById('password-strength-text');
-            
-            let color, width, text;
-            
-            if (password.length === 0) {
-                color = '#eee';
-                width = '0%';
-                text = '密碼強度：無';
-            } else if (strength <= 2) {
-                color = '#e74c3c';
-                width = '33%';
-                text = '密碼強度：弱';
-            } else if (strength <= 4) {
-                color = '#f39c12';
-                width = '66%';
-                text = '密碼強度：中等';
-            } else {
-                color = '#2ecc71';
-                width = '100%';
-                text = '密碼強度：強';
-            }
-            
-            strengthFill.style.backgroundColor = color;
-            strengthFill.style.width = width;
-            strengthText.textContent = text;
-            strengthText.style.color = color;
-            
-            return strength;
-        }
-        
-        // 檢查是否已驗證電子郵件並跳轉
-        function checkEmailVerificationAndRedirect(user) {
-            if (user && user.emailVerified) {
-                // 電子郵件已驗證，跳轉到主頁面
-                showNotification('電子郵件驗證成功！正在導向到主頁面...', 'success');
+            if (user && isLoggedIn === 'true') {
+                // 用戶已登入，顯示用戶資訊
+                userInfo.style.display = 'flex';
+                loginBtn.style.display = 'none';
                 
-                // 儲存登入狀態到 localStorage
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
+                // 顯示用戶名稱
+                const userName = document.getElementById('user-name');
+                const userAvatar = document.getElementById('user-avatar');
                 
-                // 延遲 2 秒後跳轉，讓用戶看到成功訊息
-                setTimeout(() => {
-                    window.location.href = 'index.html'; // 跳轉到主頁面
-                }, 2000);
+                if (user.displayName) {
+                    userName.textContent = user.displayName;
+                    userAvatar.textContent = user.displayName.charAt(0).toUpperCase();
+                } else if (user.email) {
+                    userName.textContent = user.email.split('@')[0];
+                    userAvatar.textContent = user.email.charAt(0).toUpperCase();
+                }
+                
                 return true;
-            }
-            return false;
-        }
-        
-        // ====================== Firebase 功能 ======================
-        
-        // Google 登入
-        async function signInWithGoogle() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                provider.addScope('profile');
-                provider.addScope('email');
+            } else {
+                // 用戶未登入，顯示登入按鈕
+                userInfo.style.display = 'none';
+                loginBtn.style.display = 'block';
                 
-                showLoading('google-login-btn');
+                // 清除 localStorage 中的登入狀態
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
                 
-                const result = await auth.signInWithPopup(provider);
-                
-                // 登入成功
-                const user = result.user;
-                showNotification(`歡迎 ${user.displayName}！Google 登入成功`, 'success');
-                
-                // 儲存登入狀態並跳轉
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName);
-                
-                // 登入成功後導向到主頁面
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('Google 登入錯誤:', error);
-                
-                let errorMessage = 'Google 登入失敗';
-                if (error.code === 'auth/popup-blocked') {
-                    errorMessage = '彈出視窗被瀏覽器阻止，請允許彈出視窗或使用其他登入方式';
-                } else if (error.code === 'auth/popup-closed-by-user') {
-                    errorMessage = '登入視窗被關閉';
-                }
-                
-                showNotification(errorMessage, 'error');
-            } finally {
-                hideLoading('google-login-btn');
+                return false;
             }
         }
         
-        // 傳統郵件/密碼登入
-        async function signInWithEmail(email, password) {
-            try {
-                showLoading('login-submit');
-                
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // 檢查郵件是否已驗證
-                if (!user.emailVerified) {
-                    showNotification('請先驗證您的電子郵件地址', 'error');
-                    await sendEmailVerification(user);
-                    // 顯示驗證頁面
-                    showVerificationPage(user.email);
-                    return;
-                }
-                
-                showNotification('登入成功！', 'success');
-                
-                // 儲存登入狀態並跳轉
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || email.split('@')[0]);
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('登入錯誤:', error);
-                
-                let errorMessage = '登入失敗';
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = '此電子郵件地址尚未註冊';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorMessage = '密碼錯誤';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '電子郵件地址格式不正確';
-                }
-                
-                showNotification(errorMessage, 'error');
-            } finally {
-                hideLoading('login-submit');
-            }
-        }
-        
-        // 傳統郵件/密碼註冊
-        async function signUpWithEmail(name, email, password) {
-            try {
-                showLoading('register-submit');
-                
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                const user = userCredential.user;
-                
-                // 更新用戶顯示名稱
-                await user.updateProfile({
-                    displayName: name
+        // 登出函數
+        function logout() {
+            if (auth) {
+                auth.signOut().then(() => {
+                    // 清除本地儲存
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userEmail');
+                    localStorage.removeItem('userName');
+                    
+                    showNotification('已成功登出', 'success');
+                    
+                    // 重新載入頁面
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }).catch((error) => {
+                    console.error('登出錯誤:', error);
+                    showNotification('登出時發生錯誤，請重試', 'error');
                 });
-                
-                // 發送驗證郵件
-                await sendEmailVerification(user);
-                
-                // 顯示郵件驗證頁面
-                showVerificationPage(email);
-                
-                showNotification('註冊成功！請檢查您的電子郵件以完成驗證', 'success');
-                
-            } catch (error) {
-                console.error('註冊錯誤:', error);
-                
-                let errorMessage = '註冊失敗';
-                if (error.code === 'auth/email-already-in-use') {
-                    errorMessage = '此電子郵件地址已被使用';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '電子郵件地址格式不正確';
-                } else if (error.code === 'auth/weak-password') {
-                    errorMessage = '密碼強度不足，請使用更複雜的密碼';
-                }
-                
-                showNotification(errorMessage, 'error');
-            } finally {
-                hideLoading('register-submit');
             }
         }
         
-        // 發送驗證郵件
-        async function sendEmailVerification(user) {
-            try {
-                await user.sendEmailVerification({
-                    url: window.location.href, // 指定回調URL
-                    handleCodeInApp: true
-                });
-                console.log('驗證郵件已發送');
-            } catch (error) {
-                console.error('發送驗證郵件錯誤:', error);
-                showNotification('發送驗證郵件失敗，請稍後再試', 'error');
+        // 前往登入頁面
+        function goToLogin() {
+            window.location.href = 'login.html';
+        }
+        
+        // 監聽認證狀態變化
+        if (auth) {
+            auth.onAuthStateChanged((user) => {
+                console.log('認證狀態變化:', user ? '已登入' : '未登入');
+                checkAuthStatus();
+            });
+        }
+        
+        // ====================== 試卷題庫系統功能 ======================
+        
+        // 當前選擇狀態
+        let currentGrade = null;
+        let currentSubject = null;
+        let currentTerm = null;
+        let currentYear = null;
+        let currentLang = 'zh'; // 預設為繁體中文
+        
+        // 試卷資料庫 (對應 Google Drive 連結) - 已包含所有試卷連結
+        const paperDatabase = {
+            // 初中一年級 (jh1) 數學試卷
+            'jh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/119LgpjXMQwTa6NlacKMd8nNxXKQGNHiJ?usp=sharing',
+                title_zh: '初中一年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics First Semester 2024 Papers'
+            },
+            'jh1_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1eQDuvqVBzPZJzW3tF8iEMOLDEwNNebE_?usp=sharing',
+                title_zh: '初中一年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics Second Semester 2024 Papers'
+            },
+            'jh1_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1X-I3xVTGpEMA6iMND7OnXEfm2yeYlzP2?usp=sharing',
+                title_zh: '初中一年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 1 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 初中二年級 (jh2) 數學試卷
+            'jh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1O_tUo65LEPQ_rIPZC4MPw-0vjUM_l_Xa?usp=sharing',
+                title_zh: '初中二年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics First Semester 2024 Papers'
+            },
+            'jh2_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1rt961rIXMdb6AxiEqsJ4RLWeZ7bPNBha?usp=sharing',
+                title_zh: '初中二年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics Second Semester 2024 Papers'
+            },
+            'jh2_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1j2rMv-wBEvKSGxt7huuFOow6sERq-sJk?usp=sharing',
+                title_zh: '初中二年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 2 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 初中三年級 (jh3) 數學試卷
+            'jh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1utr4P0eRwPpCxm-NEbFnVhh7XxCXBU3Q?usp=sharing',
+                title_zh: '初中三年級數學第一學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics First Semester 2024 Papers'
+            },
+            'jh3_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1qEPzSCWV2Vq4iRwvWAFGpBTBt_pt_FS3?usp=sharing',
+                title_zh: '初中三年級數學第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics Second Semester 2024 Papers'
+            },
+            'jh3_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1I7FG1XL05WUXzaTZWtG-IUHuAk46Zk3d?usp=sharing',
+                title_zh: '初中三年級數學第三學期 2024 年試卷',
+                title_en: 'Junior High 3 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 高中一年級 (sh1) 數學試卷
+            'sh1_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1afHqd0lR_rAPP97cba9RzHYceAgHTMWD?usp=sharing',
+                title_zh: '高中一年級數學第一學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics First Semester 2024 Papers'
+            },
+            'sh1_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1AhVY9_-nKXjhVwj23c03gl3QjaPsute8?usp=sharing',
+                title_zh: '高中一年級數學第二學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics Second Semester 2024 Papers'
+            },
+            'sh1_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1I7FG1XL05WUXzaTZWtG-IUHuAk46Zk3d?usp=sharing',
+                title_zh: '高中一年級數學第三學期 2024 年試卷',
+                title_en: 'Senior High 1 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 高中二年級數學試卷 2024
+            'sh2_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1Cym8AqCpdRMq3wWy3rRcrn22jFm5c0GR',
+                title_zh: '高中二年級數學第一學期 2024 年試卷',
+                title_en: 'Senior High 2 Mathematics First Semester 2024 Papers'
+            },
+            'sh2_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1pwBHlYitjGsEz0r679RuBhMoA7iW8wLr',
+                title_zh: '高中二年級數學第二學期 2024 年試卷',
+                title_en: 'Senior High 2 Mathematics Second Semester 2024 Papers'
+            },
+            'sh2_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1nfoLcaxeLOcf2cJxm1xzft9_bM6JSG0S',
+                title_zh: '高中二年級數學第三學期 2024 年試卷',
+                title_en: 'Senior High 2 Mathematics Third Semester 2024 Papers'
+            },
+
+            // 高中三年級數學試卷 2024
+            'sh3_math_t1_2024': {
+                url: 'https://drive.google.com/drive/folders/1-q5zZWH3PlomfUWCq1GYFI2QLAGvjYEa',
+                title_zh: '高中三年級數學第一學期 2024 年試卷',
+                title_en: 'Senior High 3 Mathematics First Semester 2024 Papers'
+            },
+            'sh3_math_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1QMriifuwRHGGqdclOxziNiEAPHZ0jcQu',
+                title_zh: '高中三年級數學第二學期 2024 年試卷',
+                title_en: 'Senior High 3 Mathematics Second Semester 2024 Papers'
+            },
+            'sh3_math_t3_2024': {
+                url: 'https://drive.google.com/drive/folders/1TZKEbf_4gs5Milk9GN2sgfa_qZUw_DaA',
+                title_zh: '高中三年級數學第三學期 2024 年試卷',
+                title_en: 'Senior High 3 Mathematics Third Semester 2024 Papers'
+            },
+            
+            // 初中三年級物理第二學期 2024 年試卷
+            'jh3_phy_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1S37cPGSsGSUHzuZWliLul4iSdH2eIZcy?usp=drive_link',
+                title_zh: '初中三年級物理第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Physics Second Semester 2024 Papers'
+            },
+            
+            // 初中三年級化學第二學期 2024 年試卷
+            'jh3_chem_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1k9PunF2j4oCGSsldXqAbDIbl0FBOh9s-?usp=sharing',
+                title_zh: '初中三年級化學第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Chemistry Second Semester 2024 Papers'
+            },
+            
+            // 初中三年級中文第二學期 2024 年試卷
+            'jh3_chi_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1k1fEOHJzHh_FKSs8A_7KGIPeUweYWH-G?usp=sharing',
+                title_zh: '初中三年級中文第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Chinese Second Semester 2024 Papers'
+            },
+            
+            // 初中三年級生物第二學期 2024 年試卷
+            'jh3_bio_t2_2024': {
+                url: 'https://drive.google.com/drive/folders/1pw744a-f-jRRYdB5KOKWvY9oxdmwWiTM?usp=sharing',
+                title_zh: '初中三年級生物第二學期 2024 年試卷',
+                title_en: 'Junior High 3 Biology Second Semester 2024 Papers'
+            }
+        };
+        
+        // ====================== 初始化 ======================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 檢查登入狀態
+            checkAuthStatus();
+            
+            // 初始化語言為繁體中文
+            changeLang('zh');
+            
+            // 啟用所有下拉選單
+            document.getElementById('subjectDropdown').disabled = false;
+            document.getElementById('termDropdown').disabled = false;
+            document.getElementById('yearDropdown').disabled = false;
+            
+            updateSteps();
+        });
+        
+        // 處理年級選擇
+        function handleGradeSelect(value) {
+            currentGrade = value;
+            updateSteps();
+        }
+        
+        // 處理科目選擇
+        function handleSubjectSelect(value) {
+            currentSubject = value;
+            updateSteps();
+        }
+        
+        // 處理學期選擇
+        function handleTermSelect(value) {
+            currentTerm = value;
+            updateSteps();
+        }
+        
+        // 處理年份選擇
+        function handleYearSelect(value) {
+            currentYear = value;
+            updateSteps();
+        }
+        
+        // 更新步驟指示器
+        function updateSteps() {
+            // 重置所有步驟
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            
+            // 激活相應步驟
+            if (currentGrade) {
+                document.getElementById('step1').classList.add('active');
+            }
+            if (currentSubject) {
+                document.getElementById('step2').classList.add('active');
+            }
+            if (currentTerm) {
+                document.getElementById('step3').classList.add('active');
+            }
+            if (currentYear) {
+                document.getElementById('step4').classList.add('active');
             }
         }
         
-        // 重置密碼（忘記密碼）- 這裡修復了未註冊郵件的錯誤處理
-        async function resetPassword(email) {
-            try {
-                showLoading('forgot-submit');
-                
-                // 先檢查郵件是否有效
-                if (!isValidEmail(email)) {
-                    document.getElementById('forgot-email-error-text').textContent = '請輸入有效的電子郵件地址';
-                    document.getElementById('forgot-email-error').style.display = 'flex';
-                    document.getElementById('forgot-email').classList.add('error');
-                    hideLoading('forgot-submit');
-                    return;
-                }
-                
-                // Firebase 會檢查郵件是否存在，如果不存在會拋出 auth/user-not-found 錯誤
-                await auth.sendPasswordResetEmail(email);
-                
-                showNotification(`密碼重置連結已發送至: ${email}`, 'success');
-                
-                // 3秒後返回登入頁面
-                setTimeout(() => {
-                    switchToForm('login');
-                }, 3000);
-                
-            } catch (error) {
-                console.error('重置密碼錯誤:', error);
-                
-                let errorMessage = '發送重置密碼郵件失敗';
-                if (error.code === 'auth/user-not-found') {
-                    errorMessage = '此電子郵件地址尚未註冊';
-                } else if (error.code === 'auth/invalid-email') {
-                    errorMessage = '電子郵件地址格式不正確';
-                }
-                
-                // 顯示錯誤訊息在表單上
-                document.getElementById('forgot-email-error-text').textContent = errorMessage;
-                document.getElementById('forgot-email-error').style.display = 'flex';
-                document.getElementById('forgot-email').classList.add('error');
-                
-            } finally {
-                hideLoading('forgot-submit');
-            }
-        }
-        
-        // 重新發送驗證郵件
-        async function resendVerificationEmail() {
-            const user = auth.currentUser;
-            if (!user) {
-                showNotification('請先登入', 'error');
+        // 搜尋試卷
+        function searchPapers() {
+            // 檢查是否所有欄位都已填寫
+            if (!currentGrade || !currentSubject || !currentTerm || !currentYear) {
+                const alertMsg = currentLang === 'zh' ? 
+                    '請填寫所有搜尋條件！' : 
+                    'Please fill in all search criteria!';
+                showNotification(alertMsg, 'error');
                 return;
             }
             
-            try {
-                showLoading('resend-verification-btn');
-                await user.sendEmailVerification();
-                showNotification('驗證郵件已重新發送，請檢查您的收件匣', 'success');
-            } catch (error) {
-                console.error('重新發送驗證郵件錯誤:', error);
-                showNotification('重新發送驗證郵件失敗，請稍後再試', 'error');
-            } finally {
-                hideLoading('resend-verification-btn');
-            }
+            // 顯示結果區域
+            showResults();
         }
         
-        // 重新載入用戶資訊以獲取最新的 emailVerified 狀態
-        async function reloadUser() {
-            const user = auth.currentUser;
-            if (user) {
-                try {
-                    await user.reload();
-                    return user;
-                } catch (error) {
-                    console.error('重新載入用戶資訊失敗:', error);
-                    return user;
-                }
-            }
-            return null;
-        }
-        
-        // ====================== 表單處理 ======================
-        
-        // 表單驗證函數
-        function validateLoginForm() {
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            let isValid = true;
+        // 顯示結果
+        function showResults() {
+            // 更新結果標題
+            updateResultsTitle();
             
-            // 清除之前的錯誤
-            document.getElementById('login-email-error').style.display = 'none';
-            document.getElementById('login-email').classList.remove('error');
-            document.getElementById('login-password-error').style.display = 'none';
-            document.getElementById('login-password').classList.remove('error');
+            // 加載結果
+            loadResults();
             
-            // 驗證電子郵件
-            if (!email || !isValidEmail(email)) {
-                document.getElementById('login-email-error').style.display = 'flex';
-                document.getElementById('login-email').classList.add('error');
-                isValid = false;
-            }
+            // 顯示結果區域
+            document.getElementById('results-section').style.display = 'block';
             
-            // 驗證密碼
-            if (!password) {
-                document.getElementById('login-password-error').style.display = 'flex';
-                document.getElementById('login-password').classList.add('error');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-        
-        function validateRegisterForm() {
-            const name = document.getElementById('register-name').value;
-            const email = document.getElementById('register-email').value;
-            const password = document.getElementById('register-password').value;
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-            let isValid = true;
-            
-            // 清除之前的錯誤
-            document.getElementById('register-name-error').style.display = 'none';
-            document.getElementById('register-name').classList.remove('error');
-            document.getElementById('register-email-error').style.display = 'none';
-            document.getElementById('register-email').classList.remove('error');
-            document.getElementById('register-password-error').style.display = 'none';
-            document.getElementById('register-password').classList.remove('error');
-            document.getElementById('register-confirm-password-error').style.display = 'none';
-            document.getElementById('register-confirm-password').classList.remove('error');
-            
-            // 驗證姓名
-            if (!name) {
-                document.getElementById('register-name-error').style.display = 'flex';
-                document.getElementById('register-name').classList.add('error');
-                isValid = false;
-            }
-            
-            // 驗證電子郵件
-            if (!email || !isValidEmail(email)) {
-                document.getElementById('register-email-error').style.display = 'flex';
-                document.getElementById('register-email').classList.add('error');
-                isValid = false;
-            }
-            
-            // 驗證密碼
-            const strength = checkPasswordStrength(password);
-            if (password.length < 8 || strength < 3) {
-                document.getElementById('register-password-error').style.display = 'flex';
-                document.getElementById('register-password').classList.add('error');
-                isValid = false;
-                
-                if (password.length < 8) {
-                    document.getElementById('register-password-error-text').textContent = '密碼必須至少8個字符';
-                } else {
-                    document.getElementById('register-password-error-text').textContent = '密碼強度太弱，請包含大寫字母、小寫字母和數字';
-                }
-            }
-            
-            // 驗證確認密碼
-            if (!confirmPassword || password !== confirmPassword) {
-                document.getElementById('register-confirm-password-error').style.display = 'flex';
-                document.getElementById('register-confirm-password').classList.add('error');
-                isValid = false;
-            }
-            
-            // 更新註冊按鈕狀態
-            const registerSubmitBtn = document.getElementById('register-submit');
-            if (isValid) {
-                registerSubmitBtn.disabled = false;
-            } else {
-                registerSubmitBtn.disabled = true;
-            }
-            
-            return isValid;
-        }
-        
-        function validateForgotPasswordForm() {
-            const email = document.getElementById('forgot-email').value;
-            let isValid = true;
-            
-            // 清除之前的錯誤訊息
-            document.getElementById('forgot-email-error').style.display = 'none';
-            document.getElementById('forgot-email').classList.remove('error');
-            
-            // 驗證電子郵件
-            if (!email || !isValidEmail(email)) {
-                document.getElementById('forgot-email-error-text').textContent = '請輸入有效的電子郵件地址';
-                document.getElementById('forgot-email-error').style.display = 'flex';
-                document.getElementById('forgot-email').classList.add('error');
-                isValid = false;
-            }
-            
-            return isValid;
-        }
-        
-        // 顯示郵件驗證頁面
-        function showVerificationPage(email) {
-            // 更新顯示的電子郵件地址
-            document.getElementById('verification-email-display').textContent = email;
-            
-            // 切換到驗證頁面
-            document.querySelectorAll('.form').forEach(form => {
-                form.classList.remove('active');
+            // 滾動到結果區域
+            document.getElementById('results-section').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'start'
             });
-            document.getElementById('verification-form').classList.add('active');
         }
         
-        // 表單切換功能
-        document.getElementById('login-toggle').addEventListener('click', function() {
-            switchToForm('login');
-        });
-        
-        document.getElementById('register-toggle').addEventListener('click', function() {
-            switchToForm('register');
-        });
-        
-        document.getElementById('forgot-password-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            switchToForm('forgot-password');
-        });
-        
-        document.getElementById('back-to-login-link').addEventListener('click', function(e) {
-            e.preventDefault();
-            switchToForm('login');
-        });
-        
-        function switchToForm(formName) {
-            // 更新切換按鈕狀態
-            document.getElementById('login-toggle').classList.remove('active');
-            document.getElementById('register-toggle').classList.remove('active');
+        // 更新結果標題
+        function updateResultsTitle() {
+            const gradeNames = {
+                jh1: { en: "Junior High 1", zh: "初中一年級" },
+                jh2: { en: "Junior High 2", zh: "初中二年級" },
+                jh3: { en: "Junior High 3", zh: "初中三年級" },
+                sh1: { en: "Senior High 1", zh: "高中一年級" },
+                sh2: { en: "Senior High 2", zh: "高中二年級" },
+                sh3: { en: "Senior High 3", zh: "高中三年級" },
+                other: { en: "Advanced Level", zh: "進階學段" }
+            };
             
-            if (formName === 'login') {
-                document.getElementById('login-toggle').classList.add('active');
-            } else if (formName === 'register') {
-                document.getElementById('register-toggle').classList.add('active');
-            }
+            const subjectNames = {
+                chi: { en: "Chinese Literature", zh: "中文文學" },
+                eng: { en: "English Language", zh: "英語語言" },
+                math: { en: "Mathematics", zh: "數學" },
+                phy: { en: "Physics", zh: "物理" },
+                chem: { en: "Chemistry", zh: "化學" },
+                bio: { en: "Biology", zh: "生物" }
+            };
             
-            // 隱藏所有表單
-            document.querySelectorAll('.form').forEach(form => {
-                form.classList.remove('active');
-            });
+            const termNames = {
+                t1: { en: "First Semester", zh: "第一學期" },
+                t2: { en: "Second Semester", zh: "第二學期" },
+                t3: { en: "Third Semester", zh: "第三學期" }
+            };
             
-            // 顯示目標表單
-            if (formName === 'verification') {
-                document.getElementById('verification-form').classList.add('active');
-            } else {
-                document.getElementById(`${formName}-form`).classList.add('active');
-            }
+            const gradeText = gradeNames[currentGrade] ? gradeNames[currentGrade][currentLang] : currentGrade;
+            const subjectText = subjectNames[currentSubject] ? subjectNames[currentSubject][currentLang] : currentSubject;
+            const termText = termNames[currentTerm] ? termNames[currentTerm][currentLang] : currentTerm;
             
-            // 清除所有錯誤訊息
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.style.display = 'none';
-            });
+            const title = currentLang === 'zh' ? 
+                `搜尋結果：${gradeText} / ${subjectText} / ${termText} / ${currentYear}` :
+                `Search Results: ${gradeText} / ${subjectText} / ${termText} / ${currentYear}`;
             
-            document.querySelectorAll('.form-control').forEach(input => {
-                input.classList.remove('error');
-            });
-            
-            // 清除表單內容（除了忘記密碼）
-            if (formName !== 'forgot-password') {
-                document.getElementById('forgot-email').value = '';
-            }
+            document.getElementById('results-title').textContent = title;
         }
         
-        // ====================== 事件監聽器 ======================
-        
-        // Google 登入按鈕
-        document.getElementById('google-login-btn').addEventListener('click', signInWithGoogle);
-        document.getElementById('google-register-btn').addEventListener('click', signInWithGoogle);
-        
-        // 傳統登入表單
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+        // 加載結果
+        function loadResults() {
+            const resultsBody = document.getElementById('results-body');
             
-            if (validateLoginForm()) {
-                const email = document.getElementById('login-email').value;
-                const password = document.getElementById('login-password').value;
-                
-                await signInWithEmail(email, password);
-            }
-        });
-        
-        // 傳統註冊表單
-        document.getElementById('register-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+            // 清空現有內容
+            resultsBody.innerHTML = '';
             
-            if (validateRegisterForm()) {
-                const name = document.getElementById('register-name').value;
-                const email = document.getElementById('register-email').value;
-                const password = document.getElementById('register-password').value;
-                
-                await signUpWithEmail(name, email, password);
-            }
-        });
-        
-        // 忘記密碼表單
-        document.getElementById('forgot-password-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
+            // 創建資料庫索引鍵
+            const dbKey = `${currentGrade}_${currentSubject}_${currentTerm}_${currentYear}`;
             
-            if (validateForgotPasswordForm()) {
-                const email = document.getElementById('forgot-email').value;
-                
-                await resetPassword(email);
-            }
-        });
-        
-        // 重新發送驗證郵件
-        document.getElementById('resend-verification-btn').addEventListener('click', async function() {
-            await resendVerificationEmail();
-        });
-        
-        // 驗證完成按鈕
-        document.getElementById('verification-complete-btn').addEventListener('click', async function() {
-            const user = await reloadUser(); // 重新載入用戶資訊
-            
-            if (user && user.emailVerified) {
-                showNotification('電子郵件驗證成功！歡迎使用試卷題庫系統', 'success');
-                
-                // 儲存登入狀態並跳轉
-                localStorage.setItem('isLoggedIn', 'true');
-                localStorage.setItem('userEmail', user.email);
-                localStorage.setItem('userName', user.displayName || user.email.split('@')[0]);
-                
-                setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+            // 檢查資料庫中是否有對應的資料
+            if (paperDatabase[dbKey]) {
+                // 有資料，顯示結果
+                displayPaperResult(paperDatabase[dbKey]);
             } else {
-                showNotification('請先點擊驗證郵件中的連結完成驗證', 'error');
-            }
-        });
-        
-        // 實時驗證
-        document.getElementById('login-email').addEventListener('input', function() {
-            if (this.value) {
-                const isValid = isValidEmail(this.value);
-                if (!isValid) {
-                    document.getElementById('login-email-error').style.display = 'flex';
-                    this.classList.add('error');
-                } else {
-                    document.getElementById('login-email-error').style.display = 'none';
-                    this.classList.remove('error');
-                }
-            } else {
-                document.getElementById('login-email-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-        });
-        
-        document.getElementById('login-password').addEventListener('input', function() {
-            if (!this.value) {
-                document.getElementById('login-password-error').style.display = 'flex';
-                this.classList.add('error');
-            } else {
-                document.getElementById('login-password-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-        });
-        
-        document.getElementById('register-name').addEventListener('input', function() {
-            if (!this.value) {
-                document.getElementById('register-name-error').style.display = 'flex';
-                this.classList.add('error');
-            } else {
-                document.getElementById('register-name-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-            validateRegisterForm();
-        });
-        
-        document.getElementById('register-email').addEventListener('input', function() {
-            if (this.value) {
-                const isValid = isValidEmail(this.value);
-                if (!isValid) {
-                    document.getElementById('register-email-error').style.display = 'flex';
-                    this.classList.add('error');
-                } else {
-                    document.getElementById('register-email-error').style.display = 'none';
-                    this.classList.remove('error');
-                }
-            } else {
-                document.getElementById('register-email-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-            validateRegisterForm();
-        });
-        
-        document.getElementById('register-password').addEventListener('input', function() {
-            const strength = updatePasswordStrength(this.value);
-            
-            if (this.value.length < 8 || strength < 3) {
-                document.getElementById('register-password-error').style.display = 'flex';
-                this.classList.add('error');
-                
-                if (this.value.length < 8) {
-                    document.getElementById('register-password-error-text').textContent = '密碼必須至少8個字符';
-                } else {
-                    document.getElementById('register-password-error-text').textContent = '密碼強度太弱，請包含大寫字母、小寫字母和數字';
-                }
-            } else {
-                document.getElementById('register-password-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-            
-            // 同時檢查確認密碼
-            const confirmPassword = document.getElementById('register-confirm-password').value;
-            if (confirmPassword && this.value !== confirmPassword) {
-                document.getElementById('register-confirm-password-error').style.display = 'flex';
-                document.getElementById('register-confirm-password').classList.add('error');
-            } else if (confirmPassword) {
-                document.getElementById('register-confirm-password-error').style.display = 'none';
-                document.getElementById('register-confirm-password').classList.remove('error');
-            }
-            
-            validateRegisterForm();
-        });
-        
-        document.getElementById('register-confirm-password').addEventListener('input', function() {
-            const password = document.getElementById('register-password').value;
-            
-            if (this.value && password !== this.value) {
-                document.getElementById('register-confirm-password-error').style.display = 'flex';
-                this.classList.add('error');
-            } else {
-                document.getElementById('register-confirm-password-error').style.display = 'none';
-                this.classList.remove('error');
-            }
-            
-            validateRegisterForm();
-        });
-        
-        document.getElementById('forgot-email').addEventListener('input', function() {
-            // 清除錯誤訊息
-            document.getElementById('forgot-email-error').style.display = 'none';
-            this.classList.remove('error');
-        });
-        
-        // 監聽 Firebase 認證狀態變化
-        auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                console.log('用戶已登入:', user.email);
-                
-                // 檢查 URL 參數是否包含驗證回調
-                const urlParams = new URLSearchParams(window.location.search);
-                const mode = urlParams.get('mode');
-                const oobCode = urlParams.get('oobCode');
-                
-                if (mode === 'verifyEmail' && oobCode) {
-                    // 處理驗證郵件回調
-                    try {
-                        showNotification('正在驗證您的電子郵件...', 'info');
-                        await auth.applyActionCode(oobCode);
-                        
-                        // 重新載入用戶以獲取最新的 emailVerified 狀態
-                        await user.reload();
-                        
-                        // 檢查是否已驗證並跳轉
-                        checkEmailVerificationAndRedirect(user);
-                    } catch (error) {
-                        console.error('驗證郵件錯誤:', error);
-                        showNotification('驗證失敗，請檢查驗證連結是否有效', 'error');
-                    }
-                } else {
-                    // 正常登入，檢查是否已驗證
-                    if (checkEmailVerificationAndRedirect(user)) {
-                        return;
-                    }
-                }
-            } else {
-                console.log('用戶已登出');
-            }
-        });
-        
-        // 檢查是否已有登入狀態
-        function checkExistingLogin() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            const user = auth.currentUser;
-            
-            if (isLoggedIn === 'true' && user) {
-                // 如果已有登入狀態，直接跳轉到主頁面
-                window.location.href = 'index.html';
+                // 無資料，顯示提示訊息
+                displayNoResults(dbKey);
             }
         }
         
-        // 初始驗證
-        validateRegisterForm();
+        // 顯示試卷結果
+        function displayPaperResult(paperData) {
+            const resultsBody = document.getElementById('results-body');
+            
+            // 創建結果項目容器
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+            
+            // 創建標題
+            const titleDiv = document.createElement('div');
+            titleDiv.className = 'result-title';
+            titleDiv.textContent = currentLang === 'zh' ? 
+                paperData.title_zh : paperData.title_en;
+            
+            // 創建元數據
+            const metaDiv = document.createElement('div');
+            metaDiv.className = 'result-meta';
+            const metaText = currentLang === 'zh' ? 
+                '已找到對應的試卷檔案，點擊下方連結查看：' : 
+                'Matching paper found. Click the link below to view:';
+            metaDiv.textContent = metaText;
+            
+            // 創建連結
+            const linkDiv = document.createElement('div');
+            const linkElement = document.createElement('a');
+            linkElement.href = paperData.url;
+            linkElement.target = '_blank';
+            linkElement.rel = 'noopener noreferrer';
+            linkElement.className = 'result-link';
+            
+            // 創建連結圖標
+            const linkIcon = document.createElement('i');
+            linkIcon.className = 'bi bi-google-drive';
+            
+            // 創建連結文字
+            const linkText = document.createElement('span');
+            linkText.textContent = currentLang === 'zh' ? 
+                '前往 Google Drive 查看試卷' : 
+                'View Papers on Google Drive';
+            
+            // 組合連結
+            linkElement.appendChild(linkIcon);
+            linkElement.appendChild(linkText);
+            linkDiv.appendChild(linkElement);
+            
+            // 組合所有元素
+            resultItem.appendChild(titleDiv);
+            resultItem.appendChild(metaDiv);
+            resultItem.appendChild(linkDiv);
+            
+            // 添加到結果區域
+            resultsBody.appendChild(resultItem);
+        }
         
-        // 頁面載入完成後
-        window.addEventListener('load', () => {
-            console.log('頁面載入完成');
-            checkExistingLogin();
+        // 顯示無結果訊息
+        function displayNoResults(dbKey) {
+            const resultsBody = document.getElementById('results-body');
+            
+            // 創建無結果訊息
+            const noResultsDiv = document.createElement('div');
+            noResultsDiv.className = 'no-results';
+            
+            // 圖標
+            const icon = document.createElement('i');
+            icon.className = 'bi bi-file-earmark-text';
+            icon.style.fontSize = '3rem';
+            icon.style.color = '#dee2e6';
+            icon.style.marginBottom = '1rem';
+            
+            // 主訊息
+            const message = document.createElement('p');
+            const messageText = currentLang === 'zh' ? 
+                '暫無符合條件的試卷檔案。成為首個貢獻者！' : 
+                'No matching archival documents found. Be the inaugural contributor!';
+            message.textContent = messageText;
+            message.style.marginBottom = '1rem';
+            
+            // 提示訊息
+            const hintMessage = document.createElement('p');
+            hintMessage.style.fontSize = '0.9rem';
+            hintMessage.style.color = '#6c757d';
+            const hintText = currentLang === 'zh' ? 
+                '如果您有此試卷，歡迎透過下方上傳功能分享給大家！' : 
+                'If you have this paper, please share it through the upload section below!';
+            hintMessage.textContent = hintText;
+            
+            noResultsDiv.appendChild(icon);
+            noResultsDiv.appendChild(message);
+            noResultsDiv.appendChild(hintMessage);
+            resultsBody.appendChild(noResultsDiv);
+        }
+        
+        // 重置搜尋
+        function resetSearch() {
+            // 重置選擇
+            currentGrade = null;
+            currentSubject = null;
+            currentTerm = null;
+            currentYear = null;
+            
+            // 重置下拉選單
+            document.getElementById('gradeDropdown').selectedIndex = 0;
+            document.getElementById('subjectDropdown').selectedIndex = 0;
+            document.getElementById('termDropdown').selectedIndex = 0;
+            document.getElementById('yearDropdown').selectedIndex = 0;
+            
+            // 隱藏結果區域
+            document.getElementById('results-section').style.display = 'none';
+            
+            // 重置步驟
+            updateSteps();
+            
+            // 滾動回頂部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // 語言切換
+        function changeLang(lang) {
+            currentLang = lang;
+            
+            // 更新html lang屬性
+            document.getElementById('main-html').setAttribute('lang', lang === 'zh' ? 'zh-Hant' : 'en');
+            
+            // 更新所有語言文字
+            document.querySelectorAll('.lang-text').forEach(element => {
+                const text = element.getAttribute(`data-${lang}`);
+                if (text) {
+                    element.textContent = text;
+                }
+            });
+            
+            // 更新語言按鈕狀態
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll(`#lang-btn-${lang}`).forEach(btn => {
+                btn.classList.add('active');
+            });
+            
+            // 如果有顯示結果，重新載入結果
+            if (currentGrade && currentSubject && currentTerm && currentYear) {
+                updateResultsTitle();
+                loadResults();
+            }
+        }
+        
+        // 滾動平滑處理
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
         });
     </script>
 </body>
